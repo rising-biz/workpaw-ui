@@ -1,0 +1,28 @@
+src/index.ts
+  ab8f0d558b44ebf5 11-16
+src/hooks/useFetch.ts
+  ab8f0d558b44ebf5 1-44
+.gitignore
+  ab8f0d558b44ebf5 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.3",
+  "base_commit_sha": "bb1a557c29f34b69ed000383a66907250a902c22",
+  "prompts": {
+    "ab8f0d558b44ebf5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2ecce8ad-7db1-4d3b-ab01-f4b3462dc04d",
+        "model": "qwen3.7-max"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 52,
+      "total_deletions": 0,
+      "accepted_lines": 52,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/36221e531fa8c19c15af7f59a0b95a1ad394127224c73826222ceb0a9b41ce56"
+    }
+  }
+}
