@@ -1,0 +1,28 @@
+src/api/client.ts
+  ab8f0d558b44ebf5 1-77
+src/index.ts
+  ab8f0d558b44ebf5 6-10
+src/api/controlPlane.ts
+  ab8f0d558b44ebf5 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.3",
+  "base_commit_sha": "a07544b4ddc67fc5f0e66dfdf14ac7c00a2d58cb",
+  "prompts": {
+    "ab8f0d558b44ebf5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2ecce8ad-7db1-4d3b-ab01-f4b3462dc04d",
+        "model": "qwen3.7-max"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 123,
+      "total_deletions": 0,
+      "accepted_lines": 123,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/0b58b61da5f2e35763671f991ba4e382b035a91da95dc18d7c7a3e30eb54f22a"
+    }
+  }
+}
