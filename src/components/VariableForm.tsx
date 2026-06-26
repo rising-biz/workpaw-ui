@@ -9,7 +9,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import type { ScenarioVariable } from "@/types/scenario";
+import type { ScenarioVariable } from "../types/scenario";
 
 export interface VariableFormProps {
   variables: ScenarioVariable[];
