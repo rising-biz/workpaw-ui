@@ -1,0 +1,52 @@
+src/components/VariableForm.tsx
+  11b811c3887d66b5 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.3",
+  "base_commit_sha": "e4e84d60bd79cfda5d6640077b1b602f97e65bb7",
+  "prompts": {
+    "0b8a8e90e3a17151": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c93c628-6b0d-491f-8485-3f1a29fdefc1",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 2,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/eea4ee83fbae493cda93637e4271a9f1799d1ec5a8dfa196df65cf88a31171be"
+    },
+    "11b811c3887d66b5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8f2b281b-d5d4-46a2-985f-d50bec6efe9d",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 5,
+      "accepted_lines": 1,
+      "overriden_lines": 4,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/b493501458f4b47f874eb2fd391831d5fb9106c0099e29f16e7c838a0ba302ee"
+    },
+    "ab8f0d558b44ebf5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2ecce8ad-7db1-4d3b-ab01-f4b3462dc04d",
+        "model": "qwen3.7-max"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 1,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/8e4a7bdbba55afbbdf21d2f877738ce8780e151edf77891985e4d544a2d6730f"
+    }
+  }
+}
