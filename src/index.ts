@@ -3,6 +3,7 @@ export * from "./types/auth";
 export * from "./types/chat";
 export * from "./types/session";
 export * from "./types/agent";
+export * from "./types/scenario";
 
 // API Client
 export { ApiClient } from "./api/client";
