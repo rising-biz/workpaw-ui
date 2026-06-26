@@ -1,14 +1,14 @@
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { cn } from "../lib/utils";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+} from "./ui/select";
 import type { ScenarioVariable } from "../types/scenario";
 
 export interface VariableFormProps {
