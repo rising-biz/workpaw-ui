@@ -1,0 +1,70 @@
+src/components/VariableForm.tsx
+  11b811c3887d66b5 1-91
+src/index.ts
+  11b811c3887d66b5 18-20
+src/components/VariableForm.test.tsx
+  11b811c3887d66b5 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.3",
+  "base_commit_sha": "743d5a4925486bf3dc41a7ebcd82f11b1607e84c",
+  "prompts": {
+    "0b8a8e90e3a17151": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c93c628-6b0d-491f-8485-3f1a29fdefc1",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 574,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/eea4ee83fbae493cda93637e4271a9f1799d1ec5a8dfa196df65cf88a31171be"
+    },
+    "11b811c3887d66b5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8f2b281b-d5d4-46a2-985f-d50bec6efe9d",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 128,
+      "total_deletions": 2,
+      "accepted_lines": 126,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/397652944714da9c2472b521df17d8054777c252e3cf95be75b16004cb741fba"
+    },
+    "ab8f0d558b44ebf5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2ecce8ad-7db1-4d3b-ab01-f4b3462dc04d",
+        "model": "qwen3.7-max"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 1,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/8e4a7bdbba55afbbdf21d2f877738ce8780e151edf77891985e4d544a2d6730f"
+    },
+    "e4fc48fea4e83c67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1be66ad4-5c4c-469a-8673-15d92039f8f7",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 13,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/db99eb6a0034d7698a78d77999b958151984630654af7a95214b837f9686241f"
+    }
+  }
+}
