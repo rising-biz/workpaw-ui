@@ -1,0 +1,28 @@
+src/index.ts
+  11b811c3887d66b5 21-25
+src/components/VariableForm.test.tsx
+  11b811c3887d66b5 11,25-49,58-107
+src/components/VariableForm.tsx
+  11b811c3887d66b5 22-33,43-44,48,103-143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.3",
+  "base_commit_sha": "adde93958d9ca036eb81de5fc18f029e5d410648",
+  "prompts": {
+    "11b811c3887d66b5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8f2b281b-d5d4-46a2-985f-d50bec6efe9d",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 163,
+      "total_deletions": 30,
+      "accepted_lines": 138,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/3a397f8b0c18457518c1e0921f9732c518fb177c6e22eaafba0450a4eb9495a7"
+    }
+  }
+}
