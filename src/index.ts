@@ -18,4 +18,8 @@ export { useFetch } from "./hooks/useFetch";
 export { cn } from "./lib/utils";
 
 // Components
-export { VariableForm, type VariableFormProps } from "./components/VariableForm";
+export {
+  VariableForm,
+  type VariableFormProps,
+  type VariableFormStatic,
+} from "./components/VariableForm";
