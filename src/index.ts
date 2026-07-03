@@ -4,6 +4,8 @@ export * from "./types/chat";
 export * from "./types/session";
 export * from "./types/agent";
 export * from "./types/scenario";
+export * from "./types/me";
+export * from "./types/security";
 export * from "./theme";
 
 // API Client
