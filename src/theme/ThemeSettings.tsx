@@ -1,78 +1,20 @@
 import { useTheme } from "./ThemeProvider";
-import {
-  useThemeVariantStore,
-  type ThemeVariant,
-} from "./variantStore";
+import { useThemeVariantStore } from "./variantStore";
+import { THEME_VARIANTS } from "./variants";
 import { cn } from "../lib/utils";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 
 /**
  * ThemeSettings — shared appearance picker (self-contained: no workpaw-ui
  * component imports, so it survives source-consumption without the `@/` path
- * collision). Renders 3 theme-variant cards + a light/dark/system mode control
- * + a live swatch strip of the active tokens.
+ * collision). Renders theme-variant cards (from the variants.ts registry) + a
+ * light/dark/system mode control + a live swatch strip of the active tokens.
  *
- * v1 is Chinese-only (PRODUCT.md); strings are hardcoded here. When i18n is
- * wired across all 3 apps, swap to a prop/t() interface.
+ * v1 is Chinese-only (PRODUCT.md); strings live in the registry, not here. When
+ * i18n is wired across all 3 apps, swap the registry's name/desc to a t() key.
  *
  * Mode (light/dark/system) → next-themes `useTheme`. Variant → `useThemeVariantStore`.
  */
-
-type VariantDef = {
-  id: ThemeVariant;
-  name: string;
-  desc: string;
-  /** Light-mode preview swatches (oklch) so the card previews the variant
-   * regardless of the currently active theme. */
-  preview: { bg: string; fg: string; primary: string; border: string };
-};
-
-const VARIANTS: VariantDef[] = [
-  {
-    id: "standard",
-    name: "标准",
-    desc: "默认精密控制台,纯白底与墨黑字,克制中性。",
-    preview: {
-      bg: "oklch(1 0 0)",
-      fg: "oklch(0.145 0 0)",
-      primary: "oklch(0.715 0.183 49.77)",
-      border: "oklch(0.922 0 0)",
-    },
-  },
-  {
-    id: "ember",
-    name: "暮光琥珀",
-    desc: "暖焦糖炭底,橙色融成余烬,深夜暖灯沉浸感。",
-    preview: {
-      bg: "oklch(0.22 0.038 55)",
-      fg: "oklch(0.94 0.022 65)",
-      primary: "oklch(0.715 0.183 49.77)",
-      border: "oklch(0.95 0.022 60 / 14%)",
-    },
-  },
-  {
-    id: "abyss",
-    name: "墨青深渊",
-    desc: "深墨青冷底,橙成信号灯,午夜深海精密感。",
-    preview: {
-      bg: "oklch(0.19 0.042 238)",
-      fg: "oklch(0.94 0.016 225)",
-      primary: "oklch(0.715 0.183 49.77)",
-      border: "oklch(0.95 0.016 225 / 14%)",
-    },
-  },
-  {
-    id: "verdant",
-    name: "翡翠",
-    desc: "深翡翠绿底,橙成秋叶点睛,沉静深林不疲劳。",
-    preview: {
-      bg: "oklch(0.20 0.042 158)",
-      fg: "oklch(0.94 0.020 155)",
-      primary: "oklch(0.715 0.183 49.77)",
-      border: "oklch(0.95 0.020 155 / 14%)",
-    },
-  },
-];
 
 const MODES = [
   { id: "light" as const, name: "浅色", Icon: Sun },
@@ -105,10 +47,10 @@ export function ThemeSettings() {
       <section className="space-y-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">主题</h2>
-          <p className="text-xs text-muted-foreground">选择界面配色,每套主题有独立的色温与氛围。橙色品牌色贯穿所有主题。</p>
+          <p className="text-xs text-muted-foreground">选择界面底色风格。品牌绿主色贯穿所有主题,每套主题有独立的底色与氛围。</p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {VARIANTS.map((v) => {
+        <div className="grid gap-3 sm:grid-cols-2">
+          {THEME_VARIANTS.map((v) => {
             const selected = variant === v.id;
             return (
               <button

@@ -1,0 +1,750 @@
+# WorkPaw DAG 工作流编排引擎 — 技术实现方案
+
+> **核心问题**: QwenPaw v1.1.12 后端不支持 DAG 工作流编排，如何在不修改 QwenPaw 的前提下实现？
+> **答案**: 在 WorkPaw Control Plane（Go）中构建独立的 DAG 工作流引擎，将 QwenPaw Pod 作为 "Agent 执行器" 来调用。
+
+---
+
+## 一、架构决策：为什么在 Control Plane 实现
+
+### 1.1 约束条件
+
+| 约束 | 说明 |
+|------|------|
+| QwenPaw v1.1.12 锁定 | 不可修改源码，不可升级 |
+| QwenPaw 无 DAG 概念 | Mission Mode 的 "pipeline" 只是 prompt 级别的文字指导，不是代码 |
+| QwenPaw 执行模型 | 请求-响应（turn-based），单次 `stream_query` = 一个 Agent 完成一次对话轮次 |
+| WorkPaw 已有 DB | PostgreSQL + GORM，天然的持久化引擎 |
+
+### 1.2 架构定位
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  WorkPaw Desktop (Tauri)                │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │          DAG 可视化编排画布 (React Flow)           │  │
+│  └──────────────────┬───────────────────────────────┘  │
+└─────────────────────┼───────────────────────────────────┘
+                      │ REST API
+┌─────────────────────▼───────────────────────────────────┐
+│           WorkPaw Control Plane (Go)                     │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │              DAG Workflow Engine                  │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │  │
+│  │  │ TopoSort  │  │ Executor │  │ NodeResolver  │  │  │
+│  │  └──────────┘  └────┬─────┘  └───────────────┘  │  │
+│  │                      │                            │  │
+│  │  ┌───────────────────▼────────────────────────┐  │  │
+│  │  │         PodConfigClient (HTTP)              │  │  │
+│  │  │   POST /api/console/chat/task  (submit)     │  │  │
+│  │  │   GET  /api/console/chat/task/{id} (poll)   │  │  │
+│  │  └───────────────────┬────────────────────────┘  │  │
+│  └──────────────────────┼───────────────────────────┘  │
+│                         │ HTTP (via Ingress)            │
+│  ┌──────────────────────┼───────────────────────────┐  │
+│  │   GORM Models        │                           │  │
+│  │   WorkflowTemplate   │  PostgreSQL                │  │
+│  │   WorkflowRun        │                           │  │
+│  │   NodeRun            │                           │  │
+│  └──────────────────────┴───────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                       │
+                       │ HTTP (Pod Ingress)
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│            QwenPaw Pod (每个用户一个)                     │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │  POST /api/console/chat/task  ← 提交 Agent 任务   │  │
+│  │  GET  /api/console/chat/task/{id} ← 轮询结果      │  │
+│  │                                                   │  │
+│  │  Agent 执行 → SSE events → BackgroundTask.result  │  │
+│  └──────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**核心原则**: 
+- **Control Plane 是编排大脑** — 负责 DAG 解析、依赖管理、节点调度、状态持久化
+- **QwenPaw Pod 是执行器** — 每个节点 = 一条 Agent 消息，Pod 处理完返回结果
+- **两者通过 HTTP API 通信** — 用 QwenPaw 已有的 Background Task API，无需新增 QwenPaw 端点
+
+---
+
+## 二、QwenPaw 可用的 API（无需修改）
+
+### 2.1 Background Task API（核心调用接口）
+
+这是实现的关键。QwenPaw v1.1.12 已内置此 API：
+
+**提交任务**:
+```http
+POST /api/console/chat/task
+Content-Type: application/json
+
+{
+  "input": [
+    {
+      "id": "msg-1",
+      "type": "message",
+      "role": "user",
+      "content": [
+        {"type": "text", "text": "请分析以下数据并生成报告: ..."}
+      ]
+    }
+  ],
+  "session_id": "wf-run-xxx-node-yyy",
+  "user_id": "user-123",
+  "channel": "console"
+}
+```
+
+**响应**:
+```json
+{"task_id": "task-a1b2c3d4e5f6"}
+```
+
+**轮询结果**:
+```http
+GET /api/console/chat/task/{task_id}
+```
+
+**响应（运行中）**:
+```json
+{"status": "running", "started_at": 1720000000.0}
+```
+
+**响应（完成）**:
+```json
+{
+  "status": "finished",
+  "result": {
+    "status": "completed",
+    "session_id": "...",
+    "output": [
+      {
+        "id": "msg-2",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {"type": "text", "text": "分析完成。报告如下: ..."}
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 2.2 其他可用 API
+
+| API | 用途 |
+|-----|------|
+| `GET /api/agents` | 列出 Pod 上的 Agent 列表 |
+| `POST /api/agents` | 动态创建临时 Agent（如为 workflow 节点创建专用 Agent） |
+| `PUT /api/agents/{id}` | 更新 Agent 配置（如为某节点切换模型） |
+| `DELETE /api/agents/{id}` | 清理临时 Agent |
+
+---
+
+## 三、数据模型设计
+
+### 3.1 GORM Models（新增到 `internal/model/model.go`）
+
+```go
+// WorkflowTemplate 工作流模板（管理员创建，可复用）
+type WorkflowTemplate struct {
+    ID          uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+    Name        string     `gorm:"not null"`
+    Description string
+    Category    string     // "data-processing", "reporting", "custom"
+    Nodes       []WorkflowNode `gorm:"foreignKey:TemplateID;constraint:OnDelete:CASCADE"`
+    Edges       []WorkflowEdge `gorm:"foreignKey:TemplateID;constraint:OnDelete:CASCADE"`
+    IsPublished bool       `gorm:"default:false"`
+    Version     int        `gorm:"default:1"`
+    CreatedBy   string     // admin user ID
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
+    DeletedAt   gorm.DeletedAt `gorm:"index"`
+}
+
+// WorkflowNode 工作流节点定义
+type WorkflowNode struct {
+    ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+    TemplateID  uuid.UUID `gorm:"not null;index"`
+    NodeKey     string    `gorm:"not null"` // 模板内唯一标识，如 "fetch_data", "analyze"
+    Name        string    `gorm:"not null"` // 显示名称
+    Type        string    `gorm:"not null"` // "agent_task" | "approval" | "condition" | "delay" | "webhook"
+    
+    // Agent 任务节点配置
+    AgentName   string    // 使用的 Agent 名称（为空则用用户默认 Agent）
+    ModelPreset string    // 可选：为此节点指定模型
+    Prompt      string    `gorm:"type:text"` // 节点 Prompt 模板，支持 {{.上游节点.nodeKey.output}} 变量
+    InputMapping string   `gorm:"type:jsonb"` // 输入映射: {"data": "{{.fetch_data.output}}"}
+    
+    // 审批节点配置
+    Approvers   []string  `gorm:"type:jsonb"` // 审批人列表
+    ApprovalMsg string    // 审批提示语
+    
+    // 条件节点配置
+    Condition   string    // 条件表达式，如 "{{.analyze.output}} contains 'error'"
+    
+    // 通用配置
+    TimeoutSeconds  int   `gorm:"default:600"` // 节点超时（秒）
+    RetryCount      int   `gorm:"default:0"`
+    RetryDelaySec   int   `gorm:"default:60"`
+    PositionX       float64 // 画布坐标 X
+    PositionY       float64 // 画布坐标 Y
+    
+    CreatedAt time.Time
+    UpdatedAt time.Time
+}
+
+// WorkflowEdge 工作流边（连接节点）
+type WorkflowEdge struct {
+    ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+    TemplateID   uuid.UUID `gorm:"not null;index"`
+    SourceNodeKey string   `gorm:"not null"` // 源节点 key
+    TargetNodeKey string   `gorm:"not null"` // 目标节点 key
+    Condition    string    // 可选：边条件（用于条件分支）
+    Label        string    // 显示标签
+    
+    CreatedAt time.Time
+    UpdatedAt time.Time
+}
+
+// WorkflowRun 工作流运行实例
+type WorkflowRun struct {
+    ID            uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+    TemplateID    uuid.UUID  `gorm:"not null;index"`
+    TemplateName  string     // 快照：模板名称
+    UserID        string     `gorm:"not null;index"` // 执行的用户
+    Status        string     `gorm:"default:'pending'"` // pending|running|paused|completed|failed|cancelled
+    TriggerType   string     // "manual" | "cron" | "webhook"
+    
+    // 上下文变量（所有节点共享）
+    ContextVars   string     `gorm:"type:jsonb"` // 全局变量 {"key": "value"}
+    
+    StartedAt     *time.Time
+    CompletedAt   *time.Time
+    ErrorMessage  string
+    
+    NodeRuns      []NodeRun  `gorm:"foreignKey:RunID;constraint:OnDelete:CASCADE"`
+    
+    CreatedAt     time.Time
+    UpdatedAt     time.Time
+}
+
+// NodeRun 节点运行状态
+type NodeRun struct {
+    ID          uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
+    RunID       uuid.UUID  `gorm:"not null;index"`
+    NodeKey     string     `gorm:"not null"`
+    NodeName    string
+    NodeType    string
+    
+    Status      string     `gorm:"default:'pending'"` // pending|ready|running|waiting_approval|completed|failed|skipped
+    
+    // Agent 任务结果
+    InputPrompt  string    `gorm:"type:text"` // 渲染后的实际 prompt
+    TaskID       string    // QwenPaw Background Task ID
+    Output       string    `gorm:"type:text"` // Agent 输出文本
+    OutputJSON   string    `gorm:"type:jsonb"` // 结构化输出（如有）
+    
+    // 审批结果
+    ApprovedBy   string
+    ApprovedAt   *time.Time
+    ApprovalComment string
+    
+    // 时间统计
+    StartedAt    *time.Time
+    CompletedAt  *time.Time
+    DurationMs   int64
+    RetryCount   int
+    ErrorMessage string
+    
+    // Token 统计
+    TokenUsage   string    `gorm:"type:jsonb"` // {"input": 1200, "output": 800}
+    
+    CreatedAt    time.Time
+    UpdatedAt    time.Time
+}
+```
+
+### 3.2 数据库迁移
+
+```go
+// 在 model.Migrate() 中添加:
+func Migrate(db *gorm.DB) error {
+    // ... existing models ...
+    return db.AutoMigrate(
+        &WorkflowTemplate{},
+        &WorkflowNode{},
+        &WorkflowEdge{},
+        &WorkflowRun{},
+        &NodeRun{},
+    )
+}
+```
+
+---
+
+## 四、执行引擎设计
+
+### 4.1 核心算法：拓扑排序 + 并行执行
+
+```go
+// internal/service/workflow_engine.go
+
+type WorkflowEngine struct {
+    db             *gorm.DB
+    connector      InstanceConnector  // 复用已有的接口
+    httpClient     *http.Client
+    audit          *AuditService
+    semaphore      chan struct{}      // 并发控制
+}
+
+// Execute 执行工作流
+func (e *WorkflowEngine) Execute(ctx context.Context, run *WorkflowRun, nodes []WorkflowNode, edges []WorkflowEdge) error {
+    // 1. 构建邻接表和入度表
+    inDegree := make(map[string]int)
+    downstream := make(map[string][]string) // nodeKey -> [下游 nodeKeys]
+    
+    for _, edge := range edges {
+        inDegree[edge.TargetNodeKey]++
+        downstream[edge.SourceNodeKey] = append(downstream[edge.SourceNodeKey], edge.TargetNodeKey)
+    }
+    
+    // 2. 找到所有入度为 0 的节点（起始节点）
+    ready := make(chan string, len(nodes))
+    for _, node := range nodes {
+        if inDegree[node.NodeKey] == 0 {
+            ready <- node.NodeKey
+        }
+    }
+    
+    // 3. 并行执行
+    var wg sync.WaitGroup
+    completed := make(map[string]*NodeRun)
+    var mu sync.Mutex
+    errCh := make(chan error, 1)
+    
+    for {
+        select {
+        case nodeKey := <-ready:
+            wg.Add(1)
+            go func(key string) {
+                defer wg.Done()
+                
+                // 获取此节点
+                node := findNode(nodes, key)
+                
+                // 收集上游输出
+                inputs := e.collectUpstreamOutputs(edges, completed, key)
+                
+                // 执行节点
+                nodeRun, err := e.executeNode(ctx, run, node, inputs)
+                
+                mu.Lock()
+                completed[key] = nodeRun
+                mu.Unlock()
+                
+                if err != nil {
+                    select {
+                    case errCh <- err:
+                    default:
+                    }
+                    return
+                }
+                
+                // 释放下游节点
+                for _, ds := range downstream[key] {
+                    mu.Lock()
+                    inDegree[ds]--
+                    if inDegree[ds] == 0 {
+                        ready <- ds
+                    }
+                    mu.Unlock()
+                }
+            }(nodeKey)
+            
+        case err := <-errCh:
+            // 某节点失败 → 标记 run 为 failed
+            e.failRun(run, err)
+            return err
+            
+        default:
+            // 没有 ready 节点了，检查是否全部完成
+            wg.Wait()
+            if len(completed) == len(nodes) {
+                e.completeRun(run)
+                return nil
+            }
+            // 还有节点在运行，继续等待
+            time.Sleep(100 * time.Millisecond)
+        }
+    }
+}
+```
+
+### 4.2 节点执行器
+
+```go
+// executeNode 执行单个节点
+func (e *WorkflowEngine) executeNode(ctx context.Context, run *WorkflowRun, node WorkflowNode, upstreamOutputs map[string]string) (*NodeRun, error) {
+    nodeRun := &NodeRun{
+        RunID:    run.ID,
+        NodeKey:  node.NodeKey,
+        NodeName: node.Name,
+        NodeType: node.Type,
+        Status:   "running",
+    }
+    
+    switch node.Type {
+    case "agent_task":
+        return e.executeAgentNode(ctx, run, node, upstreamOutputs, nodeRun)
+    case "approval":
+        return e.executeApprovalNode(ctx, run, node, upstreamOutputs, nodeRun)
+    case "condition":
+        return e.executeConditionNode(ctx, run, node, upstreamOutputs, nodeRun)
+    case "delay":
+        return e.executeDelayNode(ctx, run, node, nodeRun)
+    case "webhook":
+        return e.executeWebhookNode(ctx, run, node, upstreamOutputs, nodeRun)
+    default:
+        return nil, fmt.Errorf("unknown node type: %s", node.Type)
+    }
+}
+
+// executeAgentNode 执行 Agent 任务节点
+func (e *WorkflowEngine) executeAgentNode(ctx context.Context, run *WorkflowRun, node WorkflowNode, upstreamOutputs map[string]string, nodeRun *NodeRun) (*NodeRun, error) {
+    // 1. 渲染 Prompt 模板
+    prompt := e.renderTemplate(node.Prompt, upstreamOutputs, run.ContextVars)
+    nodeRun.InputPrompt = prompt
+    
+    // 2. 构建 AgentRequest
+    reqBody := map[string]interface{}{
+        "input": []map[string]interface{}{
+            {
+                "id":      uuid.New().String(),
+                "type":    "message",
+                "role":    "user",
+                "content": []map[string]string{{"type": "text", "text": prompt}},
+            },
+        },
+        "session_id": fmt.Sprintf("wf-%s-%s", run.ID.String()[:8], node.NodeKey),
+        "user_id":    run.UserID,
+        "channel":    "console",
+    }
+    
+    // 3. 获取 Pod 连接信息
+    ingressURL, apiToken, err := e.connector.ConnectInfo(ctx, run.UserID)
+    if err != nil {
+        return nil, fmt.Errorf("connect: %w", err)
+    }
+    
+    // 4. 提交 Background Task
+    taskID, err := e.submitTask(ctx, ingressURL, apiToken, reqBody)
+    if err != nil {
+        return nil, fmt.Errorf("submit: %w", err)
+    }
+    nodeRun.TaskID = taskID
+    nodeRun.StartedAt = timePtr(time.Now())
+    
+    // 5. 轮询直到完成
+    timeout := time.Duration(node.TimeoutSeconds) * time.Second
+    result, err := e.pollTask(ctx, ingressURL, apiToken, taskID, timeout)
+    if err != nil {
+        nodeRun.Status = "failed"
+        nodeRun.ErrorMessage = err.Error()
+        return nodeRun, err
+    }
+    
+    // 6. 提取输出
+    output := extractTextOutput(result)
+    nodeRun.Output = output
+    nodeRun.Status = "completed"
+    nodeRun.CompletedAt = timePtr(time.Now())
+    nodeRun.DurationMs = nodeRun.CompletedAt.Sub(*nodeRun.StartedAt).Milliseconds()
+    
+    // 7. 尝试提取结构化输出（JSON）
+    if jsonOutput := tryExtractJSON(output); jsonOutput != "" {
+        nodeRun.OutputJSON = jsonOutput
+    }
+    
+    return nodeRun, nil
+}
+```
+
+### 4.3 Prompt 模板渲染
+
+```go
+// renderTemplate 渲染模板变量
+// 支持: {{.nodeKey.output}} {{.nodeKey.outputJSON.path.to.field}} {{.var.name}}
+func (e *WorkflowEngine) renderTemplate(tmpl string, upstreamOutputs map[string]string, contextVarsJSON string) string {
+    data := map[string]interface{}{}
+    
+    // 注入上游节点输出
+    for key, output := range upstreamOutputs {
+        data[key] = map[string]interface{}{
+            "output":     output,
+            "outputJSON": parseJSONIfPossible(output),
+        }
+    }
+    
+    // 注入全局变量
+    if contextVarsJSON != "" {
+        var vars map[string]interface{}
+        json.Unmarshal([]byte(contextVarsJSON), &vars)
+        data["var"] = vars
+    }
+    
+    // 使用 Go template 渲染
+    t := template.Must(template.New("prompt").Parse(tmpl))
+    var buf bytes.Buffer
+    t.Execute(&buf, data)
+    return buf.String()
+}
+```
+
+### 4.4 审批节点
+
+```go
+func (e *WorkflowEngine) executeApprovalNode(ctx context.Context, run *WorkflowRun, node WorkflowNode, upstreamOutputs map[string]string, nodeRun *NodeRun) (*NodeRun, error) {
+    nodeRun.Status = "waiting_approval"
+    
+    // 持久化审批请求
+    // 审批人通过 Desktop 或 Web 端查看审批列表并 Approve/Deny
+    // 审批完成 → 通过 API 回调 → 继续执行后续节点
+    
+    // 审批状态通过 WebSocket/SSE 推送给 Desktop
+    return nodeRun, nil
+}
+```
+
+---
+
+## 五、API 设计
+
+### 5.1 Admin API（模板管理）
+
+```
+POST   /api/admin/workflows              # 创建工作流模板
+GET    /api/admin/workflows              # 列出所有模板
+GET    /api/admin/workflows/:id          # 获取模板详情（含 nodes/edges）
+PUT    /api/admin/workflows/:id          # 更新模板
+DELETE /api/admin/workflows/:id          # 删除模板
+POST   /api/admin/workflows/:id/publish  # 发布模板
+POST   /api/admin/workflows/:id/clone    # 克隆模板
+```
+
+### 5.2 User API（运行管理）
+
+```
+POST   /api/workflows/:id/run            # 手动执行工作流
+GET    /api/workflows/runs               # 我的运行列表
+GET    /api/workflows/runs/:id           # 运行详情（含各节点状态）
+POST   /api/workflows/runs/:id/pause     # 暂停（等待审批时）
+POST   /api/workflows/runs/:id/resume    # 恢复
+POST   /api/workflows/runs/:id/cancel    # 取消
+GET    /api/workflows/runs/:id/nodes     # 所有节点运行状态
+```
+
+### 5.3 Approval API
+
+```
+POST   /api/workflows/approvals/:nodeRunId/approve  # 审批通过
+POST   /api/workflows/approvals/:nodeRunId/deny     # 审批拒绝
+GET    /api/workflows/approvals/pending              # 待审批列表
+```
+
+### 5.4 定时触发
+
+复用已有的 TemplateBinding + DesiredConfig 模式：
+
+```go
+// WorkflowSchedule 绑定工作流到定时触发
+type WorkflowSchedule struct {
+    ID           uuid.UUID
+    TemplateID   uuid.UUID
+    UserID       string     // "all" 或具体用户
+    CronExpr     string     // "0 9 * * 1-5" 工作日早 9 点
+    Enabled      bool
+}
+```
+
+---
+
+## 六、Desktop 前端集成
+
+### 6.1 画布组件选型：React Flow
+
+```tsx
+// React Flow (reactflow.dev) — 最成熟的 React DAG 可视化库
+// 特点：拖拽节点、连线、缩放、小地图、自定义节点渲染
+
+import ReactFlow, { Node, Edge, Controls, MiniMap, Background } from 'reactflow';
+
+function WorkflowCanvas({ template, onSave }) {
+  const [nodes, setNodes] = useState(templateToReactFlowNodes(template));
+  const [edges, setEdges] = useState(templateToReactFlowEdges(template));
+  
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      nodeTypes={{
+        agentTask: AgentTaskNode,    // 自定义 Agent 任务节点
+        approval: ApprovalNode,     // 自定义审批节点
+        condition: ConditionNode,   // 自定义条件节点
+        delay: DelayNode,           // 自定义延迟节点
+      }}
+    >
+      <Controls />
+      <MiniMap />
+      <Background />
+    </ReactFlow>
+  );
+}
+```
+
+### 6.2 节点类型
+
+| 节点 | 图标 | 颜色 | 配置表单 |
+|------|------|------|---------|
+| Agent Task | 🤖 | Supabase green | Prompt 模板、Agent 选择、模型选择、超时 |
+| Approval | 👤 | Amber | 审批人、提示语、超时升级 |
+| Condition | 🔀 | Blue | 条件表达式（基于上游输出） |
+| Delay | ⏱ | Gray | 延迟秒数 |
+| Webhook | 🔗 | Purple | URL、Headers、Body 模板 |
+
+### 6.3 实时执行视图
+
+执行中的 Workflow 展示：
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Workflow: 日报自动生成              Status: 运行中   │
+│                                                      │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐       │
+│  │ 数据采集  │───→│ 数据分析  │───→│ 报告生成  │       │
+│  │ ✅ 完成   │    │ ⏳ 运行中 │    │ ⏸ 等待   │       │
+│  │ 2.3s     │    │ 45%      │    │          │       │
+│  └──────────┘    └──────────┘    └──────────┘       │
+│                         │                            │
+│                    ┌────▼─────────┐                  │
+│                    │   人工审核     │                  │
+│                    │ ⏸ 等待审批   │                  │
+│                    └──────────────┘                  │
+│                                                      │
+│  实时日志:                                            │
+│  [09:00:01] 数据采集开始                              │
+│  [09:00:03] 数据采集完成，共获取 1,234 条记录          │
+│  [09:00:04] 数据分析开始                              │
+│  [09:00:22] 正在处理第 500/1234 条...                 │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## 七、与现有系统的集成点
+
+### 7.1 复用现有组件
+
+| 现有组件 | 复用方式 |
+|---------|---------|
+| `InstanceConnector` | 获取 Pod ingress URL + token |
+| `PodConfigClient` | 扩展 `SubmitTask()` / `PollTask()` 方法 |
+| `AuditService` | 记录 Workflow 执行审计日志 |
+| `ConfigReconciler` | 定时触发的 Workflow 可用相同 reconcile 模式 |
+| `TemplateBinding` + `DesiredConfig` | WorkflowSchedule 复用此模式 |
+
+### 7.2 扩展现有组件
+
+```go
+// pod_config.go — 新增方法
+func (c *PodConfigClient) SubmitTask(ctx context.Context, req interface{}) (string, error) {
+    // POST /api/console/chat/task
+    // 返回 task_id
+}
+
+func (c *PodConfigClient) PollTask(ctx context.Context, taskID string) (*TaskResult, error) {
+    // GET /api/console/chat/task/{task_id}
+    // 返回 status + result
+}
+```
+
+### 7.3 config.yaml 新增
+
+```yaml
+workflow:
+  enabled: true
+  max_concurrent_nodes: 10     # 全局最大并发节点数
+  max_concurrent_per_user: 3   # 每用户最大并发数
+  default_timeout_seconds: 600 # 节点默认超时
+  poll_interval_ms: 2000       # 轮询间隔
+  max_retry_count: 3           # 默认重试次数
+```
+
+---
+
+## 八、分阶段实现路线
+
+### Phase 1: 核心引擎 (4-6 周)
+
+- [ ] GORM Models + Migration
+- [ ] WorkflowEngine: 拓扑排序 + 并行执行
+- [ ] Agent 节点执行器（task submit + poll）
+- [ ] Prompt 模板渲染
+- [ ] Admin CRUD API
+- [ ] User Run API（手动触发 + 查看状态）
+- [ ] 单元测试（mock PodConfigClient）
+
+### Phase 2: 丰富节点类型 (3-4 周)
+
+- [ ] 审批节点（等待人工 → 继续）
+- [ ] 条件分支节点（基于上游输出路由）
+- [ ] 延迟节点
+- [ ] Webhook 节点
+- [ ] 错误处理 + 重试逻辑
+- [ ] 超时处理
+
+### Phase 3: Desktop 画布 (4-6 周)
+
+- [ ] React Flow 集成
+- [ ] 自定义节点类型渲染
+- [ ] 拖拽式 DAG 编辑
+- [ ] 节点配置表单
+- [ ] 实时执行视图
+- [ ] 自然语言 → DAG（AI 辅助生成工作流）
+
+### Phase 4: 企业特性 (3-4 周)
+
+- [ ] 定时触发（复用 ConfigReconciler 模式）
+- [ ] 工作流模板市场（复用 Scenario 模式）
+- [ ] 条件分支 + 并行 fan-out
+- [ ] 审计日志集成
+- [ ] Token 用量统计
+- [ ] 失败告警通知
+
+---
+
+## 九、技术风险与缓解
+
+| 风险 | 缓解 |
+|------|------|
+| QwenPaw Background Task 在内存中（重启丢失） | Workflow Engine 有独立的 PostgreSQL 状态，Task 丢失 → 重试 |
+| QwenPaw Pod 网络不稳定 | 指数退避重试 + 超时机制 |
+| 大 prompt 导致 QwenPaw 处理慢 | 节点级超时配置 + 用户可见进度 |
+| 并发节点过多打爆 Pod | `max_concurrent_per_user` 限制 + Pod 资源配额 |
+| Go template 注入攻击 | 严格的模板沙箱（仅允许 `.nodeKey.output` 和 `.var.name` 访问） |
+
+---
+
+## 十、验证方案
+
+1. **单元测试**: Mock `PodConfigClient`，验证拓扑排序和并行执行正确性
+2. **集成测试**: 用真实 QwenPaw Pod（测试环境），运行 3 节点简单 DAG
+3. **并发测试**: 10 个并行节点 → 验证信号量控制
+4. **故障测试**: Pod 网络断开 → 验证重试 + 超时 + 状态正确
+5. **端到端**: Desktop 画布 → 创建 DAG → 执行 → 查看实时状态 → 获取结果

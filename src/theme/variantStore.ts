@@ -1,28 +1,38 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
+import {
+  DEFAULT_THEME_VARIANT,
+  THEME_VARIANT_IDS,
+  type ThemeVariant,
+} from "./variants";
 
 /**
- * Theme variant store — the "which palette" axis (standard / contrast / soft).
+ * Theme variant store — the "which palette" axis (see variants.ts registry).
  *
  * The "light/dark/system" axis is owned by next-themes (ThemeProvider). This
  * store owns ONLY the variant, persisted as a PLAIN STRING in localStorage
  * (key below), NOT zustand's JSON wrapper. That keeps the no-flash inline
  * script in each app's index.html trivial (read a bare string, set the
  * data-theme attribute) and decoupled from any store serialization format.
+ *
+ * The variant ids and default are defined ONCE in variants.ts and consumed via
+ * THEME_VARIANT_IDS / DEFAULT_THEME_VARIANT — never re-enumerate them here.
  */
 
-export type ThemeVariant = "standard" | "ember" | "abyss" | "verdant";
-
 export const THEME_VARIANT_STORAGE_KEY = "workpaw-theme-variant";
+
+export { DEFAULT_THEME_VARIANT, type ThemeVariant } from "./variants";
 
 function readInitialVariant(): ThemeVariant {
   try {
     const v = localStorage.getItem(THEME_VARIANT_STORAGE_KEY);
-    if (v === "ember" || v === "abyss" || v === "verdant") return v;
+    if (v && (THEME_VARIANT_IDS as readonly string[]).includes(v)) {
+      return v as ThemeVariant;
+    }
   } catch {
     /* ignore */
   }
-  return "standard";
+  return DEFAULT_THEME_VARIANT;
 }
 
 interface VariantState {

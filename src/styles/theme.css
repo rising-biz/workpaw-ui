@@ -6,36 +6,47 @@
  * Strategy: `data-theme` on <html> encodes the variant (standard = attribute
  * absent); `.dark` class (managed by next-themes) encodes the mode. Every
  * selector is `:root`-prefixed so the combos form a clean specificity ladder:
- *   :root                            (0,1,0)  standard light
- *   :root.dark                       (0,2,0)  standard dark
- *   :root[data-theme="ember"]        (0,2,0)  ember light
- *   :root[data-theme="ember"].dark   (0,3,0)  ember dark
- *   :root[data-theme="abyss"]        (0,2,0)  abyss light
- *   :root[data-theme="abyss"].dark   (0,3,0)  abyss dark
- *   :root[data-theme="verdant"]      (0,2,0)  verdant light
- *   :root[data-theme="verdant"].dark (0,3,0)  verdant dark
+ *   :root                              (0,1,0)  standard light
+ *   :root.dark                         (0,2,0)  standard dark
+ *   :root[data-theme="supabase"]       (0,2,0)  supabase light   ← DEFAULT
+ *   :root[data-theme="supabase"].dark  (0,3,0)  supabase dark
  *
- * --primary (Signal Orange) is constant across all combos (brand anchor).
- * --primary-foreground is near-black everywhere (orange is light; black-on-orange
- * passes AA/AAA). Three personality themes (ember/abyss/verdant) use saturated
- * tinted neutrals (chroma 0.024–0.042) for a vivid "switch the world" feel;
- * standard stays true-neutral chroma 0 as the restrained default.
+ * The variant set is registered ONCE in workpaw-ui/src/theme/variants.ts; to
+ * add a variant, append a VariantMeta there + a `:root[data-theme="<id>"]`
+ * block (+ `.dark`) here + the id to each app's no-flash index.html guard.
+ *
+ * --primary (Supabase green #3ECF8E, oklch(0.78 0.16 162)) is the brand anchor
+ * and stays constant across all variants — it lives on the base `:root` and is
+ * NEVER re-declared in a variant block. --primary-foreground is near-black
+ * everywhere (green is light; black-on-primary passes AAA). The two variants
+ * differ only in their neutral/surface personality: standard is true-neutral
+ * chroma 0 (restrained precision console); supabase uses cool-slate tinted
+ * neutrals (chroma 0.003–0.005, hue 264) over an iconic charcoal dark canvas.
+ * The default is resolved by variantStore.readInitialVariant() AND the no-flash
+ * inline script in each app's index.html — those two MUST stay in sync with
+ * DEFAULT_THEME_VARIANT in variants.ts.
  */
 
 /* ---------------------------------------------------------------------------
  * Constants — identical across all combos. Set once on :root, inherit down.
  * --------------------------------------------------------------------------- */
 :root {
-  --primary: oklch(0.715 0.183 49.77);
-  --primary-hover: oklch(0.62 0.19 49);
+  /* Brand primary — Supabase green #3ECF8E. Constant across all variants;
+     never re-declared in a variant block. --primary-hover is the deepened
+     green used by button hover (see button.tsx hover:bg-[var(--primary-hover)]). */
+  --primary: oklch(0.78 0.16 162);
+  --primary-hover: oklch(0.66 0.15 162);
   --primary-foreground: oklch(0.145 0 0);
-  --ring: oklch(0.715 0.183 49.77);
-  --sidebar-ring: oklch(0.715 0.183 49.77);
-  --sidebar-primary: oklch(0.715 0.183 49.77);
+  --ring: oklch(0.78 0.16 162);
+  --sidebar-ring: oklch(0.78 0.16 162);
+  --sidebar-primary: oklch(0.78 0.16 162);
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --chart-1: oklch(0.715 0.183 49.77);
+  /* Chart palette: chart-1 mirrors brand green (primary series); chart-3 is the
+     retired Signal Orange kept as a chart accent so the 5-series stays 5 distinct
+     colorblind-safe hues. The rest are spread around the hue wheel. */
+  --chart-1: oklch(0.78 0.16 162);
   --chart-2: oklch(0.6 0.18 280);
-  --chart-3: oklch(0.65 0.16 160);
+  --chart-3: oklch(0.715 0.183 49.77);
   --chart-4: oklch(0.62 0.19 12);
   --chart-5: oklch(0.7 0.15 230);
 
@@ -108,166 +119,65 @@
 }
 
 /* ---------------------------------------------------------------------------
- * 暮光琥珀 Ember — warm (hue 55–65). Deep caramel-charcoal dark, warm paper
- * light. Orange melts into the warm base like embers. Vivid tinted neutrals.
+ * Supabase — the DEFAULT variant. Cool-slate tinted neutrals (chroma 0.003–
+ * 0.005, hue 264) over an iconic charcoal dark canvas (#1c1c1c) with the brand
+ * green as the lone signal lamp; light mode is a faintly cool white + green.
+ * Only neutrals + shape are declared here — --primary/--ring/--chart-* inherit
+ * the brand green from the base :root (they are constant across all variants).
  * --------------------------------------------------------------------------- */
-:root[data-theme="ember"] {
-  /* Warm & soft: larger radius (12px) + warm diffuse shadow. */
-  --radius: 0.75rem;
-  --shadow-sm: 0 1px 3px 0 oklch(0.35 0.04 50 / 0.08);
-  --shadow-md: 0 4px 12px -2px oklch(0.35 0.04 50 / 0.12), 0 2px 6px -2px oklch(0.35 0.04 50 / 0.06);
-  --shadow-lg: 0 10px 20px -4px oklch(0.35 0.04 50 / 0.14), 0 4px 8px -2px oklch(0.35 0.04 50 / 0.07);
-  --background: oklch(0.96 0.028 65);
-  --foreground: oklch(0.22 0.03 50);
-  --card: oklch(0.985 0.015 65);
-  --card-foreground: oklch(0.22 0.03 50);
-  --popover: oklch(0.985 0.015 65);
-  --popover-foreground: oklch(0.22 0.03 50);
-  --secondary: oklch(0.94 0.028 60);
-  --secondary-foreground: oklch(0.22 0.03 50);
-  --muted: oklch(0.94 0.028 60);
-  --muted-foreground: oklch(0.48 0.028 55);
-  --accent: oklch(0.94 0.028 60);
-  --accent-foreground: oklch(0.22 0.03 50);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.87 0.035 60);
-  --input: oklch(0.87 0.035 60);
-  --sidebar: oklch(0.95 0.03 65);
-  --sidebar-foreground: oklch(0.22 0.03 50);
-  --sidebar-accent: oklch(0.94 0.028 60);
-  --sidebar-accent-foreground: oklch(0.22 0.03 50);
-  --sidebar-border: oklch(0.87 0.035 60);
-}
-
-:root[data-theme="ember"].dark {
-  --background: oklch(0.22 0.038 55);
-  --foreground: oklch(0.94 0.022 65);
-  --card: oklch(0.265 0.04 55);
-  --card-foreground: oklch(0.94 0.022 65);
-  --popover: oklch(0.265 0.04 55);
-  --popover-foreground: oklch(0.94 0.022 65);
-  --secondary: oklch(0.3 0.038 55);
-  --secondary-foreground: oklch(0.94 0.022 65);
-  --muted: oklch(0.3 0.038 55);
-  --muted-foreground: oklch(0.74 0.028 60);
-  --accent: oklch(0.3 0.038 55);
-  --accent-foreground: oklch(0.94 0.022 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.95 0.022 60 / 14%);
-  --input: oklch(0.95 0.022 60 / 18%);
-  --sidebar: oklch(0.245 0.04 55);
-  --sidebar-foreground: oklch(0.94 0.022 65);
-  --sidebar-accent: oklch(0.3 0.038 55);
-  --sidebar-accent-foreground: oklch(0.94 0.022 65);
-  --sidebar-border: oklch(0.95 0.022 60 / 14%);
-}
-
-/* ---------------------------------------------------------------------------
- * 墨青深渊 Abyss — cool (hue 225–238). Deep ink-teal dark, cool white light.
- * Orange is a cold-warm signal lamp against the cool base. Most contrast pop.
- * --------------------------------------------------------------------------- */
-:root[data-theme="abyss"] {
-  /* Cold & sharp: smaller radius (8px) + cool narrow shadow. */
+:root[data-theme="supabase"] {
+  /* Crisp & technical: 8px radius + cool narrow shadow (Supabase dashboard). */
   --radius: 0.5rem;
-  --shadow-sm: 0 1px 2px 0 oklch(0.1 0.02 235 / 0.12);
-  --shadow-md: 0 2px 6px -1px oklch(0.1 0.02 235 / 0.16), 0 1px 3px -1px oklch(0.1 0.02 235 / 0.08);
-  --shadow-lg: 0 6px 12px -3px oklch(0.1 0.02 235 / 0.20), 0 2px 4px -2px oklch(0.1 0.02 235 / 0.10);
-  --background: oklch(0.965 0.024 235);
-  --foreground: oklch(0.20 0.038 235);
-  --card: oklch(0.985 0.012 235);
-  --card-foreground: oklch(0.20 0.038 235);
-  --popover: oklch(0.985 0.012 235);
-  --popover-foreground: oklch(0.20 0.038 235);
-  --secondary: oklch(0.94 0.024 235);
-  --secondary-foreground: oklch(0.20 0.038 235);
-  --muted: oklch(0.94 0.024 235);
-  --muted-foreground: oklch(0.46 0.032 235);
-  --accent: oklch(0.94 0.024 235);
-  --accent-foreground: oklch(0.20 0.038 235);
+  --shadow-sm: 0 1px 2px 0 oklch(0.12 0.01 264 / 0.06);
+  --shadow-md: 0 2px 6px -1px oklch(0.12 0.01 264 / 0.10), 0 1px 3px -1px oklch(0.12 0.01 264 / 0.05);
+  --shadow-lg: 0 6px 12px -3px oklch(0.12 0.01 264 / 0.14), 0 2px 4px -2px oklch(0.12 0.01 264 / 0.07);
+
+  /* Supabase light — faintly cool white canvas, near-black ink, cool-slate hairlines. */
+  --background: oklch(0.99 0.003 264);
+  --foreground: oklch(0.21 0.004 264);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.004 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.004 264);
+  --secondary: oklch(0.97 0.004 264);
+  --secondary-foreground: oklch(0.21 0.004 264);
+  --muted: oklch(0.97 0.004 264);
+  --muted-foreground: oklch(0.46 0.012 264);
+  --accent: oklch(0.97 0.004 264);
+  --accent-foreground: oklch(0.21 0.004 264);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.87 0.032 235);
-  --input: oklch(0.87 0.032 235);
-  --sidebar: oklch(0.96 0.024 235);
-  --sidebar-foreground: oklch(0.20 0.038 235);
-  --sidebar-accent: oklch(0.94 0.024 235);
-  --sidebar-accent-foreground: oklch(0.20 0.038 235);
-  --sidebar-border: oklch(0.87 0.032 235);
+  --border: oklch(0.90 0.008 264);
+  --input: oklch(0.90 0.008 264);
+  --sidebar: oklch(0.985 0.004 264);
+  --sidebar-foreground: oklch(0.21 0.004 264);
+  --sidebar-accent: oklch(0.97 0.004 264);
+  --sidebar-accent-foreground: oklch(0.21 0.004 264);
+  --sidebar-border: oklch(0.90 0.008 264);
 }
 
-:root[data-theme="abyss"].dark {
-  --background: oklch(0.19 0.042 238);
-  --foreground: oklch(0.94 0.016 225);
-  --card: oklch(0.225 0.042 238);
-  --card-foreground: oklch(0.94 0.016 225);
-  --popover: oklch(0.225 0.042 238);
-  --popover-foreground: oklch(0.94 0.016 225);
-  --secondary: oklch(0.265 0.042 238);
-  --secondary-foreground: oklch(0.94 0.016 225);
-  --muted: oklch(0.265 0.042 238);
-  --muted-foreground: oklch(0.72 0.024 225);
-  --accent: oklch(0.265 0.042 238);
-  --accent-foreground: oklch(0.94 0.016 225);
+:root[data-theme="supabase"].dark {
+  /* Supabase dark — iconic charcoal canvas (#1c1c1c), off-white ink, green signal.
+     Only neutrals are overridden; primary/ring/chart inherit brand green from :root.
+     --muted-foreground lifted to 0.73 so secondary text clears AA 4.5:1 on the
+     L=0.21 charcoal canvas. */
+  --background: oklch(0.21 0.004 264);
+  --foreground: oklch(0.93 0.004 264);
+  --card: oklch(0.25 0.004 264);
+  --card-foreground: oklch(0.93 0.004 264);
+  --popover: oklch(0.25 0.004 264);
+  --popover-foreground: oklch(0.93 0.004 264);
+  --secondary: oklch(0.29 0.005 264);
+  --secondary-foreground: oklch(0.93 0.004 264);
+  --muted: oklch(0.29 0.005 264);
+  --muted-foreground: oklch(0.73 0.006 264);
+  --accent: oklch(0.29 0.005 264);
+  --accent-foreground: oklch(0.93 0.004 264);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.95 0.016 225 / 14%);
-  --input: oklch(0.95 0.016 225 / 18%);
-  --sidebar: oklch(0.21 0.042 238);
-  --sidebar-foreground: oklch(0.94 0.016 225);
-  --sidebar-accent: oklch(0.265 0.042 238);
-  --sidebar-accent-foreground: oklch(0.94 0.016 225);
-  --sidebar-border: oklch(0.95 0.016 225 / 14%);
-}
-
-/* ---------------------------------------------------------------------------
- * 翡翠 Verdant — green (hue 155–158). Deep emerald dark, green-white light.
- * Orange is a complementary autumn-leaf accent. Lowest stimulation, most restful.
- * --------------------------------------------------------------------------- */
-:root[data-theme="verdant"] {
-  /* Organic & gentle: largest radius (14px) + soft green-tinted shadow. */
-  --radius: 0.875rem;
-  --shadow-sm: 0 1px 3px 0 oklch(0.15 0.03 158 / 0.07);
-  --shadow-md: 0 4px 10px -2px oklch(0.15 0.03 158 / 0.10), 0 2px 5px -2px oklch(0.15 0.03 158 / 0.05);
-  --shadow-lg: 0 8px 18px -4px oklch(0.15 0.03 158 / 0.12), 0 4px 7px -2px oklch(0.15 0.03 158 / 0.06);
-  --background: oklch(0.965 0.024 155);
-  --foreground: oklch(0.20 0.038 155);
-  --card: oklch(0.985 0.012 155);
-  --card-foreground: oklch(0.20 0.038 155);
-  --popover: oklch(0.985 0.012 155);
-  --popover-foreground: oklch(0.20 0.038 155);
-  --secondary: oklch(0.94 0.024 155);
-  --secondary-foreground: oklch(0.20 0.038 155);
-  --muted: oklch(0.94 0.024 155);
-  --muted-foreground: oklch(0.46 0.032 155);
-  --accent: oklch(0.94 0.024 155);
-  --accent-foreground: oklch(0.20 0.038 155);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.87 0.032 155);
-  --input: oklch(0.87 0.032 155);
-  --sidebar: oklch(0.96 0.024 155);
-  --sidebar-foreground: oklch(0.20 0.038 155);
-  --sidebar-accent: oklch(0.94 0.024 155);
-  --sidebar-accent-foreground: oklch(0.20 0.038 155);
-  --sidebar-border: oklch(0.87 0.032 155);
-}
-
-:root[data-theme="verdant"].dark {
-  --background: oklch(0.20 0.042 158);
-  --foreground: oklch(0.94 0.020 155);
-  --card: oklch(0.235 0.042 158);
-  --card-foreground: oklch(0.94 0.020 155);
-  --popover: oklch(0.235 0.042 158);
-  --popover-foreground: oklch(0.94 0.020 155);
-  --secondary: oklch(0.275 0.042 158);
-  --secondary-foreground: oklch(0.94 0.020 155);
-  --muted: oklch(0.275 0.042 158);
-  --muted-foreground: oklch(0.72 0.024 155);
-  --accent: oklch(0.275 0.042 158);
-  --accent-foreground: oklch(0.94 0.020 155);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.95 0.020 155 / 14%);
-  --input: oklch(0.95 0.020 155 / 18%);
-  --sidebar: oklch(0.22 0.042 158);
-  --sidebar-foreground: oklch(0.94 0.020 155);
-  --sidebar-accent: oklch(0.275 0.042 158);
-  --sidebar-accent-foreground: oklch(0.94 0.020 155);
-  --sidebar-border: oklch(0.95 0.020 155 / 14%);
+  --border: oklch(0.93 0.004 264 / 12%);
+  --input: oklch(0.93 0.004 264 / 16%);
+  --sidebar: oklch(0.225 0.004 264);
+  --sidebar-foreground: oklch(0.93 0.004 264);
+  --sidebar-accent: oklch(0.29 0.005 264);
+  --sidebar-accent-foreground: oklch(0.93 0.004 264);
+  --sidebar-border: oklch(0.93 0.004 264 / 12%);
 }
