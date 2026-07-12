@@ -1,0 +1,32 @@
+src/theme/variantStore.ts
+  87e0d55c9d075e46 3-7,10,17-19,24-25,29-31,35
+src/theme/index.ts
+  87e0d55c9d075e46 4-9
+src/theme/variants.ts
+  87e0d55c9d075e46 1-67
+src/theme/ThemeSettings.tsx
+  87e0d55c9d075e46 2-3,10-11,13-14,50,52-53
+src/styles/theme.css
+  87e0d55c9d075e46 9-12,14-27,34-38,40-42,44-47,49,122-126,128-129,131-133,135-147,149-155,158-174,176-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "9b3dbf5209781aea892213a8be0142c79363332d",
+  "prompts": {
+    "87e0d55c9d075e46": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ad3f736d-586f-47e3-b0cd-d692037b85b3",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 190,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/a24c3570b20ffd52a5c95a8ad492e132bf036994e545024151fe611b7f0fea96"
+    }
+  }
+}
