@@ -1,183 +1,459 @@
 /*
  * WorkPaw theme token matrix — single source of truth for all 3 frontends.
+ * Colors migrated from HiOps Design System (Verdant Pro).
  *
  * DO NOT wrap this file in @layer.
  *
- * Strategy: `data-theme` on <html> encodes the variant (standard = attribute
- * absent); `.dark` class (managed by next-themes) encodes the mode. Every
- * selector is `:root`-prefixed so the combos form a clean specificity ladder:
- *   :root                              (0,1,0)  standard light
- *   :root.dark                         (0,2,0)  standard dark
- *   :root[data-theme="supabase"]       (0,2,0)  supabase light   ← DEFAULT
- *   :root[data-theme="supabase"].dark  (0,3,0)  supabase dark
+ * Strategy: four-theme system. `data-theme` on <html> encodes the variant
+ * (verdant = attribute absent, the default); `.dark` class (managed by
+ * next-themes) encodes the mode.
  *
- * The variant set is registered ONCE in workpaw-ui/src/theme/variants.ts; to
- * add a variant, append a VariantMeta there + a `:root[data-theme="<id>"]`
- * block (+ `.dark`) here + the id to each app's no-flash index.html guard.
+ *   :root                                     verdant light (DEFAULT)
+ *   :root.dark                                verdant dark
+ *   :root[data-theme="indigo"]                indigo light
+ *   :root[data-theme="indigo"].dark           indigo dark
+ *   :root[data-theme="amber"]                 amber light
+ *   :root[data-theme="amber"].dark            amber dark
+ *   :root[data-theme="amethyst"]              amethyst light
+ *   :root[data-theme="amethyst"].dark         amethyst dark
  *
- * --primary (Supabase green #3ECF8E, oklch(0.78 0.16 162)) is the brand anchor
- * and stays constant across all variants — it lives on the base `:root` and is
- * NEVER re-declared in a variant block. --primary-foreground is near-black
- * everywhere (green is light; black-on-primary passes AAA). The two variants
- * differ only in their neutral/surface personality: standard is true-neutral
- * chroma 0 (restrained precision console); supabase uses cool-slate tinted
- * neutrals (chroma 0.003–0.005, hue 264) over an iconic charcoal dark canvas.
- * The default is resolved by variantStore.readInitialVariant() AND the no-flash
- * inline script in each app's index.html — those two MUST stay in sync with
- * DEFAULT_THEME_VARIANT in variants.ts.
+ * Design philosophy — "控制塔" (Control Tower):
+ * An operations-console visual system. Design serves operational efficiency:
+ * information organized into digestible layers, critical signals prioritized,
+ * actions confirmed unambiguously. Light mode is the default; dark mode is
+ * reserved for extended screen-time comfort.
+ *
+ * Verdant green carries ~25% of interactive surface — not the ≤10% scarcity
+ * strategy. Every appearance has a functional purpose. Neutrals are tinted
+ * toward the brand hue (158°), creating a precision-instrument feel.
  */
 
 /* ---------------------------------------------------------------------------
- * Constants — identical across all combos. Set once on :root, inherit down.
+ * Shared constants — same across all themes. Set once on :root, inherit down.
  * --------------------------------------------------------------------------- */
 :root {
-  /* Brand primary — Supabase green #3ECF8E. Constant across all variants;
-     never re-declared in a variant block. --primary-hover is the deepened
-     green used by button hover (see button.tsx hover:bg-[var(--primary-hover)]). */
-  --primary: oklch(0.78 0.16 162);
-  --primary-hover: oklch(0.66 0.15 162);
-  --primary-foreground: oklch(0.145 0 0);
-  --ring: oklch(0.78 0.16 162);
-  --sidebar-ring: oklch(0.78 0.16 162);
-  --sidebar-primary: oklch(0.78 0.16 162);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
-  /* Chart palette: chart-1 mirrors brand green (primary series); chart-3 is the
-     retired Signal Orange kept as a chart accent so the 5-series stays 5 distinct
-     colorblind-safe hues. The rest are spread around the hue wheel. */
-  --chart-1: oklch(0.78 0.16 162);
-  --chart-2: oklch(0.6 0.18 280);
-  --chart-3: oklch(0.715 0.183 49.77);
-  --chart-4: oklch(0.62 0.19 12);
-  --chart-5: oklch(0.7 0.15 230);
+  /* Primary foreground — near-white text on brand-colored buttons, all themes. */
+  --primary-foreground: oklch(0.99 0 0);
 
-  /* Shape tokens — default (standard), overridden per [data-theme] below.
-     Radius drives rounded-sm/md/lg/xl via calc in @theme inline.
-     Shadow-sm/md/lg drive elevation; shadow-none and shadow-inner stay as-is. */
+  /* Ring — follows --primary dynamically (each theme overrides --primary). */
+  --ring: var(--primary);
+
+  /* Shared shape + elevation tokens. */
   --radius: 0.625rem;
-  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.05);
-  --shadow-md: 0 4px 8px -1px oklch(0 0 0 / 0.08), 0 2px 4px -2px oklch(0 0 0 / 0.04);
-  --shadow-lg: 0 8px 16px -4px oklch(0 0 0 / 0.10), 0 4px 6px -2px oklch(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 8px 16px -4px rgb(0 0 0 / 0.10), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 
-  /* Standard light (default) — the precision console, true-neutral. */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.446 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-
-  /* Semantic status colors — constant across all themes (like --primary).
-     Green=success, amber=warning, blue=info. Pair with icon/text, never
-     color-alone (DESIGN.md: 状态指示不只靠颜色). Light values tuned for
-     contrast on the neutral-white canvas. */
-  --success: oklch(0.52 0.15 160);
-  --warning: oklch(0.55 0.14 65);
-  --info: oklch(0.52 0.14 230);
+  /* Precision grid + corner ambient glow — 控制塔科技感背景 */
+  --grid-line-opacity: 5%;
+  --grid-glow-opacity: 16%;
 }
 
-/* Standard dark */
+/* Dark-mode grid overrides (shared across all themes). */
 :root.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-
-  /* Semantic status — dark variants: lifted lightness for the deep canvas. */
-  --success: oklch(0.72 0.16 160);
-  --warning: oklch(0.78 0.14 65);
-  --info: oklch(0.72 0.15 230);
+  --grid-line-opacity: 5%;
+  --grid-glow-opacity: 18%;
 }
 
-/* ---------------------------------------------------------------------------
- * Supabase — the DEFAULT variant. Cool-slate tinted neutrals (chroma 0.003–
- * 0.005, hue 264) over an iconic charcoal dark canvas (#1c1c1c) with the brand
- * green as the lone signal lamp; light mode is a faintly cool white + green.
- * Only neutrals + shape are declared here — --primary/--ring/--chart-* inherit
- * the brand green from the base :root (they are constant across all variants).
- * --------------------------------------------------------------------------- */
-:root[data-theme="supabase"] {
-  /* Crisp & technical: 8px radius + cool narrow shadow (Supabase dashboard). */
-  --radius: 0.5rem;
-  --shadow-sm: 0 1px 2px 0 oklch(0.12 0.01 264 / 0.06);
-  --shadow-md: 0 2px 6px -1px oklch(0.12 0.01 264 / 0.10), 0 1px 3px -1px oklch(0.12 0.01 264 / 0.05);
-  --shadow-lg: 0 6px 12px -3px oklch(0.12 0.01 264 / 0.14), 0 2px 4px -2px oklch(0.12 0.01 264 / 0.07);
+/* =========================================================================
+ * VERDANT — DEFAULT (no data-theme attribute)
+ * Rich emerald green. Natural, trustworthy, professional.
+ * Primary hue 158° | Chroma 0.22
+ * Canvas: micro green tint (chroma 0.004), precision-instrument feel.
+ * ========================================================================= */
+:root {
+  --primary: oklch(0.50 0.22 158);
+  --primary-hover: oklch(0.42 0.22 158);
 
-  /* Supabase light — faintly cool white canvas, near-black ink, cool-slate hairlines. */
-  --background: oklch(0.99 0.003 264);
-  --foreground: oklch(0.21 0.004 264);
+  --background: oklch(0.985 0.004 155);
+  --foreground: oklch(0.12 0.02 155);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.004 264);
+  --card-foreground: oklch(0.12 0.02 155);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.004 264);
-  --secondary: oklch(0.97 0.004 264);
-  --secondary-foreground: oklch(0.21 0.004 264);
-  --muted: oklch(0.97 0.004 264);
-  --muted-foreground: oklch(0.46 0.012 264);
-  --accent: oklch(0.97 0.004 264);
-  --accent-foreground: oklch(0.21 0.004 264);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.90 0.008 264);
-  --input: oklch(0.90 0.008 264);
-  --sidebar: oklch(0.985 0.004 264);
-  --sidebar-foreground: oklch(0.21 0.004 264);
-  --sidebar-accent: oklch(0.97 0.004 264);
-  --sidebar-accent-foreground: oklch(0.21 0.004 264);
-  --sidebar-border: oklch(0.90 0.008 264);
+  --popover-foreground: oklch(0.12 0.02 155);
+
+  --secondary: oklch(0.94 0.015 155);
+  --secondary-foreground: oklch(0.18 0.03 155);
+  --muted: oklch(0.95 0.008 155);
+  --muted-foreground: oklch(0.39 0.02 155);
+  --accent: oklch(0.90 0.07 158);
+  --accent-foreground: oklch(0.25 0.14 158);
+
+  --border: oklch(0.88 0.012 155);
+  --input: oklch(0.88 0.012 155);
+
+  --destructive: oklch(0.52 0.25 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.48 0.20 158);
+  --warning: oklch(0.55 0.18 75);
+  --info: oklch(0.50 0.18 240);
+
+  --chart-1: oklch(0.50 0.22 158);
+  --chart-2: oklch(0.55 0.18 220);
+  --chart-3: oklch(0.58 0.20 300);
+  --chart-4: oklch(0.62 0.19 60);
+  --chart-5: oklch(0.52 0.22 20);
+
+  --sidebar: oklch(0.975 0.006 155);
+  --sidebar-foreground: oklch(0.14 0.03 155);
+  --sidebar-primary: oklch(0.50 0.22 158);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.90 0.07 158);
+  --sidebar-accent-foreground: oklch(0.25 0.14 158);
+  --sidebar-border: oklch(0.88 0.012 155);
+  --sidebar-ring: oklch(0.50 0.22 158);
 }
 
-:root[data-theme="supabase"].dark {
-  /* Supabase dark — iconic charcoal canvas (#1c1c1c), off-white ink, green signal.
-     Only neutrals are overridden; primary/ring/chart inherit brand green from :root.
-     --muted-foreground lifted to 0.73 so secondary text clears AA 4.5:1 on the
-     L=0.21 charcoal canvas. */
-  --background: oklch(0.21 0.004 264);
-  --foreground: oklch(0.93 0.004 264);
-  --card: oklch(0.25 0.004 264);
-  --card-foreground: oklch(0.93 0.004 264);
-  --popover: oklch(0.25 0.004 264);
-  --popover-foreground: oklch(0.93 0.004 264);
-  --secondary: oklch(0.29 0.005 264);
-  --secondary-foreground: oklch(0.93 0.004 264);
-  --muted: oklch(0.29 0.005 264);
-  --muted-foreground: oklch(0.73 0.006 264);
-  --accent: oklch(0.29 0.005 264);
-  --accent-foreground: oklch(0.93 0.004 264);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.93 0.004 264 / 12%);
-  --input: oklch(0.93 0.004 264 / 16%);
-  --sidebar: oklch(0.225 0.004 264);
-  --sidebar-foreground: oklch(0.93 0.004 264);
-  --sidebar-accent: oklch(0.29 0.005 264);
-  --sidebar-accent-foreground: oklch(0.93 0.004 264);
-  --sidebar-border: oklch(0.93 0.004 264 / 12%);
+/* Verdant dark — deep forest canvas, glowing green signal. */
+:root.dark {
+  --primary: oklch(0.66 0.24 158);
+  --primary-hover: oklch(0.56 0.24 158);
+
+  --background: oklch(0.12 0.015 160);
+  --foreground: oklch(0.95 0.005 155);
+  --card: oklch(0.17 0.018 160);
+  --card-foreground: oklch(0.95 0.005 155);
+  --popover: oklch(0.21 0.018 160);
+  --popover-foreground: oklch(0.95 0.005 155);
+
+  --secondary: oklch(0.22 0.016 160);
+  --secondary-foreground: oklch(0.96 0.005 155);
+  --muted: oklch(0.24 0.014 160);
+  --muted-foreground: oklch(0.78 0.012 160);
+  --accent: oklch(0.22 0.10 158);
+  --accent-foreground: oklch(0.90 0.14 158);
+
+  --border: oklch(0.30 0.015 160);
+  --input: oklch(0.32 0.015 160);
+
+  --destructive: oklch(0.62 0.24 22);
+  --destructive-foreground: oklch(0.08 0.02 22);
+  --success: oklch(0.66 0.24 158);
+  --warning: oklch(0.72 0.18 75);
+  --info: oklch(0.68 0.18 242);
+
+  --chart-1: oklch(0.68 0.22 158);
+  --chart-2: oklch(0.70 0.18 220);
+  --chart-3: oklch(0.72 0.20 300);
+  --chart-4: oklch(0.74 0.18 60);
+  --chart-5: oklch(0.66 0.22 20);
+
+  --sidebar: oklch(0.14 0.014 160);
+  --sidebar-foreground: oklch(0.95 0.005 155);
+  --sidebar-primary: oklch(0.66 0.24 158);
+  --sidebar-primary-foreground: oklch(0.08 0.02 158);
+  --sidebar-accent: oklch(0.22 0.10 158);
+  --sidebar-accent-foreground: oklch(0.90 0.14 158);
+  --sidebar-border: oklch(0.28 0.014 160);
+  --sidebar-ring: oklch(0.66 0.24 158);
+}
+
+/* =========================================================================
+ * INDIGO — data-theme="indigo"
+ * Deep indigo blue. Authoritative, cold-precision, trusted.
+ * Hue 262° | Chroma 0.24 | Canvas cold-blue tint.
+ * ========================================================================= */
+:root[data-theme="indigo"] {
+  --primary: oklch(0.48 0.24 262);
+  --primary-hover: oklch(0.40 0.24 262);
+
+  --background: oklch(0.985 0.005 260);
+  --foreground: oklch(0.13 0.03 262);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.03 262);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.03 262);
+
+  --secondary: oklch(0.94 0.014 262);
+  --secondary-foreground: oklch(0.18 0.04 262);
+  --muted: oklch(0.95 0.008 262);
+  --muted-foreground: oklch(0.39 0.03 262);
+  --accent: oklch(0.90 0.07 262);
+  --accent-foreground: oklch(0.26 0.16 262);
+
+  --border: oklch(0.88 0.012 262);
+  --input: oklch(0.88 0.012 262);
+
+  --destructive: oklch(0.52 0.25 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.48 0.20 158);
+  --warning: oklch(0.55 0.18 75);
+  --info: oklch(0.50 0.18 240);
+
+  --chart-1: oklch(0.52 0.24 262);
+  --chart-2: oklch(0.56 0.22 230);
+  --chart-3: oklch(0.60 0.24 300);
+  --chart-4: oklch(0.62 0.20 60);
+  --chart-5: oklch(0.55 0.22 20);
+
+  --sidebar: oklch(0.975 0.008 262);
+  --sidebar-foreground: oklch(0.15 0.04 262);
+  --sidebar-primary: oklch(0.48 0.24 262);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.90 0.07 262);
+  --sidebar-accent-foreground: oklch(0.26 0.16 262);
+  --sidebar-border: oklch(0.88 0.012 262);
+  --sidebar-ring: oklch(0.48 0.24 262);
+}
+
+:root[data-theme="indigo"].dark {
+  --primary: oklch(0.64 0.26 262);
+  --primary-hover: oklch(0.54 0.26 262);
+
+  --background: oklch(0.11 0.015 262);
+  --foreground: oklch(0.95 0.005 260);
+  --card: oklch(0.16 0.018 262);
+  --card-foreground: oklch(0.95 0.005 260);
+  --popover: oklch(0.20 0.018 262);
+  --popover-foreground: oklch(0.95 0.005 260);
+
+  --secondary: oklch(0.22 0.014 262);
+  --secondary-foreground: oklch(0.96 0.005 260);
+  --muted: oklch(0.24 0.012 262);
+  --muted-foreground: oklch(0.78 0.012 262);
+  --accent: oklch(0.22 0.10 262);
+  --accent-foreground: oklch(0.90 0.16 262);
+
+  --border: oklch(0.30 0.014 262);
+  --input: oklch(0.32 0.014 262);
+
+  --destructive: oklch(0.62 0.24 22);
+  --destructive-foreground: oklch(0.08 0.02 22);
+  --success: oklch(0.66 0.24 158);
+  --warning: oklch(0.74 0.18 75);
+  --info: oklch(0.70 0.18 242);
+
+  --chart-1: oklch(0.68 0.26 262);
+  --chart-2: oklch(0.72 0.22 230);
+  --chart-3: oklch(0.74 0.24 300);
+  --chart-4: oklch(0.76 0.18 60);
+  --chart-5: oklch(0.70 0.22 20);
+
+  --sidebar: oklch(0.14 0.014 262);
+  --sidebar-foreground: oklch(0.95 0.005 260);
+  --sidebar-primary: oklch(0.64 0.26 262);
+  --sidebar-primary-foreground: oklch(0.08 0.02 262);
+  --sidebar-accent: oklch(0.22 0.10 262);
+  --sidebar-accent-foreground: oklch(0.90 0.16 262);
+  --sidebar-border: oklch(0.28 0.014 262);
+  --sidebar-ring: oklch(0.64 0.26 262);
+}
+
+/* =========================================================================
+ * AMBER — data-theme="amber"
+ * Warm amber gold. Distinctive, prestigious, memorable.
+ * Hue 62° | Chroma 0.22 | Canvas warm tint.
+ * ========================================================================= */
+:root[data-theme="amber"] {
+  --primary: oklch(0.54 0.22 62);
+  --primary-hover: oklch(0.46 0.22 62);
+
+  --background: oklch(0.985 0.005 85);
+  --foreground: oklch(0.13 0.02 85);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.02 85);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.02 85);
+
+  --secondary: oklch(0.94 0.015 85);
+  --secondary-foreground: oklch(0.18 0.03 85);
+  --muted: oklch(0.95 0.010 85);
+  --muted-foreground: oklch(0.39 0.03 85);
+  --accent: oklch(0.92 0.08 62);
+  --accent-foreground: oklch(0.25 0.14 62);
+
+  --border: oklch(0.88 0.012 85);
+  --input: oklch(0.88 0.012 85);
+
+  --destructive: oklch(0.52 0.25 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.48 0.20 158);
+  --warning: oklch(0.55 0.22 62);
+  --info: oklch(0.50 0.18 240);
+
+  --chart-1: oklch(0.54 0.22 62);
+  --chart-2: oklch(0.56 0.20 40);
+  --chart-3: oklch(0.58 0.22 300);
+  --chart-4: oklch(0.52 0.24 160);
+  --chart-5: oklch(0.55 0.22 20);
+
+  --sidebar: oklch(0.975 0.006 85);
+  --sidebar-foreground: oklch(0.15 0.03 85);
+  --sidebar-primary: oklch(0.54 0.22 62);
+  --sidebar-primary-foreground: oklch(0.08 0.02 65);
+  --sidebar-accent: oklch(0.92 0.08 62);
+  --sidebar-accent-foreground: oklch(0.25 0.14 62);
+  --sidebar-border: oklch(0.88 0.012 85);
+  --sidebar-ring: oklch(0.54 0.22 62);
+}
+
+:root[data-theme="amber"].dark {
+  --primary: oklch(0.68 0.24 62);
+  --primary-hover: oklch(0.58 0.24 62);
+
+  --background: oklch(0.12 0.010 80);
+  --foreground: oklch(0.95 0.006 82);
+  --card: oklch(0.17 0.012 80);
+  --card-foreground: oklch(0.95 0.006 82);
+  --popover: oklch(0.21 0.012 80);
+  --popover-foreground: oklch(0.95 0.006 82);
+
+  --secondary: oklch(0.22 0.014 80);
+  --secondary-foreground: oklch(0.96 0.006 82);
+  --muted: oklch(0.24 0.012 80);
+  --muted-foreground: oklch(0.78 0.012 82);
+  --accent: oklch(0.22 0.10 62);
+  --accent-foreground: oklch(0.92 0.16 62);
+
+  --border: oklch(0.30 0.012 80);
+  --input: oklch(0.32 0.012 80);
+
+  --destructive: oklch(0.62 0.24 22);
+  --destructive-foreground: oklch(0.08 0.02 22);
+  --success: oklch(0.66 0.24 158);
+  --warning: oklch(0.74 0.22 62);
+  --info: oklch(0.70 0.18 242);
+
+  --chart-1: oklch(0.70 0.24 62);
+  --chart-2: oklch(0.70 0.20 40);
+  --chart-3: oklch(0.72 0.22 300);
+  --chart-4: oklch(0.66 0.24 160);
+  --chart-5: oklch(0.68 0.22 20);
+
+  --sidebar: oklch(0.14 0.010 80);
+  --sidebar-foreground: oklch(0.95 0.006 82);
+  --sidebar-primary: oklch(0.68 0.24 62);
+  --sidebar-primary-foreground: oklch(0.08 0.02 65);
+  --sidebar-accent: oklch(0.22 0.10 62);
+  --sidebar-accent-foreground: oklch(0.92 0.16 62);
+  --sidebar-border: oklch(0.28 0.012 80);
+  --sidebar-ring: oklch(0.68 0.24 62);
+}
+
+/* =========================================================================
+ * AMETHYST — data-theme="amethyst"
+ * Violet-purple. Creative, energetic, bold.
+ * Hue 290° | Chroma 0.24 | Canvas violet tint.
+ * ========================================================================= */
+:root[data-theme="amethyst"] {
+  --primary: oklch(0.50 0.24 290);
+  --primary-hover: oklch(0.42 0.24 290);
+
+  --background: oklch(0.985 0.006 290);
+  --foreground: oklch(0.13 0.03 290);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.03 290);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.03 290);
+
+  --secondary: oklch(0.94 0.015 290);
+  --secondary-foreground: oklch(0.18 0.04 290);
+  --muted: oklch(0.95 0.010 290);
+  --muted-foreground: oklch(0.39 0.03 290);
+  --accent: oklch(0.90 0.08 290);
+  --accent-foreground: oklch(0.26 0.16 290);
+
+  --border: oklch(0.88 0.014 290);
+  --input: oklch(0.88 0.014 290);
+
+  --destructive: oklch(0.52 0.25 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.48 0.20 158);
+  --warning: oklch(0.55 0.18 75);
+  --info: oklch(0.50 0.18 240);
+
+  --chart-1: oklch(0.52 0.24 290);
+  --chart-2: oklch(0.56 0.22 260);
+  --chart-3: oklch(0.60 0.22 320);
+  --chart-4: oklch(0.62 0.20 60);
+  --chart-5: oklch(0.55 0.22 20);
+
+  --sidebar: oklch(0.975 0.008 290);
+  --sidebar-foreground: oklch(0.15 0.04 290);
+  --sidebar-primary: oklch(0.50 0.24 290);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.90 0.08 290);
+  --sidebar-accent-foreground: oklch(0.26 0.16 290);
+  --sidebar-border: oklch(0.88 0.014 290);
+  --sidebar-ring: oklch(0.50 0.24 290);
+}
+
+:root[data-theme="amethyst"].dark {
+  --primary: oklch(0.66 0.26 290);
+  --primary-hover: oklch(0.56 0.26 290);
+
+  --background: oklch(0.12 0.018 290);
+  --foreground: oklch(0.95 0.006 285);
+  --card: oklch(0.17 0.022 290);
+  --card-foreground: oklch(0.95 0.006 285);
+  --popover: oklch(0.21 0.022 290);
+  --popover-foreground: oklch(0.95 0.006 285);
+
+  --secondary: oklch(0.22 0.016 290);
+  --secondary-foreground: oklch(0.96 0.006 285);
+  --muted: oklch(0.24 0.014 290);
+  --muted-foreground: oklch(0.78 0.014 290);
+  --accent: oklch(0.22 0.12 290);
+  --accent-foreground: oklch(0.90 0.18 290);
+
+  --border: oklch(0.30 0.016 290);
+  --input: oklch(0.32 0.016 290);
+
+  --destructive: oklch(0.62 0.24 22);
+  --destructive-foreground: oklch(0.08 0.02 22);
+  --success: oklch(0.66 0.24 158);
+  --warning: oklch(0.74 0.18 75);
+  --info: oklch(0.70 0.18 242);
+
+  --chart-1: oklch(0.70 0.26 290);
+  --chart-2: oklch(0.70 0.22 260);
+  --chart-3: oklch(0.74 0.22 320);
+  --chart-4: oklch(0.76 0.18 60);
+  --chart-5: oklch(0.68 0.22 20);
+
+  --sidebar: oklch(0.14 0.016 290);
+  --sidebar-foreground: oklch(0.95 0.006 285);
+  --sidebar-primary: oklch(0.66 0.26 290);
+  --sidebar-primary-foreground: oklch(0.08 0.02 290);
+  --sidebar-accent: oklch(0.22 0.12 290);
+  --sidebar-accent-foreground: oklch(0.90 0.18 290);
+  --sidebar-border: oklch(0.28 0.016 290);
+  --sidebar-ring: oklch(0.66 0.26 290);
+}
+
+/* =========================================================================
+ * MOTION — easing tokens + theme-switch crossfade + reduced-motion safeguard
+ *
+ * Theme switch crossfade: ThemeProvider adds `.theme-transitioning` to <html>
+ * for ~300ms around a switch. Paint-only properties — no layout, no reflow.
+ * ========================================================================= */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 250ms var(--ease-out-quart),
+    border-color 250ms var(--ease-out-quart),
+    color 250ms var(--ease-out-quart),
+    fill 250ms var(--ease-out-quart),
+    stroke 250ms var(--ease-out-quart),
+    outline-color 250ms var(--ease-out-quart),
+    box-shadow 250ms var(--ease-out-quart);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -29,8 +29,8 @@ function readInitialVariant(): ThemeVariant {
     if (v && (THEME_VARIANT_IDS as readonly string[]).includes(v)) {
       return v as ThemeVariant;
     }
-  } catch {
-    /* ignore */
+  } catch (e) {
+    console.warn("workpaw: failed to read theme variant from localStorage", e);
   }
   return DEFAULT_THEME_VARIANT;
 }
@@ -45,8 +45,8 @@ export const useThemeVariantStore = create<VariantState>((set) => ({
   setVariant: (variant) => {
     try {
       localStorage.setItem(THEME_VARIANT_STORAGE_KEY, variant);
-    } catch {
-      /* ignore */
+    } catch (e) {
+      console.warn("workpaw: failed to persist theme variant to localStorage", e);
     }
     set({ variant });
   },

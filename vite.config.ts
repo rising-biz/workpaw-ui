@@ -17,7 +17,15 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      // motion is externalized (including its /react subpath) so consuming
+      // apps dedupe their own copy; react/react-dom were already external.
+      // Other UI deps (radix, lucide, next-themes) remain bundled — matching
+      // the pre-existing pattern.
+      external: (id: string) =>
+        id === "react" ||
+        id === "react-dom" ||
+        id === "react/jsx-runtime" ||
+        id.startsWith("motion"),
     },
   },
 });

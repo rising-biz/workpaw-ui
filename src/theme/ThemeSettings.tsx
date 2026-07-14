@@ -3,6 +3,7 @@ import { useThemeVariantStore } from "./variantStore";
 import { THEME_VARIANTS } from "./variants";
 import { cn } from "../lib/utils";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 /**
  * ThemeSettings — shared appearance picker (self-contained: no workpaw-ui
@@ -47,9 +48,9 @@ export function ThemeSettings() {
       <section className="space-y-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">主题</h2>
-          <p className="text-xs text-muted-foreground">选择界面底色风格。品牌绿主色贯穿所有主题,每套主题有独立的底色与氛围。</p>
+          <p className="text-xs text-muted-foreground">选择界面配色风格。三套主题共享相同的界面布局，各有独立的强调色与底色。</p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           {THEME_VARIANTS.map((v) => {
             const selected = variant === v.id;
             return (
@@ -59,10 +60,13 @@ export function ThemeSettings() {
                 aria-pressed={selected}
                 onClick={() => setVariant(v.id)}
                 className={cn(
-                  "group relative flex flex-col gap-3 rounded-xl border p-3 text-left transition-colors",
+                  "group relative flex flex-col gap-3 rounded-xl border p-3 text-left",
+                  "transition-[transform,background-color,border-color,box-shadow] duration-200 ease-[var(--ease-out-quart)]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "active:scale-[0.99]",
                   selected
                     ? "border-primary ring-1 ring-primary"
-                    : "border-border hover:bg-muted/50",
+                    : "border-border hover:-translate-y-0.5 hover:bg-muted/50",
                 )}
               >
                 {/* Mini preview mock */}
@@ -88,7 +92,20 @@ export function ThemeSettings() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{v.name}</span>
-                  {selected && <Check className="h-4 w-4 text-primary" />}
+                  <AnimatePresence mode="wait" initial={false}>
+                    {selected && (
+                      <motion.span
+                        key="check"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className="text-primary"
+                      >
+                        <Check className="h-4 w-4" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </div>
                 <p className="text-xs text-muted-foreground">{v.desc}</p>
               </button>
@@ -114,6 +131,7 @@ export function ThemeSettings() {
                 onClick={() => setTheme(id)}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   selected
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground",

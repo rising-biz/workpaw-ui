@@ -9,13 +9,13 @@
  * Everything else (the variant store, the picker UIs, the type checks) derives
  * from this file. Do not enumerate variant ids anywhere else.
  *
- * `--primary` (brand green) is constant across all variants and lives on the
- * base `:root` in theme.css — variants here only describe the neutral/surface
- * personality, never the primary. Mode (light/dark/system) is a separate axis
- * owned by next-themes, not represented here.
+ * Four themes migrated from HiOps Design System:
+ *   Verdant (翠微, default), Indigo (夜靛), Amber (墨金), Amethyst (紫微).
+ * Each is a complete light + dark system. Verdant green carries ~25% of
+ * interactive surface — committed strategy, not scarcity.
  */
 
-export type ThemeVariant = "standard" | "supabase";
+export type ThemeVariant = "verdant" | "indigo" | "amber" | "amethyst";
 
 export interface VariantMeta {
   id: ThemeVariant;
@@ -23,40 +23,61 @@ export interface VariantMeta {
   name: string;
   /** One-line description of the variant's personality. */
   desc: string;
-  /** Static preview swatches (dark-mode oklch tokens) so the picker card
-   * previews the variant regardless of the currently active mode. These mirror
-   * theme.css values; update both together. */
+  /** Static preview swatches so the picker card previews the variant
+   * regardless of the currently active mode. These mirror theme.css values. */
   preview: { bg: string; fg: string; primary: string; border: string };
 }
 
 /**
- * The default variant applied when no valid choice is persisted. Supabase is
+ * The default variant applied when no valid choice is persisted. Verdant is
  * the out-of-the-box theme; the no-flash inline script in each app's index.html
  * MUST default to the same value to avoid a flash on reload.
  */
-export const DEFAULT_THEME_VARIANT: ThemeVariant = "supabase";
+export const DEFAULT_THEME_VARIANT: ThemeVariant = "verdant";
 
 export const THEME_VARIANTS: readonly VariantMeta[] = [
   {
-    id: "supabase",
-    name: "Supabase",
-    desc: "默认主题。标志性炭灰底配品牌绿,冷调开发者工具观感。",
+    id: "verdant",
+    name: "翠微",
+    desc: "深翠绿强调 + 微绿中性色。品牌默认，自然、信赖、专业，控制塔级精密质感。",
     preview: {
-      bg: "oklch(0.21 0.004 264)",
-      fg: "oklch(0.93 0.004 264)",
-      primary: "oklch(0.78 0.16 162)",
-      border: "oklch(0.93 0.004 264 / 12%)",
+      bg: "oklch(0.985 0.004 155)",
+      fg: "oklch(0.12 0.02 155)",
+      primary: "oklch(0.50 0.22 158)",
+      border: "oklch(0.88 0.012 155)",
     },
   },
   {
-    id: "standard",
-    name: "标准",
-    desc: "纯白底配品牌绿,克制中性,精密控制台本色。",
+    id: "indigo",
+    name: "夜靛",
+    desc: "深邃靛蓝 + 冷调中性色。冷静、权威、如精密仪器，适合专注操作场景。",
     preview: {
-      bg: "oklch(1 0 0)",
-      fg: "oklch(0.145 0 0)",
-      primary: "oklch(0.78 0.16 162)",
-      border: "oklch(0.922 0 0)",
+      bg: "oklch(0.985 0.005 260)",
+      fg: "oklch(0.13 0.03 262)",
+      primary: "oklch(0.48 0.24 262)",
+      border: "oklch(0.88 0.012 262)",
+    },
+  },
+  {
+    id: "amber",
+    name: "墨金",
+    desc: "温暖琥珀金 + 暖调中性色。独特、珍贵、一眼可辨，最温暖的运维配色。",
+    preview: {
+      bg: "oklch(0.985 0.005 85)",
+      fg: "oklch(0.13 0.02 85)",
+      primary: "oklch(0.54 0.22 62)",
+      border: "oklch(0.88 0.012 85)",
+    },
+  },
+  {
+    id: "amethyst",
+    name: "紫微",
+    desc: "紫罗兰强调 + 微紫中性色。创意、能量、大胆，为数据密集视图注入活力。",
+    preview: {
+      bg: "oklch(0.985 0.006 290)",
+      fg: "oklch(0.13 0.03 290)",
+      primary: "oklch(0.50 0.24 290)",
+      border: "oklch(0.88 0.014 290)",
     },
   },
 ];
