@@ -1,0 +1,57 @@
+vite.config.ts
+  0d6b1407b2e0ce09 20-28
+src/theme/ThemeSettings.tsx
+  0d6b1407b2e0ce09 6,51,53,63-66,69,95-108,134
+src/styles/theme.css
+  0d6b1407b2e0ce09 9,25,32,35,37-40,43-45,57,151,155,197-198,240-242,246,253,255,288-289,331-333,337,423-426,429-447,450-458
+  87bed5cfe8d48bba 3,7-8,11-18,20-24,26-28,36,41,46-56,58-66,68-69,71,73-104,107,109-148,152-154,156-161,163,165-196,199-239,243-245,247-252,254,256-287,290-330,334-336,338-421,427-428
+src/theme/variants.ts
+  87bed5cfe8d48bba 12-15,18,32,36,40-42,44-47,51-53,55-58,62-64,66-80
+  0d6b1407b2e0ce09 26-27,59-61,65
+src/theme/variantStore.ts
+  0d6b1407b2e0ce09 32-33,48-49
+DESIGN.md
+  0d6b1407b2e0ce09 112,229-231,235,237,240-244,248-250,315-316
+src/styles/globals.css
+  0d6b1407b2e0ce09 21,93
+src/theme/ThemeProvider.tsx
+  87bed5cfe8d48bba 12,20,45
+  0d6b1407b2e0ce09 1,21-26,28-36,38-40,42,52-70,80
+PRODUCT.md
+  0d6b1407b2e0ce09 60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "bd4af51f4ed22c36bf898c0096842d973667e821",
+  "prompts": {
+    "0d6b1407b2e0ce09": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f6a723e7-8cd8-45a9-ae37-a2e3f15a562b",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 1028,
+      "total_deletions": 1005,
+      "accepted_lines": 457,
+      "overriden_lines": 12,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/d008f2f28f863e179cea9851fa93a8b8ed8207ba1be916ba8459d8a2902576b6"
+    },
+    "87bed5cfe8d48bba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "751f37a0-bfdd-4960-baa7-f83271345665",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 422,
+      "total_deletions": 271,
+      "accepted_lines": 414,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/f9176e823a68e39cf53bd42596148b78f750996bc267b274deee99a55c0e8ef8"
+    }
+  }
+}
