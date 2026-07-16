@@ -2,7 +2,7 @@
 
 - **状态**：Draft，待 review
 - **日期**：2026-07-05
-- **范围**：跨三仓 — `workpaw-desktop`（前端）/ `workpaw-control-plane`（后端）/ `workpaw-operator`（K8s）
+- **范围**：跨三仓 — `workpaw-desktop`（前端）/ `workpaw-admin`（后端）/ `workpaw-operator`（K8s）
 - **关联**：承接 `2026-07-03-multi-enterprise-sso-design.md`（登录改造）与 `2026-07-03-workpaw-desktop-redesign.md`（桌面重设计）
 
 ---
@@ -35,11 +35,11 @@
 
 | 问题 | 证据 |
 |---|---|
-| 登录路径不创建容器（仅账号 upsert） | `workpaw-control-plane/internal/handler/auth.go:115-286`、`internal/service/account.go:39-117` |
+| 登录路径不创建容器（仅账号 upsert） | `workpaw-admin/internal/handler/auth.go:115-286`、`internal/service/account.go:39-117` |
 | activate 是 fire-and-forget | `internal/service/instance.go:229-293`（只 `k8sClient.Create`，立即 return） |
 | readiness 60s 硬下限 | `workpaw-operator/internal/controller/qwenpawinstance_controller.go:445-468` |
 | operator 10s requeue | `qwenpawinstance_controller.go:702,720` |
-| 配置同步 60s 轮询 | `workpaw-control-plane/internal/service/config_reconciler.go:68-89`，默认 `interval_seconds=60`（`internal/config/config.go:107-109`） |
+| 配置同步 60s 轮询 | `workpaw-admin/internal/service/config_reconciler.go:68-89`，默认 `interval_seconds=60`（`internal/config/config.go:107-109`） |
 | 前端假计时器 | `workpaw-desktop/src/components/ContainerGate.tsx:16-43`（本地 1s timer 驱动文案） |
 | 前端 180s 硬超时轮询 | `workpaw-desktop/src/stores/useInstanceStore.ts:87-105`（60×3s） |
 | 无 SSE/WebSocket 用于容器状态 | desktop 全局 `EventSource`/`WebSocket` 0 命中（SSE 仅用于 chat 流式） |
@@ -151,7 +151,7 @@ Phase 1（治标，先上线）              Phase 2（一劳永逸）
 
 ---
 
-## 6. Phase 1B — 后端提速精选（`workpaw-control-plane` + `workpaw-operator`）
+## 6. Phase 1B — 后端提速精选（`workpaw-admin` + `workpaw-operator`）
 
 ### 6.1 错峰预建（过渡项，warm pool 上线后退役）
 
@@ -159,7 +159,7 @@ Phase 1（治标，先上线）              Phase 2（一劳永逸）
 - 对每次成功登录都异步触发 `ActivateInstance`；靠其内部幂等（「CR 已存在且 `DesiredState=Running` 则直接返回」，`instance.go:247-252`）避免重复建。首次登录真正节省时间；非首次仅多一次无害的幂等 K8s Get。
 - 不依赖 Phase 2 的 `instance_assignments` 表（该表 Phase 2 才有），Phase 1 即可独立工作。
 - 失败不阻塞登录（goroutine 内 recover + zap warn）。
-- 位置：`workpaw-control-plane/internal/handler/auth.go` Callback 末尾、签发 JWT 之前/之后均可（不阻塞响应）。
+- 位置：`workpaw-admin/internal/handler/auth.go` Callback 末尾、签发 JWT 之前/之后均可（不阻塞响应）。
 
 ### 6.2 startup probe 替换 readiness 60s initial delay（最大单点收益）
 
@@ -214,7 +214,7 @@ phase 与 `currentState`（Creating/Running/Stopped/Error）并存：`currentSta
 
 ---
 
-## 7. Phase 2 — warm pool（`workpaw-operator` + `workpaw-control-plane`）
+## 7. Phase 2 — warm pool（`workpaw-operator` + `workpaw-admin`）
 
 ### 7.1 核心难点与方案
 

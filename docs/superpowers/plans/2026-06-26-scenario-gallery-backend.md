@@ -115,7 +115,7 @@ func TestScenarioMigrateAndCreate(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/model/ -run TestScenarioMigrateAndCreate -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/model/ -run TestScenarioMigrateAndCreate -v`
 Expected: FAIL — `undefined: Scenario`。
 
 - [ ] **Step 3: 实现 Scenario 模型**
@@ -163,13 +163,13 @@ func Migrate(gdb *gorm.DB) error {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/model/ -run TestScenarioMigrateAndCreate -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/model/ -run TestScenarioMigrateAndCreate -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/model/model.go internal/model/scenario_test.go
 git commit -m "feat(scenario): add Scenario model with jsonb fields and migration"
 ```
@@ -207,8 +207,8 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func scenarioDB(t *testing.T) *gorm.DB {
@@ -260,7 +260,7 @@ func TestScenarioCreateListGet(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run TestScenarioCreateListGet -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run TestScenarioCreateListGet -v`
 Expected: FAIL — `undefined: NewScenarioService, ErrNotFound`。
 
 - [ ] **Step 3: 实现 ScenarioService 基础方法**
@@ -277,7 +277,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 )
 
 // Scenario-specific errors.
@@ -369,13 +369,13 @@ func (s *ScenarioService) Delete(ctx context.Context, id uuid.UUID) error {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run TestScenarioCreateListGet -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run TestScenarioCreateListGet -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/service/scenario.go internal/service/scenario_test.go
 git commit -m "feat(scenario): ScenarioService basic CRUD with official read-only guard"
 ```
@@ -458,7 +458,7 @@ func TestScenarioListEnabledEnterpriseOverridesOfficial(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run TestScenarioListEnabledEnterpriseOverridesOfficial -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run TestScenarioListEnabledEnterpriseOverridesOfficial -v`
 Expected: FAIL — `undefined: ListEnabled`。
 
 - [ ] **Step 3: 实现 ListEnabled**
@@ -504,13 +504,13 @@ func (s *ScenarioService) ListEnabled(ctx context.Context) ([]model.Scenario, er
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run TestScenarioListEnabled -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run TestScenarioListEnabled -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/service/scenario.go internal/service/scenario_test.go
 git commit -m "feat(scenario): ListEnabled with enterprise-overrides-official merge"
 ```
@@ -609,7 +609,7 @@ func TestScenarioToggleAndSort(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run "TestScenarioClone|TestScenarioToggle" -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run "TestScenarioClone|TestScenarioToggle" -v`
 Expected: FAIL — `undefined: Clone, Toggle, Sort`。
 
 - [ ] **Step 3: 实现 Clone / Toggle / Sort**
@@ -688,13 +688,13 @@ func (s *ScenarioService) Sort(ctx context.Context, orders map[uuid.UUID]int) er
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run "TestScenarioClone|TestScenarioToggle" -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run "TestScenarioClone|TestScenarioToggle" -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/service/scenario.go internal/service/scenario_test.go
 git commit -m "feat(scenario): Clone/Toggle/Sort with official read-only guards"
 ```
@@ -775,7 +775,7 @@ func TestScenarioSeedIdempotentAndPreservesEnterprise(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run TestScenarioSeed -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run TestScenarioSeed -v`
 Expected: FAIL — `undefined: SeedOfficialScenarios`。
 
 - [ ] **Step 3: 定义官方场景常量**
@@ -896,13 +896,13 @@ func (s *ScenarioService) SeedOfficialScenarios(ctx context.Context) error {
 
 - [ ] **Step 5: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/service/ -run TestScenarioSeed -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/service/ -run TestScenarioSeed -v`
 Expected: PASS
 
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/service/scenario_seed.go internal/service/scenario.go internal/service/scenario_test.go
 git commit -m "feat(scenario): official scenario seed with idempotent upsert"
 ```
@@ -942,10 +942,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/workpaw/workpaw-control-plane/internal/middleware"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/middleware"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func newScenarioTestEngine(t *testing.T) (*gin.Engine, *service.ScenarioService) {
@@ -1067,7 +1067,7 @@ var _ = uuid.New
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/handler/ -run TestAdminScenario -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/handler/ -run TestAdminScenario -v`
 Expected: FAIL — `undefined: NewAdminScenarioHandler`。
 
 - [ ] **Step 3: 实现 AdminScenarioHandler**
@@ -1084,9 +1084,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/workpaw/workpaw-control-plane/internal/middleware"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/middleware"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/service"
 )
 
 // AdminScenarioHandler provides admin CRUD for scenarios.
@@ -1250,13 +1250,13 @@ func (h *AdminScenarioHandler) auditScenario(c *gin.Context, action, id, name, s
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/handler/ -run TestAdminScenario -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/handler/ -run TestAdminScenario -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/handler/admin_scenario.go internal/handler/admin_scenario_test.go
 git commit -m "feat(scenario): AdminScenarioHandler CRUD with 409 on official"
 ```
@@ -1336,7 +1336,7 @@ func TestAdminScenarioCloneToggleSort(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/handler/ -run TestAdminScenarioCloneToggleSort -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/handler/ -run TestAdminScenarioCloneToggleSort -v`
 Expected: FAIL — `undefined: Clone, Toggle, Sort`。
 
 - [ ] **Step 3: 实现 Clone/Toggle/Sort handler**
@@ -1428,13 +1428,13 @@ func (h *AdminScenarioHandler) Sort(c *gin.Context) {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/handler/ -run TestAdminScenario -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/handler/ -run TestAdminScenario -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/handler/admin_scenario.go internal/handler/admin_scenario_test.go
 git commit -m "feat(scenario): admin Clone/Toggle/Sort handlers"
 ```
@@ -1465,9 +1465,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestDesktopScenarioList(t *testing.T) {
@@ -1509,7 +1509,7 @@ func TestDesktopScenarioList(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/handler/ -run TestDesktopScenarioList -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/handler/ -run TestDesktopScenarioList -v`
 Expected: FAIL — `undefined: NewScenarioHandler`。
 
 - [ ] **Step 3: 实现 ScenarioHandler**
@@ -1524,7 +1524,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/workpaw/workpaw-control-plane/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/service"
 )
 
 // ScenarioHandler exposes the desktop read-only scenario list.
@@ -1554,13 +1554,13 @@ func (h *ScenarioHandler) List(c *gin.Context) {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/handler/ -run TestDesktopScenarioList -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/handler/ -run TestDesktopScenarioList -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/handler/scenario.go internal/handler/scenario_test.go
 git commit -m "feat(scenario): desktop read-only List handler"
 ```
@@ -1588,7 +1588,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 // Smoke test: scenario routes are registered. Setup in debug mode degrades
@@ -1618,7 +1618,7 @@ func TestScenarioRoutesRegistered(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/router/ -run TestScenarioRoutes -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/router/ -run TestScenarioRoutes -v`
 Expected: FAIL — 路由未注册(`foundDesktop` 为 false)。
 
 - [ ] **Step 3: 注册路由 + 启动 seed**
@@ -1673,18 +1673,18 @@ Expected: FAIL — 路由未注册(`foundDesktop` 为 false)。
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go test ./internal/router/ -run TestScenarioRoutes -v`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go test ./internal/router/ -run TestScenarioRoutes -v`
 Expected: PASS
 
 - [ ] **Step 5: 全量构建 + 测试**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane && go build ./... && go test ./...`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin && go build ./... && go test ./...`
 Expected: 全部 PASS(含既有测试)。
 
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add internal/router/router.go internal/router/scenario_router_test.go
 git commit -m "feat(scenario): register routes + seed official scenarios on startup"
 ```

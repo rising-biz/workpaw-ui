@@ -1,8 +1,8 @@
-# workpaw-control-plane/console Backend Foundation Implementation Plan (Plan 1 of 3)
+# workpaw-admin/console Backend Foundation Implementation Plan (Plan 1 of 3)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Introduce PostgreSQL into workpaw-control-plane and refactor authentication into a unified, three-end-shared system (JWT RS256 + JWKS + refresh tokens + account registry with disable enforcement), validated against the spec's 8 alignment points.
+**Goal:** Introduce PostgreSQL into workpaw-admin and refactor authentication into a unified, three-end-shared system (JWT RS256 + JWKS + refresh tokens + account registry with disable enforcement), validated against the spec's 8 alignment points.
 
 **Architecture:** control-plane (Go/Gin) gains a GORM-backed PostgreSQL layer; HS256 access tokens are upgraded to RS256 with a JWKS endpoint so desktop/web/admin can independently verify; login upserts an `accounts` row and refuses disabled users; refresh tokens are opaque, hashed, stored in PostgreSQL, revocable on logout. OIDC central management (DB-backed, admin-editable, hot-reload) is deferred to Plan 2; Plan 1 keeps reading OIDC from config.yaml as today.
 
@@ -17,12 +17,12 @@
 - Access TTL stays `jwt.expire_hours` (default 24h) for Plan 1 — frontends do not yet refresh (Plan 3), so a short TTL would log users out. Refresh tokens: 7d (`jwt.refresh_expire_days`). Plan 3 shortens access TTL to 15min once frontends refresh.
 - Bearer JWT in `Authorization` header; no cookie session; no CSRF.
 - v1 single-tenant; v1 admin/non-admin binary roles only (`AdminOnly` middleware unchanged).
-- All commands run from `workpaw-control-plane/` unless noted. Each task ends with a commit.
+- All commands run from `workpaw-admin/` unless noted. Each task ends with a commit.
 - Commit message style: `feat:`/`refactor:`/`test:`/`chore:` prefix, lowercase.
 
 ## Spec reference
 
-- Design spec: `docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-design.md` (§5 统一认证设计, §6 数据模型, §12 实现前对齐点).
+- Design spec: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-design.md` (§5 统一认证设计, §6 数据模型, §12 实现前对齐点).
 - This plan covers spec §4 v1 rows: "统一认证扩展" and the foundation for "OIDC 配置集中管理" (the admin-editable part is Plan 2). It does NOT implement admin API endpoints (Plan 2), template push (Plan 3), or frontend (Plan 3).
 
 ## File Structure
@@ -36,7 +36,7 @@
 - `internal/service/account.go` — `AccountService` + `UpsertOnLogin` + `ErrAccountDisabled`.
 - `internal/service/refresh.go` — `RefreshService` (Issue/Validate/RevokeAll).
 - `internal/handler/health.go` — `HealthHandler` (db/k8s/oidc).
-- `docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-alignment-findings.md` — Task 1 output.
+- `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` — Task 1 output.
 
 **Modify:**
 - `internal/config/config.go` — extend `JWTConfig` (`PrivateKeyPath`, `RefreshExpireDays`); keep `Secret` (state HMAC) and `ExpireHours`.
@@ -51,9 +51,9 @@
 
 **Files:**
 - Read: `workpaw-ui/src/**`, `workpaw-web/src/**` (Agent/MCP/Skill types, Pod config API calls)
-- Read: `workpaw-control-plane/internal/service/instance.go` (GetConnectInfo), `workpaw-operator/api/v1alpha1/*` (CRD spec/status)
-- Read: `workpaw-control-plane/internal/service/oidc.go`, `internal/service/jwt.go`
-- Create: `docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-alignment-findings.md`
+- Read: `workpaw-admin/internal/service/instance.go` (GetConnectInfo), `workpaw-operator/api/v1alpha1/*` (CRD spec/status)
+- Read: `workpaw-admin/internal/service/oidc.go`, `internal/service/jwt.go`
+- Create: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md`
 
 **Interfaces:**
 - Produces: a findings doc that unblocks Plan 2 (OIDC hot-reload, client_secret encryption) and Plan 3 (template `spec` fields, Pod config API contract, CRD status fields, three-end JWT verification libs). Plan 1 tasks below bake in the decisions for alignment point 6 (RS256 key source); if Task 1 contradicts those, update Tasks 4 before implementing.
@@ -87,13 +87,13 @@ Read `internal/service/oidc.go` `NewOIDCService` (uses `coreos/go-oidc` `oidc.Ne
 
 - [ ] **Step 6: Write the findings doc**
 
-Create `docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-alignment-findings.md` with one section per alignment point (1–8) containing: what was checked, the files read, the conclusion, and which plan/task it unblocks. Use real field names and paths — no placeholders.
+Create `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` with one section per alignment point (1–8) containing: what was checked, the files read, the conclusion, and which plan/task it unblocks. Use real field names and paths — no placeholders.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-alignment-findings.md
-git commit -m "docs: record workpaw-control-plane/console alignment findings (8 points)"
+git add docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md
+git commit -m "docs: record workpaw-admin/console alignment findings (8 points)"
 ```
 
 ---
@@ -112,7 +112,7 @@ git commit -m "docs: record workpaw-control-plane/console alignment findings (8 
 
 - [ ] **Step 1: Add dependencies**
 
-Run from `workpaw-control-plane/`:
+Run from `workpaw-admin/`:
 ```bash
 go get gorm.io/gorm@latest
 go get gorm.io/driver/postgres@latest
@@ -232,7 +232,7 @@ package db
 import (
 	"testing"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 func TestNewFailsOnUnreachableHost(t *testing.T) {
@@ -263,7 +263,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 // New opens a GORM connection to Postgres and pings it. Returns an error if the
@@ -341,7 +341,7 @@ Add to `Setup` (insert after the `jwtSvc` line, before `var oidcSvc`):
 		}
 	}
 ```
-Add imports `"github.com/workpaw/workpaw-control-plane/internal/db"` and `"github.com/workpaw/workpaw-control-plane/internal/model"` to router.go. Pass `gdb` into later tasks' services (Task 3+ wires them). For now, `gdb` is declared and used by nothing yet — that is fine; Go allows unused package-level vars but not unused locals. To avoid a compile error, reference it: change the health stub to report DB presence:
+Add imports `"github.com/workpaw/workpaw-admin/internal/db"` and `"github.com/workpaw/workpaw-admin/internal/model"` to router.go. Pass `gdb` into later tasks' services (Task 3+ wires them). For now, `gdb` is declared and used by nothing yet — that is fine; Go allows unused package-level vars but not unused locals. To avoid a compile error, reference it: change the health stub to report DB presence:
 ```go
 	r.GET("/health", func(c *gin.Context) {
 		status := "ok"
@@ -405,8 +405,8 @@ package service
 import (
 	"testing"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestAuditLogWritesRow(t *testing.T) {
@@ -459,7 +459,7 @@ Create `internal/service/audit.go`:
 package service
 
 import (
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 	"gorm.io/gorm"
 )
 
@@ -685,7 +685,7 @@ package service
 import (
 	"testing"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 func TestGenerateAccessTokenRS256RoundTrip(t *testing.T) {
@@ -735,7 +735,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 // WorkPawClaims defines the custom JWT claims issued by WorkPaw.
@@ -878,8 +878,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestUpsertOnLoginCreatesAccount(t *testing.T) {
@@ -940,7 +940,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 	"gorm.io/gorm"
 )
 
@@ -1090,8 +1090,8 @@ package service
 import (
 	"testing"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestRefreshIssueValidateRevoke(t *testing.T) {
@@ -1146,7 +1146,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 	"gorm.io/gorm"
 )
 
@@ -1226,10 +1226,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/workpaw/workpaw-control-plane/internal/config"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestRefreshHandler(t *testing.T) {
@@ -1553,7 +1553,7 @@ In `internal/router/router.go`, replace the existing stub `r.GET("/health", ...)
 	healthH := handler.NewHealthHandler(gdb, instanceSvc != nil, func() bool { return oidcSvc != nil })
 	r.GET("/health", healthH.Health)
 ```
-This line must appear AFTER `instanceSvc` and `oidcSvc` are determined (move it to just before `return r`). Add `"github.com/workpaw/workpaw-control-plane/internal/handler"` is already imported.
+This line must appear AFTER `instanceSvc` and `oidcSvc` are determined (move it to just before `return r`). Add `"github.com/workpaw/workpaw-admin/internal/handler"` is already imported.
 
 - [ ] **Step 6: Build and run all tests**
 
@@ -1603,8 +1603,8 @@ import (
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
-	"github.com/workpaw/workpaw-control-plane/internal/config"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -1739,7 +1739,7 @@ git commit -m "test: postgres integration test for account/refresh/jwt (testcont
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-control-plane/console-backend-foundation.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin/console-backend-foundation.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration.
 

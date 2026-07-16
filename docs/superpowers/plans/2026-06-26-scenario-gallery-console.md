@@ -31,11 +31,11 @@
 | `workpaw-ui/src/types/scenario.ts` | 新建 | 共享 Scenario/Variable 类型 |
 | `workpaw-ui/src/index.ts` | 修改 | 导出 VariableForm + scenario 类型 |
 | `workpaw-ui/src/components/VariableForm.test.tsx` | 新建 | 组件测试 |
-| `workpaw-control-plane/console/src/lib/adminApi.ts` | 修改 | 加 Scenario 类型 + scenarioApi 方法 |
-| `workpaw-control-plane/console/src/pages/Scenarios.tsx` | 新建 | 场景管理页 |
-| `workpaw-control-plane/console/src/pages/Scenarios.test.tsx` | 新建 | 页面测试 |
-| `workpaw-control-plane/console/src/App.tsx` | 修改 | 加路由 |
-| `workpaw-control-plane/console/src/layouts/MainLayout.tsx` | 修改 | 加导航项 |
+| `workpaw-admin/console/src/lib/adminApi.ts` | 修改 | 加 Scenario 类型 + scenarioApi 方法 |
+| `workpaw-admin/console/src/pages/Scenarios.tsx` | 新建 | 场景管理页 |
+| `workpaw-admin/console/src/pages/Scenarios.test.tsx` | 新建 | 页面测试 |
+| `workpaw-admin/console/src/App.tsx` | 修改 | 加路由 |
+| `workpaw-admin/console/src/layouts/MainLayout.tsx` | 修改 | 加导航项 |
 
 ---
 
@@ -394,7 +394,7 @@ git commit -m "feat(ui): VariableForm shared component (text/textarea/select/fil
 ## Task 4: console — scenarioApi
 
 **Files:**
-- Modify: `workpaw-control-plane/console/src/lib/adminApi.ts`
+- Modify: `workpaw-admin/console/src/lib/adminApi.ts`
 
 **Interfaces:**
 - Produces: `adminApi` 新增方法:`listScenarios`/`getScenario`/`createScenario`/`updateScenario`/`deleteScenario`/`cloneScenario`/`toggleScenario`/`sortScenarios`。
@@ -503,13 +503,13 @@ describe("scenarioApi", () => {
 
 - [ ] **Step 4: 运行 console 测试 + 编译**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane/console && npm run build && npm test`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm run build && npm test`
 Expected: 编译通过,测试不回归。
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane/console
+cd /Users/zhangsan/workpaw/workpaw-admin/console
 git checkout -b feat/scenario-console
 git add src/lib/adminApi.ts src/lib/adminApi.test.ts
 git commit -m "feat(console): scenarioApi types and methods"
@@ -565,13 +565,13 @@ import { Layers } from "lucide-react";
 
 - [ ] **Step 4: 验证**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane/console && npm run build`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm run build`
 Expected: 通过。手测:`npm run dev` → 导航有「场景管理」→ 点进占位页。
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane/console
+cd /Users/zhangsan/workpaw/workpaw-admin/console
 git add src/pages/Scenarios.tsx src/App.tsx src/layouts/MainLayout.tsx
 git commit -m "feat(console): scenarios route + nav placeholder"
 ```
@@ -666,7 +666,7 @@ describe("Scenarios page", () => {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane/console && npm test -- Scenarios`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm test -- Scenarios`
 Expected: FAIL — 占位页无表格/按钮。
 
 - [ ] **Step 3: 实现场景管理页**
@@ -836,7 +836,7 @@ export default function Scenarios() {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane/console && npm test -- Scenarios`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm test -- Scenarios`
 Expected: PASS(需 Task 7/8 文件已创建,否则 import 失败——先创建 Task 7/8 的最小占位再跑测试,或调整 import 为懒加载)。
 
 - [ ] **Step 5: Commit(含 Task 7/8 一起)**
@@ -1016,7 +1016,7 @@ describe("ScenarioEditor", () => {
 
 - [ ] **Step 3: 运行测试**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane/console && npm test -- ScenarioEditor`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm test -- ScenarioEditor`
 Expected: PASS
 
 ---
@@ -1113,13 +1113,13 @@ describe("ScenarioPreview", () => {
 
 - [ ] **Step 3: 运行全部 console 测试 + build**
 
-Run: `cd /Users/zhangsan/workpaw/workpaw-control-plane/console && npm test && npm run build`
+Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm test && npm run build`
 Expected: 全 PASS,build 通过。
 
 - [ ] **Step 4: Commit(Task 6/7/8 统一)**
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane/console
+cd /Users/zhangsan/workpaw/workpaw-admin/console
 git add src/pages/Scenarios.tsx src/pages/Scenarios.test.tsx \
         src/components/ScenarioEditor.tsx src/components/ScenarioEditor.test.tsx \
         src/components/ScenarioPreview.tsx src/components/ScenarioPreview.test.tsx

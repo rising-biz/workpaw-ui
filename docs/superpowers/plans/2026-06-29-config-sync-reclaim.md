@@ -78,7 +78,7 @@ func TestDeleteMethodsReturnPodAPIErrorOn4xx(t *testing.T) {
 ```
 (确保 import `errors`。)
 
-- [ ] **Step 2: 运行确认失败** — `cd workpaw-control-plane && go test ./internal/service/ -run "TestDeleteAgent|TestDeleteMethodsReturnPodAPIErrorOn4xx"` → FAIL(`DeleteAgent`/`PodAPIError` 未定义)。
+- [ ] **Step 2: 运行确认失败** — `cd workpaw-admin && go test ./internal/service/ -run "TestDeleteAgent|TestDeleteMethodsReturnPodAPIErrorOn4xx"` → FAIL(`DeleteAgent`/`PodAPIError` 未定义)。
 
 - [ ] **Step 3: 实现 — pod_config.go Delete 方法 + PodAPIError**
 
@@ -380,7 +380,7 @@ func (r *ConfigReconciler) markReclaimFailed(ctx context.Context, dc *model.Desi
 ---
 
 ## 验证清单
-- [ ] `cd workpaw-control-plane && go test ./...` 绿(预存 router 失败无关)。
+- [ ] `cd workpaw-admin && go test ./...` 绿(预存 router 失败无关)。
 - [ ] 手动:admin 建 agent binding(scope=user)→ reconcile 推送 → DELETE binding → 下个 reconcile 周期 Pod 上 `DELETE /api/agents/{id}` 被调用、agent 消失、DesiredConfig 行删除。
 - [ ] 手动:skill binding 删除,Pod 上 skill 不可删(409)时 DesiredConfig 行仍删除(容忍)。
 - [ ] 手动:Pod 不可达时 orphan 行标 `reclaim_failed` + 退避,Pod 恢复后下个周期回收成功删行。

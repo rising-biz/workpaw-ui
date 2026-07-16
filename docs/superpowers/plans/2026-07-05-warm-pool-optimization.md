@@ -20,7 +20,7 @@
 - **两仓独立可测**：operator 用 `fake.NewClientBuilder`；control-plane 用 `testutil.NewTestDB` + mock K8s client。
 - **ctx 变量 shadow（Plan 3 教训）**：router.Setup 中新增 ctx 参数不得 shadow `Setup` 的 ctx 形参。
 - **podTemplateEqual 比较**：不用 `DeepEqual`，沿用已有 `podTemplateEqual` 函数。
-- **两仓路径**：`/Users/zhangsan/workpaw/workpaw-operator` 和 `/Users/zhangsan/workpaw/workpaw-control-plane`
+- **两仓路径**：`/Users/zhangsan/workpaw/workpaw-operator` 和 `/Users/zhangsan/workpaw/workpaw-admin`
 
 ---
 
@@ -39,7 +39,7 @@
 | 新增 | `internal/metrics/pool.go` | Prometheus metrics 定义 |
 | 修改 | `cmd/main.go` | 注册 `PoolReconciler` 到 Manager |
 
-### workpaw-control-plane
+### workpaw-admin
 
 | 动作 | 文件 | 职责 |
 |------|------|------|
@@ -1133,16 +1133,16 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ## Task 4: Control-Plane — 删除 WarmPoolReplenisher + 优化领用
 
 **Files:**
-- Delete: `workpaw-control-plane/internal/service/warm_pool_replenisher.go`
-- Modify: `workpaw-control-plane/internal/service/assignment.go`
-- Modify: `workpaw-control-plane/internal/config/config.go`
-- Modify: `workpaw-control-plane/internal/router/router.go`
-- Create: `workpaw-control-plane/internal/metrics/assignment.go`
+- Delete: `workpaw-admin/internal/service/warm_pool_replenisher.go`
+- Modify: `workpaw-admin/internal/service/assignment.go`
+- Modify: `workpaw-admin/internal/config/config.go`
+- Modify: `workpaw-admin/internal/router/router.go`
+- Create: `workpaw-admin/internal/metrics/assignment.go`
 
 ### Step 1: 删除 warm_pool_replenisher.go
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 rm internal/service/warm_pool_replenisher.go
 ```
 
@@ -1284,7 +1284,7 @@ go replenisher.Run(ctx)
 ### Step 6: 编译 + 测试
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 go build ./...
 go vet ./...
 go test ./internal/service/... ./internal/config/...
@@ -1295,7 +1295,7 @@ Expected: 编译通过，现有测试全绿（如果有些测试引用了 `WarmP
 ### Step 7: Commit
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add -A
 git commit -m "feat(control-plane): delete WarmPoolReplenisher; optimize poolAssign
 
@@ -1314,8 +1314,8 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ## Task 5: Control-Plane — ConfigMap 企业列表 + Seed CR
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/enterprise.go`
-- Modify: `workpaw-control-plane/internal/handler/admin_enterprise.go`
+- Modify: `workpaw-admin/internal/service/enterprise.go`
+- Modify: `workpaw-admin/internal/handler/admin_enterprise.go`
 
 ### Step 1: 修改 EnterpriseService — 添加 K8s client 和种子方法
 
@@ -1500,7 +1500,7 @@ if enterpriseSvc != nil && instanceSvc != nil {
 ### Step 5: 编译 + 测试
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 go build ./...
 go vet ./...
 go test ./internal/service/... ./internal/handler/...
@@ -1511,7 +1511,7 @@ Expected: 编译通过，现有测试全绿。
 ### Step 6: Commit
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add -A
 git commit -m "feat(control-plane): add seed CR + ConfigMap enterprise list sync
 
@@ -1529,7 +1529,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ## Task 6: Control-Plane — 事件驱动 Config Push + 全量测试
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/config_reconciler.go`
+- Modify: `workpaw-admin/internal/service/config_reconciler.go`
 
 ### Step 1: 事件驱动 pooled CR config push
 
@@ -1548,7 +1548,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Step 2: 全量测试
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 go build ./... && go test ./...
 ```
 
@@ -1557,7 +1557,7 @@ Expected: ALL PASS.
 ### Step 3: Commit
 
 ```bash
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add -A
 git commit -m "feat(control-plane): verify event-driven config push for pooled CRs
 
@@ -1578,7 +1578,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 cd /Users/zhangsan/workpaw/workpaw-operator
 go build ./... && go vet ./... && go test ./...
 
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 go build ./... && go vet ./... && go test ./...
 ```
 
@@ -1600,7 +1600,7 @@ Expected: 0 matches（已被 Task 1 的重写覆盖）。
 cd /Users/zhangsan/workpaw/workpaw-operator
 go test ./internal/controller/ -run 'Pool|Health|Phase|Replenish' -v
 
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 go test ./internal/service/ -run 'Assignment|Pool|Cold' -v
 ```
 
@@ -1610,7 +1610,7 @@ go test ./internal/service/ -run 'Assignment|Pool|Cold' -v
 cd /Users/zhangsan/workpaw/workpaw-operator
 git add -A && git commit -m "chore(operator): final warm pool cleanup - remove dead code"
 
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add -A && git commit -m "chore(control-plane): final warm pool integration smoke"
 ```
 
@@ -1623,7 +1623,7 @@ git add -A && git commit -m "chore(control-plane): final warm pool integration s
 **Files:**
 - Modify: `workpaw-operator/internal/controller/pool_test.go`
 - Modify: `workpaw-operator/internal/controller/phase_test.go`
-- Delete: `workpaw-control-plane/internal/service/warm_pool_replenisher.go` (if not already deleted)
+- Delete: `workpaw-admin/internal/service/warm_pool_replenisher.go` (if not already deleted)
 - Search-and-destroy: any remaining references
 
 ### Step 1: Update operator pool_test.go — remove ReplenishConcurrency tests
@@ -1663,7 +1663,7 @@ if got.ReplenishConcurrency != 4 {
 grep -rn "replenish\|ReplenishConcurrency\|replenish_concurrency" /Users/zhangsan/workpaw/workpaw-operator/internal/
 
 # control-plane: no remaining references to WarmPoolReplenisher
-grep -rn "WarmPoolReplenisher\|warm_pool_replenisher\|NewWarmPoolReplenisher" /Users/zhangsan/workpaw/workpaw-control-plane/internal/
+grep -rn "WarmPoolReplenisher\|warm_pool_replenisher\|NewWarmPoolReplenisher" /Users/zhangsan/workpaw/workpaw-admin/internal/
 ```
 
 Expected: 0 matches for both.
@@ -1672,7 +1672,7 @@ Expected: 0 matches for both.
 
 ```bash
 cd /Users/zhangsan/workpaw/workpaw-operator && go build ./... && go test ./...
-cd /Users/zhangsan/workpaw/workpaw-control-plane && go build ./... && go test ./...
+cd /Users/zhangsan/workpaw/workpaw-admin && go build ./... && go test ./...
 ```
 
 Expected: ALL PASS.
@@ -1683,7 +1683,7 @@ Expected: ALL PASS.
 cd /Users/zhangsan/workpaw/workpaw-operator
 git add -A && git commit -m "chore(operator): remove dead replenish code and tests"
 
-cd /Users/zhangsan/workpaw/workpaw-control-plane
+cd /Users/zhangsan/workpaw/workpaw-admin
 git add -A && git commit -m "chore(control-plane): verify warm_pool_replenisher fully removed"
 ```
 

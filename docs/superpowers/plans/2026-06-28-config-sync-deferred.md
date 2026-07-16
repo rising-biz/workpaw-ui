@@ -23,12 +23,12 @@
 ## Task 11: Provider api_key AES-GCM 静态加密 (control-plane)
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/model/model.go`(`ProviderTemplate` 加字段 + 改注释)
-- Modify: `workpaw-control-plane/internal/service/template.go`(`NewTemplateService` 加 crypto;provider Create/Update 加密、Get/List masked)
-- Modify: `workpaw-control-plane/internal/service/config_reconciler.go`(provider push 解密注入)
-- Modify: `workpaw-control-plane/internal/router/router.go`(注入 cryptoSvc 到 TemplateService + ConfigReconciler)
-- Modify: `workpaw-control-plane/internal/service/template_test.go`(provider 加密用例)
-- Modify: `workpaw-control-plane/internal/service/config_reconciler_test.go`(provider push 解密用例)
+- Modify: `workpaw-admin/internal/model/model.go`(`ProviderTemplate` 加字段 + 改注释)
+- Modify: `workpaw-admin/internal/service/template.go`(`NewTemplateService` 加 crypto;provider Create/Update 加密、Get/List masked)
+- Modify: `workpaw-admin/internal/service/config_reconciler.go`(provider push 解密注入)
+- Modify: `workpaw-admin/internal/router/router.go`(注入 cryptoSvc 到 TemplateService + ConfigReconciler)
+- Modify: `workpaw-admin/internal/service/template_test.go`(provider 加密用例)
+- Modify: `workpaw-admin/internal/service/config_reconciler_test.go`(provider push 解密用例)
 
 **Interfaces:**
 - Consumes: `service.CryptoService`(`Encrypt(string)(string,error)` / `Decrypt(string)(string,error)`),现有 `pushProviderToPod`。
@@ -96,7 +96,7 @@ func TestProviderTemplateCreateNoCryptoIsError(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: 运行确认失败** — `cd workpaw-control-plane && go test ./internal/service/ -run TestProviderTemplate` → FAIL(`NewTemplateService` 签名不符 / APIKeyEnc 不存在)。
+- [ ] **Step 2: 运行确认失败** — `cd workpaw-admin && go test ./internal/service/ -run TestProviderTemplate` → FAIL(`NewTemplateService` 签名不符 / APIKeyEnc 不存在)。
 
 - [ ] **Step 3: 实现 — model + template.go**
 
@@ -328,7 +328,7 @@ func (r *QwenPawInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 ---
 
 ## 验证清单
-- [ ] `cd workpaw-control-plane && go test ./...` 绿(预存 router 失败无关)。
+- [ ] `cd workpaw-admin && go test ./...` 绿(预存 router 失败无关)。
 - [ ] `cd workpaw-operator && go test ./internal/controller/ -run "TestCORSOrigins|TestDesiredStatefulSet|TestPodTemplateEqual"` 绿。
 - [ ] 手动:admin 创建 provider 模板带 api_key → DB `provider_templates.api_key_enc` 非空、`spec` 无明文;Get 返回 `api_key:"sk-******"`;Pod 上 `/api/models/:id/config` 收到真实 key。
 - [ ] 手动:改 `workpaw-operator-config` ConfigMap 的 `corsOrigins` → 下个 reconcile 各 StatefulSet 滚动更新(无需重启 operator)。

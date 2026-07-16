@@ -1,6 +1,6 @@
-# Phase 3: workpaw-control-plane/console MVP
+# Phase 3: workpaw-admin/console MVP
 
-**Work in:** `/Users/zhangsan/workpaw/workpaw-control-plane/console`
+**Work in:** `/Users/zhangsan/workpaw/workpaw-admin/console`
 
 ## Goal
 实现管理后台 MVP：登录 → 实例列表 → 实例详情。

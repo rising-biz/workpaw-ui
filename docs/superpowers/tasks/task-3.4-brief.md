@@ -1,6 +1,6 @@
 # Task 3.4: Auth 中间件 + 路由注册
 
-**Work in:** `/Users/zhangsan/workpaw/workpaw-control-plane`
+**Work in:** `/Users/zhangsan/workpaw/workpaw-admin`
 
 ## Context
 
@@ -21,7 +21,7 @@ import (
     "strings"
 
     "github.com/gin-gonic/gin"
-    "github.com/workpaw/workpaw-control-plane/internal/service"
+    "github.com/workpaw/workpaw-admin/internal/service"
 )
 
 const claimsKey = "workpaw_claims"
@@ -107,13 +107,13 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o /workpaw-control-plane .
+RUN CGO_ENABLED=0 go build -o /workpaw-admin .
 
 FROM alpine:3.19
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /workpaw-control-plane /workpaw-control-plane
+COPY --from=builder /workpaw-admin /workpaw-admin
 EXPOSE 8080
-ENTRYPOINT ["/workpaw-control-plane"]
+ENTRYPOINT ["/workpaw-admin"]
 CMD ["serve"]
 ```
 

@@ -12,7 +12,7 @@
 
 **两仓定位：**
 - `workpaw-operator`：`/Users/zhangsan/workpaw/workpaw-operator`
-- `workpaw-control-plane`：`/Users/zhangsan/workpaw/workpaw-control-plane`
+- `workpaw-admin`：`/Users/zhangsan/workpaw/workpaw-admin`
 
 ## Global Constraints
 
@@ -34,7 +34,7 @@
 - Modify: `internal/controller/qwenpawinstance_controller_test.go` — `updateStatus` 集成测试
 - Regenerate: `config/crd/bases/*.yaml`（`make manifests`）
 
-**control-plane（`workpaw-control-plane`）：**
+**control-plane（`workpaw-admin`）：**
 - Modify: `internal/service/instance.go:85-91` — `InstanceStatus` 加 `Phase`/`Assignment` 字段
 - Modify: `internal/service/instance.go:398-424` — `mapInstanceStatus` 填 `Phase`；新增 `deriveAssignment`
 - Create: `internal/service/instance_status_test.go` — `mapInstanceStatus`/`deriveAssignment` 单元测试
@@ -423,8 +423,8 @@ git commit -m "feat(operator): write derived phase to QwenPawInstance status in 
 ## Task 4: control-plane — InstanceStatus 加 phase/assignment + mapInstanceStatus 填充（TDD）
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/instance.go:85-91`（struct）与 `:398-424`（mapInstanceStatus）
-- Test: `workpaw-control-plane/internal/service/instance_status_test.go`
+- Modify: `workpaw-admin/internal/service/instance.go:85-91`（struct）与 `:398-424`（mapInstanceStatus）
+- Test: `workpaw-admin/internal/service/instance_status_test.go`
 
 **Interfaces:**
 - Consumes: `QwenPawInstance.Status.Phase`（Task 1）
@@ -444,7 +444,7 @@ import (
 	workpawv1alpha1 "github.com/workpaw/workpaw-operator/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 func newMapStatusService() *InstanceService {
@@ -598,9 +598,9 @@ git commit -m "feat(control-plane): expose phase/assignment in InstanceStatus"
 ## Task 5: control-plane — SSE 端点 GET /api/instance/events（TDD）
 
 **Files:**
-- Create: `workpaw-control-plane/internal/handler/instance_events.go`
-- Test: `workpaw-control-plane/internal/handler/instance_events_test.go`
-- Modify: `workpaw-control-plane/internal/router/router.go`（instance 路由组）
+- Create: `workpaw-admin/internal/handler/instance_events.go`
+- Test: `workpaw-admin/internal/handler/instance_events_test.go`
+- Modify: `workpaw-admin/internal/router/router.go`（instance 路由组）
 
 **Interfaces:**
 - Consumes: `service.InstanceService.GetInstance(ctx, email, enterpriseID) (*InstanceStatus, error)`（已存在，`*InstanceService` 自动满足 `InstanceStatusGetter` 接口）
@@ -622,7 +622,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/workpaw/workpaw-control-plane/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/service"
 )
 
 type fakeGetter struct {
@@ -701,8 +701,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/workpaw/workpaw-control-plane/internal/middleware"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/middleware"
+	"github.com/workpaw/workpaw-admin/internal/service"
 )
 
 // InstanceStatusGetter is the subset of *service.InstanceService that watchLoop
@@ -799,7 +799,7 @@ Expected: 编译通过，全绿。
 
 - [ ] **Step 7: 手动冒烟（可选，需 dev 集群）**
 
-启动 control-plane（`cd workpaw-control-plane && go run . serve --dev`），用一个 dev token 请求：
+启动 control-plane（`cd workpaw-admin && go run . serve --dev`），用一个 dev token 请求：
 ```bash
 curl -N -H "Authorization: Bearer <dev-token>" https://127.0.0.1:8090/api/instance/events
 ```

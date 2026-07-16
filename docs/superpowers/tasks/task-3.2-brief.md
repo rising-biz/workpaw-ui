@@ -1,6 +1,6 @@
 # Task 3.2: OIDC + JWT 认证
 
-**Work in:** `/Users/zhangsan/workpaw/workpaw-control-plane`
+**Work in:** `/Users/zhangsan/workpaw/workpaw-admin`
 
 **Files to create:**
 

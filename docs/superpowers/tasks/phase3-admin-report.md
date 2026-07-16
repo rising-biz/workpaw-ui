@@ -1,8 +1,8 @@
-# Phase 3: workpaw-control-plane/console MVP — Completion Report
+# Phase 3: workpaw-admin/console MVP — Completion Report
 
 **Date:** 2026-06-18
 **Status:** Complete
-**Commit:** `32e1df7` on `main` — `feat: implement workpaw-control-plane/console MVP`
+**Commit:** `32e1df7` on `main` — `feat: implement workpaw-admin/console MVP`
 
 ## Build
 

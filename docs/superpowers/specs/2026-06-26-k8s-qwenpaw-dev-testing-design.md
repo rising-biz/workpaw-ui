@@ -2,7 +2,7 @@
 
 - 日期：2026-06-26
 - 状态：待评审
-- 范围：workpaw-web、workpaw-desktop、workpaw-control-plane/console、workpaw-control-plane（workpaw-operator、workpaw-ui 不改）
+- 范围：workpaw-web、workpaw-desktop、workpaw-admin/console、workpaw-admin（workpaw-operator、workpaw-ui 不改）
 
 ## 1. 背景与目标
 
@@ -10,7 +10,7 @@
 
 - `workpaw-web/.env.development`：`VITE_API_BASE_URL=http://127.0.0.1:8088` + `VITE_DEV_MODE=true`，跳过 SSO、直连本地 QwenPaw。
 - `workpaw-desktop/.env`：`VITE_POD_URL=http://127.0.0.1:8088`，跳过 control-plane、直连本地 QwenPaw。
-- `workpaw-control-plane/console` / `workpaw-ui`：不连 QwenPaw。
+- `workpaw-admin/console` / `workpaw-ui`：不连 QwenPaw。
 
 目标：不再使用本地 QwenPaw 进程，改为使用 Kubernetes 中的 QwenPaw 容器进行测试，并更新各服务配置。前端走真实 K8s 链路：dev-login（免真实 IdP）→ 本地 control-plane → 真实 `QwenPawInstance` CR + token Secret + Ingress → 集群中的 `agentscope/qwenpaw:v1.1.12` 容器。
 
@@ -109,7 +109,7 @@ VITE_DEV_MODE=true
 3. `src/stores/useInstanceStore.ts` — 新增 `activateInstance()` 动作。
 4. `src/lib/podApi.ts` — `getPodUrl()` 对 `VITE_POD_URL` 的兜底可保留或清理（可选）；token 来自 connect（`setConnection` 已带 `api_token`），`podHeaders()` 已会发 Bearer，无需改。
 
-### 5.3 workpaw-control-plane/console
+### 5.3 workpaw-admin/console
 仅 `.env.development`（新建或补全）：`VITE_CONTROL_PLANE_URL=http://localhost:8090`。`devLogin()` 已存在，不连 Pod，无代码改动。
 
 ### 5.4 不改的
@@ -117,7 +117,7 @@ VITE_DEV_MODE=true
 
 ## 6. Layer 3：后端配置
 
-### 6.1 workpaw-control-plane（`config.yaml`）
+### 6.1 workpaw-admin（`config.yaml`）
 预期无需改动，核对以下项与现有集群一致：
 - `server.mode: debug`（注册 `/api/auth/dev-login` 的前提）
 - `kubernetes.kubeconfig: /Users/zhangsan/.kube/config`
@@ -138,7 +138,7 @@ VITE_DEV_MODE=true
 
 **搭建顺序**
 1. 集群前置检查：`kubectl get pods -n workpaw-system`（operator Running）、`kubectl get crd qwenpawinstances.workpaw.workpaw.io`、ingress-nginx 已装、`qwenpaw-tls` Secret 存在于 `workpaw-instances`、kubeconfig RBAC 可用。
-2. control-plane：`cd workpaw-control-plane && go run . serve --dev`；`curl localhost:8090/health` 显示 k8s ok；`curl -X POST localhost:8090/api/auth/dev-login` 返回 `test@workpaw.local` 的 JWT。
+2. control-plane：`cd workpaw-admin && go run . serve --dev`；`curl localhost:8090/health` 显示 k8s ok；`curl -X POST localhost:8090/api/auth/dev-login` 返回 `test@workpaw.local` 的 JWT。
 3. 启动 dev 用户 Pod：用 dev-login token 调 `POST /api/instance/activate`（或前端自动激活）；轮询 `GET /api/instance` 至 `running`。验证：`kubectl get qwenpawinstance test -n workpaw-instances` = Running、Secret `qwenpaw-token-test` 存在、Ingress `test.qwenpaw.workpaw.internal` 已创建。
 4. DNS：`/etc/hosts` 加 `<INGRESS_ADDR> test.qwenpaw.workpaw.internal`；`curl -k https://test.qwenpaw.workpaw.internal/api/agent/health` 返回 ok。
 5. TLS：检查 `qwenpaw-tls` 证书 SAN；不受信任则 mkcert 造 `*.qwenpaw.workpaw.internal` 替换 Secret。

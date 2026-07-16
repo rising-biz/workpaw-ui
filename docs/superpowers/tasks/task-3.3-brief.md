@@ -1,6 +1,6 @@
 # Task 3.3: 实例管理 API
 
-**Work in:** `/Users/zhangsan/workpaw/workpaw-control-plane`
+**Work in:** `/Users/zhangsan/workpaw/workpaw-admin`
 
 ## Files to Create
 
@@ -17,7 +17,7 @@ import (
     "time"
 
     workpawv1alpha1 "github.com/workpaw/workpaw-operator/api/v1alpha1"
-    "github.com/workpaw/workpaw-control-plane/internal/config"
+    "github.com/workpaw/workpaw-admin/internal/config"
     corev1 "k8s.io/api/core/v1"
     apierrors "k8s.io/apimachinery/pkg/api/errors"
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

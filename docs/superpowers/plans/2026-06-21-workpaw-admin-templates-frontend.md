@@ -1,8 +1,8 @@
-# workpaw-control-plane/console — Template Push + Frontend (Plan 3 of 3)
+# workpaw-admin/console — Template Push + Frontend (Plan 3 of 3)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Complete the workpaw-control-plane/console backend (template `apply` → push config to a user's QwenPaw Pod via the privilege token) and wire the entire workpaw-control-plane/console frontend to real Control Plane APIs (replacing mock data, adding the new OIDC-config / templates / user-detail pages, and integrating RS256 JWT verification + refresh).
+**Goal:** Complete the workpaw-admin/console backend (template `apply` → push config to a user's QwenPaw Pod via the privilege token) and wire the entire workpaw-admin/console frontend to real Control Plane APIs (replacing mock data, adding the new OIDC-config / templates / user-detail pages, and integrating RS256 JWT verification + refresh).
 
 **Architecture:** Backend adds a `PodConfigClient` (HTTP client to a user's QwenPaw Pod config API, Bearer-authenticated with the privilege token from `GetConnectInfo`) and a `TemplateApplyService` that, for an agent template, creates the Agent on the Pod and attaches the selected MCP/Skill templates (create-then-link); for an MCP/Skill template, adds it to a specified existing Agent. All applies are synchronous (v1), recorded in `template_applies` + `audit_logs`. Frontend replaces the mock-based pages with real API calls via the existing `ApiClient` (already pointed at `/api/admin/*`), restructures the sidebar nav into groups per the spec, and adds the OIDC-config (edit + test + save), templates (3-tab CRUD + apply dialog), and user-detail pages. JWT verification switches to RS256 via the JWKS endpoint (Plan 1) and refresh tokens are used to keep sessions alive.
 
@@ -18,17 +18,17 @@
 - Pagination `?page=&page_size=20`, response `{items,total,page,page_size}`. Error shape `{error,code,detail,request_id}`. All admin routes behind the existing `Auth + AdminOnly` (Plan 1) + admin services (Plan 2).
 - Backend unit tests: `glebarez/sqlite` + a mock Pod HTTP server (`httptest`); K8s via fake client or `InstanceService` with a fake activator. Integration test: testcontainers Postgres + mock Pod.
 - Frontend tests: Vitest + React Testing Library on the new/changed components and the apply-dialog flow (success/Pod-offline states). `npm run build` must stay green; `npm run lint` clean.
-- All backend commands from `workpaw-control-plane/`; all frontend commands from `workpaw-control-plane/console/`. Each task ends with a commit. Backend commit prefix `feat:`/`test:`/etc.; frontend same.
+- All backend commands from `workpaw-admin/`; all frontend commands from `workpaw-admin/console/`. Each task ends with a commit. Backend commit prefix `feat:`/`test:`/etc.; frontend same.
 
 ## Spec reference
 
 - Design spec §5.1/5.2 (three-end JWT verify + refresh), §7 (template apply routes + OIDC/policy pages + nav), §8 (data flow A — template apply), §10 (Pod-offline 503, privilege-token-missing 409), §11 (tests), §12 alignment points 1 (template spec fields — use the exact `CreateAgentRequest`/`AgentProfileConfig`/`MCPClientCreateRequest`/`SkillSpec` shapes from the findings doc) & 2 (privilege token).
-- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-alignment-findings.md` — §1 has the exact Pod API paths + body field lists; §2 confirms the privilege-token Bearer path.
+- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` — §1 has the exact Pod API paths + body field lists; §2 confirms the privilege-token Bearer path.
 - Plan 1 (auth foundation) + Plan 2 (admin API + OIDC/policy/audit/templates CRUD) must be merged to main first.
 
 ## File Structure
 
-**Backend (workpaw-control-plane):**
+**Backend (workpaw-admin):**
 - Create: `internal/service/pod_config.go` — `PodConfigClient` (HTTP to a user's Pod: ListAgents, CreateAgent, UpdateAgent, CreateMCP, CreateSkill/SaveSkill). Bearer auth via privilege token.
 - Create: `internal/service/template_apply.go` — `TemplateApplyService` (apply agent/mcp/skill templates to a target user's Pod synchronously; idempotent; records `template_applies` + audit).
 - Modify: `internal/handler/admin_template.go` — add `POST /api/admin/templates/{type}/:id/apply` handler (Plan 2 created the file with CRUD; this adds apply).
@@ -36,7 +36,7 @@
 - Create: `internal/service/template_apply_test.go`, `internal/service/pod_config_test.go`, `internal/service/template_apply_integration_test.go` (`//go:build integration`).
 - Modify: `internal/config/config.go` + `config.yaml` — set `jwt.expire_hours` default to... NO — access TTL is controlled by `jwt.expire_hours`; this plan lowers it to 15min ONLY after frontend refresh is wired. Do the config change in the LAST backend task (or note it as a frontend-gated change). **Decision:** keep `jwt.expire_hours=24` until the frontend refresh task lands; lower it to 1 (15min would need a minutes field — `expire_hours` is hours, so use a new `jwt.access_expire_minutes` field defaulting to 15, read by `JWTService` in this plan). Add `jwt.access_expire_minutes` (default 15) and switch `JWTService` to use it when >0, else fall back to `expire_hours`.
 
-**Frontend (workpaw-control-plane/console):**
+**Frontend (workpaw-admin/console):**
 - Modify: `src/lib/api.ts` — add typed admin API methods (stats/users/user-detail/instance-govern/user-govern/oidc/policy/audit/templates); add `jose` JWKS token verification replacing `decodeJwt`; add refresh-token handling (auto-refresh on 401, store refresh token).
 - Modify: `src/stores/useAuthStore.ts` — store access+refresh; `initialize` verifies token via JWKS; refresh logic.
 - Modify: `src/layouts/MainLayout.tsx` — restructure nav into grouped sections per spec §7.
@@ -134,7 +134,7 @@
 ### Task 5: Frontend — add `jose`, replace decodeJwt with JWKS verification + refresh handling
 
 **Files:**
-- Modify: `workpaw-control-plane/console/package.json` (add `jose`), `src/lib/api.ts`, `src/stores/useAuthStore.ts`.
+- Modify: `workpaw-admin/console/package.json` (add `jose`), `src/lib/api.ts`, `src/stores/useAuthStore.ts`.
 
 **Interfaces:**
 - Produces: `verifyAccessToken(token)` using `jose.createRemoteJWKSet(new URL(controlPlaneUrl + "/.well-known/jwks.json"))` + `jwtVerify`. `useAuthStore` stores `access_token` + `refresh_token`; `initialize` verifies the access token via JWKS (on verification failure, try refresh; on refresh failure, clear). An api-client interceptor auto-refreshes on 401 (calls `/api/auth/refresh`, retries once).
@@ -150,7 +150,7 @@
 ### Task 6: Frontend — typed admin API methods (replace mock)
 
 **Files:**
-- Modify: `workpaw-control-plane/console/src/lib/api.ts` — add typed methods for every `/api/admin/*` endpoint (stats, users list+detail, instance activate/deactivate, user disable/enable, oidc get/test/save, policy get/put, audit-logs query/export, templates list/create/update/delete + apply).
+- Modify: `workpaw-admin/console/src/lib/api.ts` — add typed methods for every `/api/admin/*` endpoint (stats, users list+detail, instance activate/deactivate, user disable/enable, oidc get/test/save, policy get/put, audit-logs query/export, templates list/create/update/delete + apply).
 - Modify: `src/lib/mockData.ts` — delete the file (or empty it) once nothing imports it; remove imports from pages as they're rewired in Tasks 8–12.
 
 **Interfaces:**
@@ -166,7 +166,7 @@
 ### Task 7: Frontend — nav restructure + routes
 
 **Files:**
-- Modify: `workpaw-control-plane/console/src/layouts/MainLayout.tsx` (grouped nav: 监控/治理/配置/系统 per spec §7), `src/App.tsx` (routes `/users/:id`, `/oidc`, `/templates`).
+- Modify: `workpaw-admin/console/src/layouts/MainLayout.tsx` (grouped nav: 监控/治理/配置/系统 per spec §7), `src/App.tsx` (routes `/users/:id`, `/oidc`, `/templates`).
 
 **Interfaces:**
 - Produces: sidebar with 4 grouped sections; nav items map to `/`, `/users`, `/policy`, `/oidc`, `/templates`, `/audit`, `/appearance`. Routes registered for the 3 new pages.
@@ -179,7 +179,7 @@
 ### Task 8: Frontend — Dashboard + Users/Instances pages (real data)
 
 **Files:**
-- Modify: `workpaw-control-plane/console/src/pages/Dashboard.tsx`, `src/pages/Instances.tsx`.
+- Modify: `workpaw-admin/console/src/pages/Dashboard.tsx`, `src/pages/Instances.tsx`.
 
 **Interfaces:**
 - Produces: Dashboard shows 4 stat cards (total users / online instances / today activity / disabled) from `adminApi.stats()` + a recent-activity list from `adminApi.auditLogs({page_size:10})` + instance-status distribution (computed client-side from the users list or a dedicated breakdown — use the users list status counts). Users/Instances page: table from `adminApi.users({search,status,page,page_size})` with columns user/email/status/ingress/created/last-active/disabled; row actions view-detail (nav), force-start/stop (AlertDialog confirm), disable/enable (AlertDialog confirm; disable prompts for reason). Pagination controls.
@@ -195,7 +195,7 @@
 ### Task 9: Frontend — UserDetail page
 
 **Files:**
-- Create: `workpaw-control-plane/console/src/pages/UserDetail.tsx`.
+- Create: `workpaw-admin/console/src/pages/UserDetail.tsx`.
 
 **Interfaces:**
 - Produces: 3 sections — CRD instance status (+ start/stop buttons), governance state (disable toggle + reason + history), applied-templates list (`template_applies`). Top "应用模板" button opens `ApplyTemplateDialog` (Task 11).
@@ -208,7 +208,7 @@
 ### Task 10: Frontend — Templates page (3-tab CRUD) + OIDC config page + Policy page (real data)
 
 **Files:**
-- Create: `workpaw-control-plane/console/src/pages/Templates.tsx`, `src/pages/OidcConfig.tsx`.
+- Create: `workpaw-admin/console/src/pages/Templates.tsx`, `src/pages/OidcConfig.tsx`.
 - Modify: `src/pages/Policy.tsx` (replace mock with `adminApi.policy`).
 
 **Interfaces:**
@@ -225,7 +225,7 @@
 ### Task 11: Frontend — ApplyTemplateDialog + Audit page (real data)
 
 **Files:**
-- Create: `workpaw-control-plane/console/src/components/ApplyTemplateDialog.tsx`.
+- Create: `workpaw-admin/console/src/components/ApplyTemplateDialog.tsx`.
 - Modify: `src/pages/Audit.tsx` (replace mock with `adminApi.auditLogs` + filters + CSV export).
 
 **Interfaces:**
@@ -239,7 +239,7 @@
 ### Task 12: Frontend — delete mockData, full build/lint gate, e2e smoke
 
 **Files:**
-- Delete: `workpaw-control-plane/console/src/lib/mockData.ts`.
+- Delete: `workpaw-admin/console/src/lib/mockData.ts`.
 - Verify: no remaining `mockData` imports.
 
 **Interfaces:**
@@ -270,7 +270,7 @@
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-control-plane/console-templates-frontend.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin/console-templates-frontend.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — fresh subagent per task, review between, fast iteration.
 **2. Inline Execution** — batch execution with checkpoints.

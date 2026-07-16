@@ -2,7 +2,7 @@
 
 - **日期**:2026-06-26
 - **状态**:已确认设计,待用户复核 spec → 转 writing-plans
-- **关联**:基于飞书 Aily + 业界 AI Agent UX 调研;落地于 workpaw-control-plane(含 console/ 子目录)/ workpaw-desktop / workpaw-ui
+- **关联**:基于飞书 Aily + 业界 AI Agent UX 调研;落地于 workpaw-admin(含 console/ 子目录)/ workpaw-desktop / workpaw-ui
 
 ---
 
@@ -38,7 +38,7 @@ WorkPaw Desktop 的 chat 页面空状态只有一个 Bot 图标 + 3 个写死的
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ workpaw-control-plane (Go 治理层, Postgres)                  │
+│ workpaw-admin (Go 治理层, Postgres)                  │
 │  • Scenario 表 (official + enterprise 共存, slug 维度覆盖)    │
 │  • seed migration: 官方场景随版本 upsert (按 slug)           │
 │  • /api/admin/scenarios/*  ← console 管理 (admin role)       │
@@ -241,7 +241,7 @@ adminGroup.PUT("/scenarios/:id/toggle", adminScenarioH.Toggle)
 
 ## 4. console 管理页(场景管理,独立模块)
 
-落在 `workpaw-control-plane/console/src/pages/`,与现有 Templates 页并列。
+落在 `workpaw-admin/console/src/pages/`,与现有 Templates 页并列。
 
 ### 4.1 信息架构
 
@@ -621,7 +621,7 @@ v1 明确不做:用户自建场景、GPT Store 式公开市场、实时推送场
 - ~20 个官方场景 seed。
 
 ### 13.2 依赖与前提
-- workpaw-control-plane 已含 GORM+Postgres+JWT+Admin 中间件+审计(三期已完成)。
+- workpaw-admin 已含 GORM+Postgres+JWT+Admin 中间件+审计(三期已完成)。
 - workpaw-desktop 已有 chat(SSE)、Agent/Model 切换、附件上传、斜杠命令框架。
 - workpaw-ui 已有共享组件/类型基建。
 - control-plane `config.yaml` CORS 已允许 desktop dev origin。

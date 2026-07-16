@@ -107,7 +107,7 @@ func TestReclaimWorksAfterTemplateDeleted(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: 运行确认失败** — `cd workpaw-control-plane && go test ./internal/service/ -run "TestReclaimUsesAppliedResourceIDForAgent|TestReclaimWorksAfterTemplateDeleted"` → FAIL(`AppliedResourceID` 字段不存在 / `push` 返回值不符)。
+- [ ] **Step 2: 运行确认失败** — `cd workpaw-admin && go test ./internal/service/ -run "TestReclaimUsesAppliedResourceIDForAgent|TestReclaimWorksAfterTemplateDeleted"` → FAIL(`AppliedResourceID` 字段不存在 / `push` 返回值不符)。
 
 - [ ] **Step 3: 实现 — model 字段**
 
@@ -291,7 +291,7 @@ func (r *ConfigReconciler) reclaimOne(ctx context.Context, dc *model.DesiredConf
 ---
 
 ## 验证清单
-- [ ] `cd workpaw-control-plane && go test ./...` 绿(预存 router 失败无关)。
+- [ ] `cd workpaw-admin && go test ./...` 绿(预存 router 失败无关)。
 - [ ] 新测试:agent 回收**不调** ListAgents(直接 DELETE by id);模板删除后回收仍成功。
 - [ ] 旧行兼容:AppliedResourceID 为空的行回退到 reclaimKeys+deleteAgentByName(原路径)。
 - [ ] 回收各边界分支有日志(provider 跳过 / 实例不在 / 模板已删 / 空 ID / 未知类型 / 容错 4xx)。

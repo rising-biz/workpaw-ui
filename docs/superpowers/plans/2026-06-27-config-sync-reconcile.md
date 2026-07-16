@@ -14,15 +14,15 @@
 - 所有 Go 代码用 Gin/Zap/Viper/Cobra(control-plane)、Kubebuilder/controller-runtime(operator)。
 - 数据库只有 PostgreSQL;GORM 模型 `AutoMigrate` 在 `internal/model/model.go:Migrate` 统一注册。
 - JSON tag 一律 snake_case,匹配 admin 前端契约(`console/src/.../adminApi.ts` 是 spec)。
-- 测试用 `testutil.NewTestDB(t, &model.X{}...)`(内存 SQLite)+ `httptest` Pod mock + `fakeConnector`(实现 `InstanceConnector`)。命令:`cd workpaw-control-plane && go test ./internal/...`。
-- 运行控制面:`cd workpaw-control-plane && go run . serve --dev`(Viper 从 CWD 读 config.yaml)。
+- 测试用 `testutil.NewTestDB(t, &model.X{}...)`(内存 SQLite)+ `httptest` Pod mock + `fakeConnector`(实现 `InstanceConnector`)。命令:`cd workpaw-admin && go test ./internal/...`。
+- 运行控制面:`cd workpaw-admin && go run . serve --dev`(Viper 从 CWD 读 config.yaml)。
 - operator:`cd workpaw-operator && make run` / `make manifests` / `make test`。
 - 不要破坏现有 `POST /api/admin/templates/{agents|mcps|skills}/:id/apply` 同步 apply 的行为(保留为临时一次性推送;声明式走新的 `bindings`)。
 - Pod 重建检测基于 Pod **UID**(StatefulSet Pod 名 `qwenpaw-{username}-0` 稳定,但 UID 变化)。
 
 ## File Structure
 
-**control-plane (`workpaw-control-plane/`)**
+**control-plane (`workpaw-admin/`)**
 - `internal/model/model.go` — Modify:新增 `TemplateBinding`、`DesiredConfig`、`ProviderTemplate`;注册进 `Migrate`。
 - `internal/service/spec_hash.go` — Create:`specHash` 通用哈希 + uuid 排序辅助。
 - `internal/service/pod_config.go` — Modify:新增 `ConfigureProvider`、`ListProviders`。
@@ -46,8 +46,8 @@
 ### Task 1: 模型层 — TemplateBinding / DesiredConfig / ProviderTemplate
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/model/model.go`
-- Test: `workpaw-control-plane/internal/model/config_sync_test.go`
+- Modify: `workpaw-admin/internal/model/model.go`
+- Test: `workpaw-admin/internal/model/config_sync_test.go`
 
 **Interfaces:**
 - Produces: `model.TemplateBinding`、`model.DesiredConfig`、`model.ProviderTemplate` 三个 GORM 模型;`Migrate()` 会建表。
@@ -76,7 +76,7 @@ func TestConfigSyncTablesMigrate(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/model/ -run TestConfigSyncTablesMigrate`
+Run: `cd workpaw-admin && go test ./internal/model/ -run TestConfigSyncTablesMigrate`
 Expected: FAIL — `testutil` 未导入 / 类型未定义。
 
 - [ ] **Step 3: 写模型**
@@ -156,13 +156,13 @@ func Migrate(gdb *gorm.DB) error {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/model/ -run TestConfigSyncTablesMigrate`
+Run: `cd workpaw-admin && go test ./internal/model/ -run TestConfigSyncTablesMigrate`
 Expected: PASS
 
 - [ ] **Step 5: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/model/model.go internal/model/config_sync_test.go
 git commit -m "feat(model): add TemplateBinding, DesiredConfig, ProviderTemplate tables"
 ```
@@ -172,8 +172,8 @@ git commit -m "feat(model): add TemplateBinding, DesiredConfig, ProviderTemplate
 ### Task 2: specHash 工具
 
 **Files:**
-- Create: `workpaw-control-plane/internal/service/spec_hash.go`
-- Test: `workpaw-control-plane/internal/service/spec_hash_test.go`
+- Create: `workpaw-admin/internal/service/spec_hash.go`
+- Test: `workpaw-admin/internal/service/spec_hash_test.go`
 
 **Interfaces:**
 - Produces: `func specHash(parts ...interface{}) string`、`func sortedUUIDStrings(ids []uuid.UUID) []string`。reconciler 用它计算模板当前内容指纹。
@@ -233,7 +233,7 @@ func TestSpecHashAgentIncludesLinkedIDs(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run TestSpecHash`
+Run: `cd workpaw-admin && go test ./internal/service/ -run TestSpecHash`
 Expected: FAIL — `specHash` undefined.
 
 - [ ] **Step 3: 写实现**
@@ -280,13 +280,13 @@ func sortedUUIDStrings(ids []uuid.UUID) []string {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run TestSpecHash`
+Run: `cd workpaw-admin && go test ./internal/service/ -run TestSpecHash`
 Expected: PASS
 
 - [ ] **Step 5: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/spec_hash.go internal/service/spec_hash_test.go
 git commit -m "feat(service): add stable specHash for template change detection"
 ```
@@ -296,8 +296,8 @@ git commit -m "feat(service): add stable specHash for template change detection"
 ### Task 3: InstanceService — ListInstanceUserIDs + PodUID
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/instance.go`
-- Test: `workpaw-control-plane/internal/service/instance_reconcile_test.go`
+- Modify: `workpaw-admin/internal/service/instance.go`
+- Test: `workpaw-admin/internal/service/instance_reconcile_test.go`
 
 **Interfaces:**
 - Produces: `func (s *InstanceService) ListInstanceUserIDs(ctx context.Context) ([]string, error)`、`func (s *InstanceService) PodUID(ctx context.Context, userID string) (string, error)`。
@@ -327,7 +327,7 @@ func TestInstanceServiceReconcileAPIShape(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run TestInstanceServiceReconcileAPIShape`
+Run: `cd workpaw-admin && go test ./internal/service/ -run TestInstanceServiceReconcileAPIShape`
 Expected: FAIL — methods not defined.
 
 - [ ] **Step 3: 写实现**
@@ -374,13 +374,13 @@ func (s *InstanceService) PodUID(ctx context.Context, userID string) (string, er
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run TestInstanceServiceReconcileAPIShape`
+Run: `cd workpaw-admin && go test ./internal/service/ -run TestInstanceServiceReconcileAPIShape`
 Expected: PASS
 
 - [ ] **Step 5: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/instance.go internal/service/instance_reconcile_test.go
 git commit -m "feat(service): add InstanceService.ListInstanceUserIDs + PodUID for rebuild detection"
 ```
@@ -390,8 +390,8 @@ git commit -m "feat(service): add InstanceService.ListInstanceUserIDs + PodUID f
 ### Task 4: PodConfigClient — ConfigureProvider + ListProviders
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/pod_config.go`
-- Test: `workpaw-control-plane/internal/service/pod_config_provider_test.go`
+- Modify: `workpaw-admin/internal/service/pod_config.go`
+- Test: `workpaw-admin/internal/service/pod_config_provider_test.go`
 
 **Interfaces:**
 - Produces: `func (c *PodConfigClient) ListProviders(ctx context.Context) ([]PodProvider, error)`、`func (c *PodConfigClient) ConfigureProvider(ctx context.Context, providerID string, body map[string]interface{}) error`。
@@ -471,7 +471,7 @@ func TestListProviders(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run "TestConfigureProvider|TestListProviders"`
+Run: `cd workpaw-admin && go test ./internal/service/ -run "TestConfigureProvider|TestListProviders"`
 Expected: FAIL — `ConfigureProvider` / `PodProvider` undefined.
 
 - [ ] **Step 3: 写实现**
@@ -547,13 +547,13 @@ func (c *PodConfigClient) ConfigureProvider(ctx context.Context, providerID stri
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run "TestConfigureProvider|TestListProviders"`
+Run: `cd workpaw-admin && go test ./internal/service/ -run "TestConfigureProvider|TestListProviders"`
 Expected: PASS
 
 - [ ] **Step 5: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/pod_config.go internal/service/pod_config_provider_test.go
 git commit -m "feat(service): add PodConfigClient.ConfigureProvider + ListProviders"
 ```
@@ -563,8 +563,8 @@ git commit -m "feat(service): add PodConfigClient.ConfigureProvider + ListProvid
 ### Task 5: 抽取 push 原语,Apply* 复用(行为不变)
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/template_apply.go`
-- Test: `workpaw-control-plane/internal/service/template_apply_test.go`(已有,必须仍通过)
+- Modify: `workpaw-admin/internal/service/template_apply.go`
+- Test: `workpaw-admin/internal/service/template_apply_test.go`(已有,必须仍通过)
 
 **Interfaces:**
 - Produces: 包级函数 `pushAgentToPod`、`pushAgentWithCascade`、`pushMCPToPod`、`pushSkillToPod`、`pushProviderToPod`。`ApplyAgent/ApplyMCP/ApplySkill` 改为调用它们。
@@ -641,7 +641,7 @@ func TestPushProviderToPodStripsIDAndPuts(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run "TestPushAgentToPod|TestPushProviderToPod"`
+Run: `cd workpaw-admin && go test ./internal/service/ -run "TestPushAgentToPod|TestPushProviderToPod"`
 Expected: FAIL — `pushAgentToPod` undefined.
 
 - [ ] **Step 3: 抽取 push 原语**
@@ -773,13 +773,13 @@ func pushProviderToPod(ctx context.Context, client *PodConfigClient, spec map[st
 
 - [ ] **Step 5: 运行全部 template_apply 测试,确认通过(含原有)**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run "TestApply|TestPush"`
+Run: `cd workpaw-admin && go test ./internal/service/ -run "TestApply|TestPush"`
 Expected: PASS(原有 `TestApplyAgentSuccess` 等仍绿,新增 push 测试也绿)
 
 - [ ] **Step 6: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/template_apply.go internal/service/template_apply_test.go
 git commit -m "refactor(service): extract push primitives, reuse in Apply* (behavior unchanged)"
 ```
@@ -789,8 +789,8 @@ git commit -m "refactor(service): extract push primitives, reuse in Apply* (beha
 ### Task 6: ConfigReconciler — materialize + converge + 退避 + 并发
 
 **Files:**
-- Create: `workpaw-control-plane/internal/service/config_reconciler.go`
-- Create: `workpaw-control-plane/internal/service/config_reconciler_test.go`
+- Create: `workpaw-admin/internal/service/config_reconciler.go`
+- Create: `workpaw-admin/internal/service/config_reconciler_test.go`
 
 **Interfaces:**
 - Produces: `type ConfigReconciler struct{...}`、`func NewConfigReconciler(db, connector, audit, logger, interval, concurrency) *ConfigReconciler`、`func (r *ConfigReconciler) Run(ctx context.Context)`、`func (r *ConfigReconciler) ReconcileOnce(ctx context.Context) error`(测试用同步入口)。
@@ -813,8 +813,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 // stubPodLister doubles InstanceService for reconcile tests.
@@ -996,7 +996,7 @@ func TestReconcileBackoffOnFailure(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run TestReconcile`
+Run: `cd workpaw-admin && go test ./internal/service/ -run TestReconcile`
 Expected: FAIL — `ConfigReconciler` undefined.
 
 - [ ] **Step 3: 写实现**
@@ -1015,7 +1015,7 @@ import (
 	"gorm.io/gorm"
 	"go.uber.org/zap"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 )
 
 // PodLister is the InstanceService surface the reconciler needs: enumerate
@@ -1306,13 +1306,13 @@ func truncate(s string, n int) string {
 
 - [ ] **Step 4: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run TestReconcile -count=1`
+Run: `cd workpaw-admin && go test ./internal/service/ -run TestReconcile -count=1`
 Expected: PASS(5 个测试全绿)
 
 - [ ] **Step 5: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/config_reconciler.go internal/service/config_reconciler_test.go
 git commit -m "feat(service): add ConfigReconciler (materialize + converge + backoff)"
 ```
@@ -1322,8 +1322,8 @@ git commit -m "feat(service): add ConfigReconciler (materialize + converge + bac
 ### Task 7: 配置 + 启动 reconciler goroutine
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/config/config.go`
-- Modify: `workpaw-control-plane/internal/router/router.go`
+- Modify: `workpaw-admin/internal/config/config.go`
+- Modify: `workpaw-admin/internal/router/router.go`
 
 **Interfaces:**
 - Produces: `config.ConfigSyncConfig`(`Enabled`/`IntervalSeconds`/`Concurrency`)。
@@ -1389,16 +1389,16 @@ type ConfigSyncConfig struct {
 
 - [ ] **Step 3: 构建并冒烟**
 
-Run: `cd workpaw-control-plane && go build ./...`
+Run: `cd workpaw-admin && go build ./...`
 Expected: 编译通过。
 
-Run(手动,需 dev Postgres + 集群):`cd workpaw-control-plane && go run . serve --dev`,观察日志含 `Config reconciler started`。
+Run(手动,需 dev Postgres + 集群):`cd workpaw-admin && go run . serve --dev`,观察日志含 `Config reconciler started`。
 Expected: 启动日志出现该行;无 panic。
 
 - [ ] **Step 4: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/config/config.go internal/router/router.go
 git commit -m "feat(config): add ConfigSyncConfig; start ConfigReconciler in router.Setup"
 ```
@@ -1408,10 +1408,10 @@ git commit -m "feat(config): add ConfigSyncConfig; start ConfigReconciler in rou
 ### Task 8: Admin API — bindings CRUD + desired-configs 列表
 
 **Files:**
-- Create: `workpaw-control-plane/internal/service/binding.go`
-- Create: `workpaw-control-plane/internal/handler/admin_binding.go`
-- Modify: `workpaw-control-plane/internal/router/router.go`
-- Test: `workpaw-control-plane/internal/handler/admin_binding_test.go`
+- Create: `workpaw-admin/internal/service/binding.go`
+- Create: `workpaw-admin/internal/handler/admin_binding.go`
+- Modify: `workpaw-admin/internal/router/router.go`
+- Test: `workpaw-admin/internal/handler/admin_binding_test.go`
 
 **Interfaces:**
 - Produces: `service.TemplateBindingService`(`Create`/`List`/`Delete`);`handler.AdminBindingHandler`(`Create`/`List`/`Delete`/`DesiredConfigs`)。
@@ -1432,9 +1432,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func setupBindingRouter(t *testing.T) (*gin.Engine, *service.TemplateBindingService) {
@@ -1507,7 +1507,7 @@ func TestBindingCreateRejectsUnknownType(t *testing.T) {
 
 - [ ] **Step 2: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/handler/ -run TestBinding`
+Run: `cd workpaw-admin && go test ./internal/handler/ -run TestBinding`
 Expected: FAIL — `NewTemplateBindingService` / `NewAdminBindingHandler` undefined.
 
 - [ ] **Step 3: 写 binding service**
@@ -1524,7 +1524,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 )
 
 // TemplateBindingService manages admin config bindings (the declarative intent
@@ -1613,8 +1613,8 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/service"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/service"
 )
 
 type AdminBindingHandler struct {
@@ -1713,7 +1713,7 @@ func (h *AdminBindingHandler) DesiredConfigs(c *gin.Context) {
 }
 ```
 
-> **注意:** handler 取 actor 复用现有 `middleware.GetClaims(c)`(见 `admin_template.go:286`)。`admin_binding.go` 需 import `"github.com/workpaw/workpaw-control-plane/internal/middleware"`。`adminError` 已在 `handler/admin.go:66` 定义,直接可用。
+> **注意:** handler 取 actor 复用现有 `middleware.GetClaims(c)`(见 `admin_template.go:286`)。`admin_binding.go` 需 import `"github.com/workpaw/workpaw-admin/internal/middleware"`。`adminError` 已在 `handler/admin.go:66` 定义,直接可用。
 
 - [ ] **Step 5: 注册路由**
 
@@ -1733,13 +1733,13 @@ func (h *AdminBindingHandler) DesiredConfigs(c *gin.Context) {
 
 - [ ] **Step 6: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/handler/ -run TestBinding`
+Run: `cd workpaw-admin && go test ./internal/handler/ -run TestBinding`
 Expected: PASS
 
 - [ ] **Step 7: 提交**
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/binding.go internal/handler/admin_binding.go internal/handler/admin_binding_test.go internal/router/router.go
 git commit -m "feat(admin): add bindings CRUD + desired-configs status endpoints"
 ```
@@ -1749,8 +1749,8 @@ git commit -m "feat(admin): add bindings CRUD + desired-configs status endpoints
 ### Task 9: ProviderTemplate 纳入模板 CRUD(ParseTemplateType + TemplateService)
 
 **Files:**
-- Modify: `workpaw-control-plane/internal/service/template.go`(`ParseTemplateType` + 分发)
-- Test: `workpaw-control-plane/internal/service/template_test.go`(若已有则追加用例)
+- Modify: `workpaw-admin/internal/service/template.go`(`ParseTemplateType` + 分发)
+- Test: `workpaw-admin/internal/service/template_test.go`(若已有则追加用例)
 
 **Interfaces:**
 - Produces:`ParseTemplateType` 接受 `provider(s)`;`TemplateService.List/Get/Create/Update/Delete` 覆盖 provider。
@@ -1758,7 +1758,7 @@ git commit -m "feat(admin): add bindings CRUD + desired-configs status endpoints
 
 - [ ] **Step 1: 定位现有 ParseTemplateType**
 
-Run: `cd workpaw-control-plane && grep -n "func ParseTemplateType\|ErrUnknownTemplateType\|switch" internal/service/template.go | head -20`
+Run: `cd workpaw-admin && grep -n "func ParseTemplateType\|ErrUnknownTemplateType\|switch" internal/service/template.go | head -20`
 
 - [ ] **Step 2: 写失败测试**
 
@@ -1801,7 +1801,7 @@ func TestTemplateServiceProviderCRUD(t *testing.T) {
 
 - [ ] **Step 3: 运行测试,确认失败**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run "TestParseTemplateTypeProvider|TestTemplateServiceProviderCRUD"`
+Run: `cd workpaw-admin && go test ./internal/service/ -run "TestParseTemplateTypeProvider|TestTemplateServiceProviderCRUD"`
 Expected: FAIL — `TemplateTypeProvider` undefined / provider 分支缺失。
 
 - [ ] **Step 4: 实现 provider 分支**
@@ -1833,16 +1833,16 @@ Expected: FAIL — `TemplateTypeProvider` undefined / provider 分支缺失。
 
 - [ ] **Step 5: 运行测试,确认通过**
 
-Run: `cd workpaw-control-plane && go test ./internal/service/ -run "TestParseTemplateTypeProvider|TestTemplateServiceProviderCRUD"`
+Run: `cd workpaw-admin && go test ./internal/service/ -run "TestParseTemplateTypeProvider|TestTemplateServiceProviderCRUD"`
 Expected: PASS
 
 - [ ] **Step 6: 全量回归 + 提交**
 
-Run: `cd workpaw-control-plane && go test ./...`
+Run: `cd workpaw-admin && go test ./...`
 Expected: PASS
 
 ```bash
-cd workpaw-control-plane
+cd workpaw-admin
 git add internal/service/template.go internal/service/template_test.go
 git commit -m "feat(service): support provider templates in ParseTemplateType + TemplateService"
 ```
@@ -2030,7 +2030,7 @@ git commit -m "feat(operator): patch StatefulSet template on drift (infra hot-up
 
 ## 验证清单(整体回归)
 
-- [ ] `cd workpaw-control-plane && go test ./...` 全绿。
+- [ ] `cd workpaw-admin && go test ./...` 全绿。
 - [ ] `cd workpaw-operator && go test ./...` 全绿。
 - [ ] 手动(dev 集群):
   1. admin console 创建一个 agent 模板 → POST `/api/admin/bindings` `{template_type:"agent", template_id, scope:"all"}`。

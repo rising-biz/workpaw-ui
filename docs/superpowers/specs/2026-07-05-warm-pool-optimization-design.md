@@ -2,7 +2,7 @@
 
 - **状态**：Draft，待 review
 - **日期**：2026-07-05
-- **范围**：跨两仓 — `workpaw-control-plane` / `workpaw-operator`
+- **范围**：跨两仓 — `workpaw-admin` / `workpaw-operator`
 - **关联 spec**：`2026-07-05-first-login-wait-ux-design.md` §7 / §9 / §10 / §11 / §13 / §15
 - **替代**：`2026-07-05-warm-pool.md`（Plan 4 实施计划，已执行完成，本设计为其优化版本）
 
@@ -401,7 +401,7 @@ workpaw_assignment_total{enterprise="ent-1",result="reusing"} 56
 | 新增 | `internal/metrics/pool.go` | Prometheus metrics |
 | 修改 | `config/manager/manager.yaml` | pool 相关 env |
 
-#### workpaw-control-plane
+#### workpaw-admin
 
 | 动作 | 文件 | 内容 |
 |------|------|------|

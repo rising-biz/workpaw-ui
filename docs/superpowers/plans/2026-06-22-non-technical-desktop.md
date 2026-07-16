@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **范围**: 仅 `/Users/zhangsan/workpaw/workpaw-desktop`。不碰 `workpaw-web`/`workpaw-control-plane/console`/`workpaw-control-plane`/`workpaw-operator`/`workpaw-ui`(共享 UI 包)。
+- **范围**: 仅 `/Users/zhangsan/workpaw/workpaw-desktop`。不碰 `workpaw-web`/`workpaw-admin/console`/`workpaw-admin`/`workpaw-operator`/`workpaw-ui`(共享 UI 包)。
 - **不动**: chat 消息渲染/流式/工具调用卡片(`components/ai-elements/*`)、SessionSidebar 会话管理逻辑、后端契约、K8s 生命周期逻辑(只改前端如何呈现)。
 - **术语规则(desktop chrome)**: "Agent"→"助手"、"选择 Agent"→"选择助手"、"按 Agent 筛选"→"按助手筛选"、"归属Agent:"→"所属助手:"、"执行Agent:"→"执行助手:"、"子Agent"→"子助手"、"工具:"→"将执行:"、"严重性:"→"重要性:"、"发现:"→"问题:"、"参数"(tool_params 折叠)→"详细内容"、"已超时，自动拒绝"→"超过时限，已自动拒绝"、"暂无推送消息"→"没有新消息"、"暂无待审批项"→"没有需要你审批的内容"。web 配置面保留 Agent 术语——本规则仅 desktop。
 - **Signal Orange 出场点(One Signal Rule)**: 仅过渡屏进度环、Agent 选中勾、批准按钮(primary 变体)、思考指示点。空状态装饰不用橙。

@@ -2,7 +2,7 @@
 
 - **日期**: 2026-06-22
 - **范围**: 仅 `workpaw-desktop`（Tauri 桌面对话端）
-- **不动**: `workpaw-web`（配置面）、`workpaw-control-plane/console`（管理后台）、后端契约、K8s 生命周期逻辑
+- **不动**: `workpaw-web`（配置面）、`workpaw-admin/console`（管理后台）、后端契约、K8s 生命周期逻辑
 - **目标用户**: 企业内非技术员工（不会读技术术语、不看文档、怕点错的高频日常使用者）
 - **北极星**: 精密控制台（PRODUCT.md / DESIGN.md），克制·温暖·精密
 - **成败标准**: 零文档自服务优先 + 降低畏惧感（两者都要，自服务优先）

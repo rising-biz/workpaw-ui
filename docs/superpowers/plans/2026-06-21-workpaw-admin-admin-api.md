@@ -1,8 +1,8 @@
-# workpaw-control-plane/console Backend — Admin API & OIDC Central Management (Plan 2 of 3)
+# workpaw-admin/console Backend — Admin API & OIDC Central Management (Plan 2 of 3)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement the control-plane admin API endpoints (stats/users/instance-govern/user-govern/OIDC-central-management/policy/audit) backed by PostgreSQL + K8s CRD, with audit logging on every write — the backend half of workpaw-control-plane/console.
+**Goal:** Implement the control-plane admin API endpoints (stats/users/instance-govern/user-govern/OIDC-central-management/policy/audit) backed by PostgreSQL + K8s CRD, with audit logging on every write — the backend half of workpaw-admin/console.
 
 **Architecture:** New `admin` service layer reads the K8s `QwenPawInstance` CRD list for the user/instance registry (joined with `accounts` for governance state), writes `policies`/`oidc_configs`/`agent_templates`/`mcp_templates`/`skill_templates`/`template_applies` via GORM, and enforces disable at instance-activate (extension of the Plan 1 `accounts` check). OIDC config moves from config.yaml-only to PostgreSQL with test-connection + confirm + hot-reload; `client_secret` AES-GCM encrypted. A `crypto` service isolates encryption. An `OIDCServiceManager` wraps the current `*OIDCService` for atomic hot-swap.
 
@@ -19,12 +19,12 @@
 - Pagination: `?page=1&page_size=20` (offset, v1); response `{items, total, page, page_size}`. Error response: `{"error","code","detail","request_id"}`.
 - All admin routes behind existing `Auth + AdminOnly` middleware (Plan 1). Bearer JWT, no cookie, no CSRF. v1 admin/non-admin binary roles.
 - Unit tests use `glebarez/sqlite` in-memory (testutil.NewTestDB); K8s CRD calls mocked via interface; integration test uses testcontainers Postgres (`//go:build integration`).
-- All commands run from `workpaw-control-plane/`. Each task ends with a commit. Commit prefix: `feat:`/`refactor:`/`test:`/`chore:`.
+- All commands run from `workpaw-admin/`. Each task ends with a commit. Commit prefix: `feat:`/`refactor:`/`test:`/`chore:`.
 
 ## Spec reference
 
 - Design spec §6 (data model — oidc_configs, agent_templates, mcp_templates, skill_templates, policies, template_applies; accounts/refresh_tokens/audit_logs from Plan 1), §7 (API + 3 生效机制), §9 (data flows B/C/D), §10 (error handling), §12 alignment points 4/5/7/8.
-- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-control-plane/console-alignment-findings.md` (CRD spec/status field names confirmed; OIDC hot-reload = rebuild+swap; client_secret AES-GCM).
+- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` (CRD spec/status field names confirmed; OIDC hot-reload = rebuild+swap; client_secret AES-GCM).
 - This plan does NOT implement template *application* (the Pod push — Plan 3) or the frontend (Plan 3). Template CRUD (create/read/update/delete the template rows) IS in this plan; the `apply` endpoint is Plan 3.
 
 ## File Structure
@@ -432,7 +432,7 @@ import (
 	"context"
 	"sync/atomic"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/config"
 )
 
 // OIDCServiceManager holds the current *OIDCService behind an atomic pointer
@@ -506,9 +506,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestOIDCConfigSaveAndGet(t *testing.T) {
@@ -574,8 +574,8 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/config"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/config"
+	"github.com/workpaw/workpaw-admin/internal/model"
 )
 
 var ErrVersionConflict = errors.New("version conflict — config was modified by another admin")
@@ -731,8 +731,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 func TestPolicySeedsDefaults(t *testing.T) {
@@ -792,7 +792,7 @@ import (
 	"gorm.io/gorm"
 
 	workpawv1alpha1 "github.com/workpaw/workpaw-operator/api/v1alpha1"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 )
 
 // PolicyService keeps the global policy row in memory (read by every new
@@ -933,8 +933,8 @@ import (
 
 	workpawv1alpha1 "github.com/workpaw/workpaw-operator/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/workpaw/workpaw-control-plane/internal/model"
-	"github.com/workpaw/workpaw-control-plane/internal/testutil"
+	"github.com/workpaw/workpaw-admin/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/testutil"
 )
 
 type fakeLister struct{ items []*workpawv1alpha1.QwenPawInstance }
@@ -1046,7 +1046,7 @@ import (
 	workpawv1alpha1 "github.com/workpaw/workpaw-operator/api/v1alpha1"
 	"gorm.io/gorm"
 
-	"github.com/workpaw/workpaw-control-plane/internal/model"
+	"github.com/workpaw/workpaw-admin/internal/model"
 )
 
 type ListFilter struct {
@@ -1421,7 +1421,7 @@ git commit -m "test: admin integration test (testcontainers, real Postgres flow)
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-control-plane/console-admin-api.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin/console-admin-api.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — fresh subagent per task, review between, fast iteration.
 **2. Inline Execution** — batch execution with checkpoints.
