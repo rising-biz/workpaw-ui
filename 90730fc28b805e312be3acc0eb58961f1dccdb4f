@@ -1,0 +1,22 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "90730fc28b805e312be3acc0eb58961f1dccdb4f",
+  "prompts": {
+    "0d7c52d58924bab0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "add64027-79f6-482e-8195-78419a4add97",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 330,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/2a70c295f981ec26d2ac5524f1e1666ea7a740a42e354d4fae0d53e9ac751951"
+    }
+  }
+}
