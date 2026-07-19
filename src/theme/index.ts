@@ -12,3 +12,13 @@ export {
   useThemeVariantStore,
   THEME_VARIANT_STORAGE_KEY,
 } from "./variantStore";
+export {
+  TOKEN_REGISTRY,
+  TOKEN_GROUP_LABELS,
+  editableTokens,
+  tokensByGroup,
+  dependencyGraph,
+  type TokenMeta,
+  type TokenType,
+  type TokenGroup,
+} from "./token-meta";
