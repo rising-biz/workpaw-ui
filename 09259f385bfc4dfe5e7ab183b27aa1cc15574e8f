@@ -1,0 +1,58 @@
+src/theme/index.ts
+  cef1569c5d12a4de 15-24
+src/styles/theme.css
+  cef1569c5d12a4de 2,4-5,7-14,17-19,21,24-32,34-47,49-53,55-90,95-102,104-111,113-127,131-132,137,140,142-146,148-163,167,169-173,175-190,197,199-203,205-220,224,226-230,232-247,254,256-260,262-277,281,283-287,289-304,311,313-317,319-334,338,340-344,346-361,365,382
+src/theme/token-meta.ts
+  cef1569c5d12a4de 1-1083
+src/theme/ThemeProvider.tsx
+  e08326878ea33bf5 74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "09259f385bfc4dfe5e7ab183b27aa1cc15574e8f",
+  "prompts": {
+    "86aeb015686f5c0f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d1ddd72e-f541-4d18-bb1a-eac45e24bb46",
+        "model": "glm-5.2"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/0c83e23398f6fbacde0f92b80333172c5ed0c27f332a2219283d3395df40f798"
+    },
+    "cef1569c5d12a4de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4142c147-a8fe-4680-8ee0-2715139db8f1",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 1466,
+      "total_deletions": 444,
+      "accepted_lines": 1395,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/dacff40fb613fa8e6e42678e99a6bc490d884b61667fa87d7f57722a4d458faa"
+    },
+    "e08326878ea33bf5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5c2d659c-8ff7-4cee-add9-9432faaf0c8f",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "HiOps <hiops@cvte.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/5c091b85940e0afbacea7d6c87b697bac67ec3caf9f93cc75174829ba5a01963"
+    }
+  }
+}
