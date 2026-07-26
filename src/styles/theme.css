@@ -101,6 +101,9 @@
   /* ── Grid ─────────────────────────────────────────────────────── */
   --grid-cell-size: 48px;
   --grid-line-opacity: 5%;
+  --bg-grid-image:
+    linear-gradient(to right, color-mix(in oklch, var(--foreground) var(--grid-line-opacity, 5%), transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--foreground) var(--grid-line-opacity, 5%), transparent) 1px, transparent 1px);
 
   /* ── Ambient glow — derived from --primary + --bg-glow-intensity ─ */
   --bg-glow-color: var(--primary);
