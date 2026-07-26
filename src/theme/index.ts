@@ -22,3 +22,15 @@ export {
   type TokenType,
   type TokenGroup,
 } from "./token-meta";
+export {
+  BACKGROUND_PRESETS,
+  BACKGROUND_PRESET_IDS,
+  DEFAULT_BACKGROUND_PRESET,
+  type BackgroundPresetId,
+  type BackgroundPresetMeta,
+} from "./backgroundPresets";
+export {
+  useBackgroundPreset,
+  useBackgroundPresetStore,
+  BACKGROUND_PRESET_STORAGE_KEY,
+} from "./backgroundPresetStore";

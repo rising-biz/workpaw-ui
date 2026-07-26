@@ -976,6 +976,15 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     editable: true,
     perTheme: false,
   },
+  {
+    name: "bg-grid-image",
+    type: "string",
+    group: "grid",
+    label: "网格图案",
+    description: "Chat 背景网格层的 background-image(线/点/none),由背景预设切换",
+    editable: true,
+    perTheme: false,
+  },
 
   // -- background images ----------------------------------------------------
   {
