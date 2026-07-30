@@ -20,6 +20,12 @@ export interface ScenarioModelPreset {
   model: string;
 }
 
+export interface ScenarioAttachment {
+  name: string;
+  url: string;
+  type?: string;
+}
+
 export interface Scenario {
   id: string;
   slug: string;
@@ -36,4 +42,10 @@ export interface Scenario {
   example_dialogue: ScenarioExampleTurn[];
   sort_order: number;
   enabled: boolean;
+
+  // ── 组合编排层(Phase 1)──
+  skills?: string[];                   // 场景声明激活的技能名
+  greeting?: string;                   // 开场白
+  suggested_prompts?: string[];        // 推荐追问/对话开场白
+  attachments?: ScenarioAttachment[];  // 场景级常驻附件(轻量知识)
 }
