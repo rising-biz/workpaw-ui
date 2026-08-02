@@ -25,3 +25,6 @@ export {
   type VariableFormProps,
   type VariableFormStatic,
 } from "./components/VariableForm";
+
+export * from "./types/plugin";
+export { PluginTypeTag } from "./components/PluginTypeTag";
