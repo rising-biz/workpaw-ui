@@ -15,12 +15,15 @@ export {
 export {
   TOKEN_REGISTRY,
   TOKEN_GROUP_LABELS,
+  TOKEN_GROUP_ORDER,
+  PRIMARY_DERIVED_TOKEN_NAMES,
   editableTokens,
   tokensByGroup,
   dependencyGraph,
   type TokenMeta,
   type TokenType,
   type TokenGroup,
+  type PrimaryDerivedTokenName,
 } from "./token-meta";
 export {
   BACKGROUND_PRESETS,

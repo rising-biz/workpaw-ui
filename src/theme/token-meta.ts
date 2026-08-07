@@ -34,6 +34,7 @@ export type TokenGroup =
   | "grid"
   | "background"
   | "overlay"
+  | "motion"
   | "data";
 
 export interface TokenMeta {
@@ -62,6 +63,18 @@ export interface TokenMeta {
 
 // ── Registry ───────────────────────────────────────────────────────────────
 
+// Canonical names for the Professional Vivid brand layer. Consumers can use
+// this list for import/export validation without duplicating string literals.
+export const PRIMARY_DERIVED_TOKEN_NAMES = [
+  "primary-vivid",
+  "primary-soft",
+  "primary-border",
+  "primary-glow",
+] as const;
+
+export type PrimaryDerivedTokenName =
+  (typeof PRIMARY_DERIVED_TOKEN_NAMES)[number];
+
 export const TOKEN_REGISTRY: readonly TokenMeta[] = [
   // -- brand ----------------------------------------------------------------
   {
@@ -78,9 +91,49 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     type: "color",
     group: "brand",
     label: "品牌色悬停",
-    description: "按钮 hover / active 态的品牌色加深",
+    description: "主交互 hover / active 色；亮色模式加深，暗色模式提亮",
     derivesFrom: "primary",
     editable: true,
+    perTheme: true,
+  },
+  {
+    name: "primary-vivid",
+    type: "color",
+    group: "brand",
+    label: "鲜亮品牌色",
+    description: "高能选中标记、装饰性高光与数据峰值；不替代正文/链接可访问色",
+    derivesFrom: ["primary", "accent", "foreground"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "primary-soft",
+    type: "color",
+    group: "brand",
+    label: "品牌柔和底色",
+    description: "导航选中、标签与低强调品牌表面的轻量底色",
+    derivesFrom: ["primary", "background"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "primary-border",
+    type: "color",
+    group: "brand",
+    label: "品牌描边色",
+    description: "选中态、聚焦态与品牌卡片的中等强调描边",
+    derivesFrom: ["primary", "border"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "primary-glow",
+    type: "color",
+    group: "brand",
+    label: "品牌光晕色",
+    description: "环境光、悬停光晕与高能反馈使用的透明品牌色",
+    derivesFrom: "primary-vivid",
+    editable: false,
     perTheme: true,
   },
   {
@@ -88,20 +141,20 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     type: "color",
     group: "brand",
     label: "品牌色上的文字",
-    description: "品牌色背景上的文字色（近白）",
+    description: "品牌色背景上的高对比文字；暗色主题使用同色系深墨色",
     derivesFrom: "primary",
     editable: false,
-    perTheme: false,
+    perTheme: true,
   },
   {
     name: "ring",
     type: "color",
     group: "brand",
     label: "聚焦环",
-    description: "键盘聚焦时的 outline ring 颜色",
+    description: "键盘聚焦时的可访问核心品牌色 outline ring",
     derivesFrom: "primary",
     editable: false,
-    perTheme: false,
+    perTheme: true,
   },
 
   // -- surface --------------------------------------------------------------
@@ -316,6 +369,126 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     label: "信息色",
     description: "信息提示、工具图标色",
     editable: true,
+    perTheme: true,
+  },
+  {
+    name: "state-success-foreground",
+    type: "color",
+    group: "state",
+    label: "成功状态文字",
+    description: "成功提示中的文字与图标色",
+    derivesFrom: ["success", "foreground"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-success-surface",
+    type: "color",
+    group: "state",
+    label: "成功状态表面",
+    description: "成功提示的低强调背景色",
+    derivesFrom: ["success", "background"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-success-border",
+    type: "color",
+    group: "state",
+    label: "成功状态边框",
+    description: "成功提示的语义边框色",
+    derivesFrom: ["success", "border"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-warning-foreground",
+    type: "color",
+    group: "state",
+    label: "警告状态文字",
+    description: "警告提示中的文字与图标色",
+    derivesFrom: ["warning", "foreground"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-warning-surface",
+    type: "color",
+    group: "state",
+    label: "警告状态表面",
+    description: "警告提示的低强调背景色",
+    derivesFrom: ["warning", "background"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-warning-border",
+    type: "color",
+    group: "state",
+    label: "警告状态边框",
+    description: "警告提示的语义边框色",
+    derivesFrom: ["warning", "border"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-destructive-foreground",
+    type: "color",
+    group: "state",
+    label: "危险状态文字",
+    description: "危险提示中的文字与图标色",
+    derivesFrom: ["destructive", "foreground"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-destructive-surface",
+    type: "color",
+    group: "state",
+    label: "危险状态表面",
+    description: "危险提示的低强调背景色",
+    derivesFrom: ["destructive", "background"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-destructive-border",
+    type: "color",
+    group: "state",
+    label: "危险状态边框",
+    description: "危险提示的语义边框色",
+    derivesFrom: ["destructive", "border"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-info-foreground",
+    type: "color",
+    group: "state",
+    label: "信息状态文字",
+    description: "信息提示中的文字与图标色",
+    derivesFrom: ["info", "foreground"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-info-surface",
+    type: "color",
+    group: "state",
+    label: "信息状态表面",
+    description: "信息提示的低强调背景色",
+    derivesFrom: ["info", "background"],
+    editable: false,
+    perTheme: true,
+  },
+  {
+    name: "state-info-border",
+    type: "color",
+    group: "state",
+    label: "信息状态边框",
+    description: "信息提示的语义边框色",
+    derivesFrom: ["info", "border"],
+    editable: false,
     perTheme: true,
   },
 
@@ -870,18 +1043,19 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     group: "overlay",
     label: "遮罩层背景",
     description: "Modal / Dialog 遮罩层背景色",
-    editable: true,
-    perTheme: false,
+    derivesFrom: "foreground",
+    editable: false,
+    perTheme: true,
   },
   {
     name: "overlay-foreground",
     type: "color",
     group: "overlay",
     label: "遮罩层文字",
-    description: "遮罩层上的文字色（通常近白）",
-    derivesFrom: "overlay",
+    description: "遮罩层上的文字色",
+    derivesFrom: "background",
     editable: false,
-    perTheme: false,
+    perTheme: true,
   },
 
   // -- glow / grid ----------------------------------------------------------
@@ -899,10 +1073,10 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     type: "color",
     group: "glow",
     label: "光晕颜色",
-    description: "Chat 背景光晕的颜色",
-    derivesFrom: "primary",
-    editable: true,
-    perTheme: false,
+    description: "Chat 背景光晕的鲜亮品牌色",
+    derivesFrom: "primary-vivid",
+    editable: false,
+    perTheme: true,
   },
   {
     name: "bg-glow-size-1",
@@ -1006,6 +1180,33 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     perTheme: false,
   },
   {
+    name: "bg-chat-image-size",
+    type: "string",
+    group: "background",
+    label: "背景图尺寸",
+    description: "背景纹理的 CSS background-size",
+    editable: true,
+    perTheme: false,
+  },
+  {
+    name: "bg-chat-image-position",
+    type: "string",
+    group: "background",
+    label: "背景图位置",
+    description: "背景纹理的 CSS background-position",
+    editable: true,
+    perTheme: false,
+  },
+  {
+    name: "bg-chat-image-repeat",
+    type: "string",
+    group: "background",
+    label: "背景图重复",
+    description: "背景纹理的 CSS background-repeat",
+    editable: true,
+    perTheme: false,
+  },
+  {
     name: "bg-noise-image",
     type: "string",
     group: "background",
@@ -1033,6 +1234,35 @@ export const TOKEN_REGISTRY: readonly TokenMeta[] = [
     editable: true,
     perTheme: false,
   },
+
+  // -- motion ---------------------------------------------------------------
+  {
+    name: "ease-out-quart",
+    type: "string",
+    group: "motion",
+    label: "快速缓出",
+    description: "常规颜色与位移动画的 cubic-bezier 缓动曲线",
+    editable: true,
+    perTheme: false,
+  },
+  {
+    name: "ease-out-quint",
+    type: "string",
+    group: "motion",
+    label: "自然缓出",
+    description: "强调型位移与缩放动画的 cubic-bezier 缓动曲线",
+    editable: true,
+    perTheme: false,
+  },
+  {
+    name: "ease-out-expo",
+    type: "string",
+    group: "motion",
+    label: "强力缓出",
+    description: "弹层等大幅运动的 cubic-bezier 缓动曲线",
+    editable: true,
+    perTheme: false,
+  },
 ];
 
 // ── Group labels (Chinese) ─────────────────────────────────────────────────
@@ -1055,10 +1285,16 @@ export const TOKEN_GROUP_LABELS: Record<TokenGroup, string> = {
   grid: "网格",
   background: "背景纹理",
   overlay: "遮罩层",
+  motion: "动效",
   data: "数据色",
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+
+/** Canonical group order, derived from the registry so editor navigation cannot drift. */
+export const TOKEN_GROUP_ORDER = Object.freeze(
+  Array.from(new Set(TOKEN_REGISTRY.map((token) => token.group))),
+) as readonly TokenGroup[];
 
 /** Get all editable (leaf) tokens — these are what a theme editor exposes. */
 export function editableTokens(): TokenMeta[] {
