@@ -239,7 +239,7 @@
 - Agent 详细配置管理
 - Skills/MCP/Models/Channels 管理
 - 全局 Settings
-- 管理员功能（使用 Admin Console）
+- 管理员功能（使用 admin 前端）
 
 ---
 

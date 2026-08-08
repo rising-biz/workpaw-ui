@@ -380,7 +380,7 @@ Expected: PASS
 ```bash
 cd /Users/zhangsan/workpaw/workpaw-desktop
 git add src/components/Scenario/ScenarioCard.tsx src/components/Scenario/ScenarioCard.test.tsx
-git commit -m "feat(desktop): ScenarioCard with restrained console styling"
+git commit -m "feat(desktop): ScenarioCard with restrained admin styling"
 ```
 
 ---

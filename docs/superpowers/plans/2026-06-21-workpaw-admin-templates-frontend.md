@@ -23,7 +23,7 @@
 ## Spec reference
 
 - Design spec §5.1/5.2 (three-end JWT verify + refresh), §7 (template apply routes + OIDC/policy pages + nav), §8 (data flow A — template apply), §10 (Pod-offline 503, privilege-token-missing 409), §11 (tests), §12 alignment points 1 (template spec fields — use the exact `CreateAgentRequest`/`AgentProfileConfig`/`MCPClientCreateRequest`/`SkillSpec` shapes from the findings doc) & 2 (privilege token).
-- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` — §1 has the exact Pod API paths + body field lists; §2 confirms the privilege-token Bearer path.
+- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-admin-alignment-findings.md` — §1 has the exact Pod API paths + body field lists; §2 confirms the privilege-token Bearer path.
 - Plan 1 (auth foundation) + Plan 2 (admin API + OIDC/policy/audit/templates CRUD) must be merged to main first.
 
 ## File Structure
@@ -270,7 +270,7 @@
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin/console-templates-frontend.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin-templates-frontend.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — fresh subagent per task, review between, fast iteration.
 **2. Inline Execution** — batch execution with checkpoints.

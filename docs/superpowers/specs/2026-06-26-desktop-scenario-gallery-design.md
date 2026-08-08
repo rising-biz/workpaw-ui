@@ -19,7 +19,7 @@ WorkPaw Desktop 的 chat 页面空状态只有一个 Bot 图标 + 3 个写死的
 ### 0.3 已确认的四个关键决策
 
 1. **做同款深度 = 场景化预设**:绑定 Agent + 模型 + 提示词 + 可选附件,一键进入可用状态(非仅填充输入框,非完整工作流复刻)。
-2. **内容来源 = 官方内置 + 企业下发**:官方场景随版本 seed 初始化;企业管理员通过 console 增删改/覆盖/分类。v1 不做用户自建。
+2. **内容来源 = 官方内置 + 企业下发**:官方场景随版本 seed 初始化;企业管理员通过 admin 前端增删改/覆盖/分类。v1 不做用户自建。
 3. **画廊落位 = 空状态画廊 + header `[✨场景]` 持久入口**:新会话空状态显示精选场景卡片;聊起来后用 header 按钮随时重开完整画廊 Sheet。
 4. **变量填充 = 卡片含变量槽,点击弹轻量表单**:模板提示词支持 `{{变量}}` 占位,做同款时弹出变量填空表单(text/textarea/select/file 四种类型)。
 
@@ -41,13 +41,13 @@ WorkPaw Desktop 的 chat 页面空状态只有一个 Bot 图标 + 3 个写死的
 │ workpaw-admin (Go 治理层, Postgres)                  │
 │  • Scenario 表 (official + enterprise 共存, slug 维度覆盖)    │
 │  • seed migration: 官方场景随版本 upsert (按 slug)           │
-│  • /api/admin/scenarios/*  ← console 管理 (admin role)       │
+│  • /api/admin/scenarios/*  ← admin 前端管理 (admin role)       │
 │  • /api/scenarios          ← desktop 只读 (login 即可)       │
 └─────────────────────────────────────────────────────────────┘
             ▲ 管理CRUD/启停/排序                ▲ 只读拉取(启动时)
             │                                  │
 ┌───────────┴────────────┐         ┌───────────┴──────────────────┐
-│ console (admin 前端)    │         │ desktop (Tauri)               │
+│ admin 前端（目录名 console）    │         │ desktop (Tauri)               │
 │  • 场景管理页(独立模块) │         │  • 空状态画廊(6 卡)          │
 │  • CRUD/分类/启停/排序  │         │  • [✨场景] Sheet(全画廊)     │
 │  • 预览(含示例对话)     │         │  • 预览 Sheet → 变量表单      │
@@ -108,7 +108,7 @@ WorkPaw Desktop 的 chat 页面空状态只有一个 Bot 图标 + 3 个写死的
 
 ### 2.3 分类(category)
 
-v1 用业务职能分类(借鉴 Dify),中文化为:**写作 / 分析 / 代码 / 办公 / 运营 / 客服 / 知识**。分类作为 string 字段(非独立表),v1 够用;枚举放 Go const,console 下拉选。
+v1 用业务职能分类(借鉴 Dify),中文化为:**写作 / 分析 / 代码 / 办公 / 运营 / 客服 / 知识**。分类作为 string 字段(非独立表),v1 够用;枚举放 Go const,admin 前端下拉选。
 
 ### 2.4 企业覆盖官方的机制
 
@@ -179,7 +179,7 @@ ORDER BY category, sort_order;
 - 不返回企业禁用/未发布的场景(enabled 过滤已在查询里)。
 - 缓存:desktop 启动拉一次,本地内存缓存;admin 改动后 desktop 重启或手动刷新生效。v1 不做实时推送。
 
-### 3.2 console 管理接口 `/api/admin/scenarios/*`(admin role)
+### 3.2 admin 管理接口 `/api/admin/scenarios/*`(admin role)
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
@@ -192,7 +192,7 @@ ORDER BY category, sort_order;
 | PUT | `/api/admin/scenarios/sort` | 批量调排序(见下方说明) |
 | PUT | `/api/admin/scenarios/:id/toggle` | 启停 |
 
-> **路由偏差说明(sort 批量化)**:本表早期版本写作 `PUT /api/admin/scenarios/:id/sort`(逐条排序)。实现时改为**批量路由** `PUT /api/admin/scenarios/sort`,请求体 `{"orders": {"<id>": <sort_order>}}`,一次提交多个场景的排序。批量更合理:console 拖拽排序通常一次调整多行的 sort_order,逐条会产生 N 次请求与中间乱序态;批量 + 单事务(见 §3.4 实现注记)保证原子完成。`/scenarios/sort` 在 gin 路由表中先于 `/scenarios/:id` 注册,不会被 `:id=sort` 误匹配。代码以此为准确契约。
+> **路由偏差说明(sort 批量化)**:本表早期版本写作 `PUT /api/admin/scenarios/:id/sort`(逐条排序)。实现时改为**批量路由** `PUT /api/admin/scenarios/sort`,请求体 `{"orders": {"<id>": <sort_order>}}`,一次提交多个场景的排序。批量更合理：admin 前端拖拽排序通常一次调整多行的 sort_order,逐条会产生 N 次请求与中间乱序态;批量 + 单事务(见 §3.4 实现注记)保证原子完成。`/scenarios/sort` 在 gin 路由表中先于 `/scenarios/:id` 注册,不会被 `:id=sort` 误匹配。代码以此为准确契约。
 
 权限与契约约束:
 - 沿用现有 `Auth + AdminOnly` 中间件。
@@ -218,7 +218,7 @@ scenarioGroup := r.Group("/api/scenarios")
 scenarioGroup.Use(middleware.Auth(jwtSvc))
 scenarioGroup.GET("", scenarioReadH.List)
 
-// console 管理(admin)
+// admin 管理(admin)
 adminGroup.GET("/scenarios", adminScenarioH.List)
 adminGroup.GET("/scenarios/:id", adminScenarioH.Get)
 adminGroup.POST("/scenarios", adminScenarioH.Create)
@@ -239,16 +239,16 @@ adminGroup.PUT("/scenarios/:id/toggle", adminScenarioH.Toggle)
 
 ---
 
-## 4. console 管理页(场景管理,独立模块)
+## 4. admin 前端管理页(场景管理,独立模块)
 
 落在 `workpaw-admin/console/src/pages/`,与现有 Templates 页并列。
 
 ### 4.1 信息架构
 
-console 主导航新增一级项 **「场景」**(介于「模板」与「策略」之间)。场景与模板维度不同:模板是"配 Pod 跑什么 agent",场景是"chat 端用户点一下做什么"。两者并列,场景引用模板配出来的 agent。
+admin 前端主导航新增一级项 **「场景」**(介于「模板」与「策略」之间)。场景与模板维度不同:模板是"配 Pod 跑什么 agent",场景是"chat 端用户点一下做什么"。两者并列,场景引用模板配出来的 agent。
 
 ```
-console 导航: 仪表盘 / 用户 / 实例 / 模板 / 场景 / 策略 / OIDC / 审计
+admin 前端导航: 仪表盘 / 用户 / 实例 / 模板 / 场景 / 策略 / OIDC / 审计
                                           └─ 新增
 ```
 
@@ -276,7 +276,7 @@ console 导航: 仪表盘 / 用户 / 实例 / 模板 / 场景 / 策略 / OIDC / 
 
 ### 4.3 新建/编辑场景(表单 Sheet)
 
-右侧 Sheet 滑出(沿用 console 现有 ApplyTemplateDialog 的 Sheet 模式):
+右侧 Sheet 滑出(沿用 admin 前端现有 ApplyTemplateDialog 的 Sheet 模式):
 
 ```
 ┌─ 新建场景 ──────────────────────────┐
@@ -312,7 +312,7 @@ console 导航: 仪表盘 / 用户 / 实例 / 模板 / 场景 / 策略 / OIDC / 
 
 ### 4.5 组件复用与共享
 
-- **变量表单组件**(变量 key→输入控件渲染)抽到 `workpaw-ui`,console 编辑器、console 预览、desktop 做同款三处共用同一组件——"一套语言三个界面"原则,避免三处行为漂移。
+- **变量表单组件**(变量 key→输入控件渲染)抽到 `workpaw-ui`,admin 前端编辑器、admin 前端预览、desktop 做同款三处共用同一组件——"一套语言三个界面"原则,避免三处行为漂移。
 - adminApi.ts 增 `scenarioApi`(沿用现有 fetch 封装与类型模式)。
 
 ---
@@ -552,7 +552,7 @@ header 新增 `[✨ 场景]` 按钮(Sparkles 图标,ghost 样式),点击打开�
 
 ### 10.4 变量渲染异常
 
-- `prompt_template` 里 `{{key}}` 无对应变量定义(数据脏)→ 渲染时保留原占位符文本让用户看见,不崩;console 侧编辑器已校验拦截(§4.3),此处兜底。
+- `prompt_template` 里 `{{key}}` 无对应变量定义(数据脏)→ 渲染时保留原占位符文本让用户看见,不崩;admin 前端侧编辑器已校验拦截(§4.3),此处兜底。
 - `select` 变量值不在 options 内 → 用 default,记 warn 日志不阻断。
 
 ### 10.5 模型预设失效
@@ -589,7 +589,7 @@ v1 明确不做:用户自建场景、GPT Store 式公开市场、实时推送场
 - 契约:模型字段 snake_case json tag 全覆盖。
 - 参考现有 `template_apply_integration_test.go` 模式做 scenario 集成测试。
 
-### 12.2 console 前端(vitest)
+### 12.2 admin 前端(vitest)
 - `ScenarioManager.test.tsx`:列表渲染、分类过滤、official 行无编辑/删除、clone 流程、启停。
 - `ScenarioEditor.test.tsx`:表单校验(`{{x}}` 与变量匹配)、变量类型四选、保存调 API。
 - `adminApi.test.ts`:scenarioApi 端点与类型。
@@ -616,7 +616,7 @@ v1 明确不做:用户自建场景、GPT Store 式公开市场、实时推送场
 
 ### 13.1 v1 范围
 - 后端:Scenario 表 + seed + `/api/scenarios` + `/api/admin/scenarios/*`。
-- console:场景管理独立模块(CRUD/克隆/启停/排序/预览)+ 变量表单组件抽 workpaw-ui。
+- admin 前端：场景管理独立模块(CRUD/克隆/启停/排序/预览)+ 变量表单组件抽 workpaw-ui。
 - desktop:scenarioApi + useScenarioStore + 空状态画廊 + 画廊 Sheet + 做同款三段式 + `/` 斜杠接入。
 - ~20 个官方场景 seed。
 

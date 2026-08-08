@@ -22,7 +22,7 @@
 
 ## Spec reference
 
-- Design spec: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-design.md` (§5 统一认证设计, §6 数据模型, §12 实现前对齐点).
+- Design spec: `docs/superpowers/specs/2026-06-21-workpaw-admin-design.md` (§5 统一认证设计, §6 数据模型, §12 实现前对齐点).
 - This plan covers spec §4 v1 rows: "统一认证扩展" and the foundation for "OIDC 配置集中管理" (the admin-editable part is Plan 2). It does NOT implement admin API endpoints (Plan 2), template push (Plan 3), or frontend (Plan 3).
 
 ## File Structure
@@ -36,7 +36,7 @@
 - `internal/service/account.go` — `AccountService` + `UpsertOnLogin` + `ErrAccountDisabled`.
 - `internal/service/refresh.go` — `RefreshService` (Issue/Validate/RevokeAll).
 - `internal/handler/health.go` — `HealthHandler` (db/k8s/oidc).
-- `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` — Task 1 output.
+- `docs/superpowers/specs/2026-06-21-workpaw-admin-alignment-findings.md` — Task 1 output.
 
 **Modify:**
 - `internal/config/config.go` — extend `JWTConfig` (`PrivateKeyPath`, `RefreshExpireDays`); keep `Secret` (state HMAC) and `ExpireHours`.
@@ -53,7 +53,7 @@
 - Read: `workpaw-ui/src/**`, `workpaw-web/src/**` (Agent/MCP/Skill types, Pod config API calls)
 - Read: `workpaw-admin/internal/service/instance.go` (GetConnectInfo), `workpaw-operator/api/v1alpha1/*` (CRD spec/status)
 - Read: `workpaw-admin/internal/service/oidc.go`, `internal/service/jwt.go`
-- Create: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md`
+- Create: `docs/superpowers/specs/2026-06-21-workpaw-admin-alignment-findings.md`
 
 **Interfaces:**
 - Produces: a findings doc that unblocks Plan 2 (OIDC hot-reload, client_secret encryption) and Plan 3 (template `spec` fields, Pod config API contract, CRD status fields, three-end JWT verification libs). Plan 1 tasks below bake in the decisions for alignment point 6 (RS256 key source); if Task 1 contradicts those, update Tasks 4 before implementing.
@@ -87,12 +87,12 @@ Read `internal/service/oidc.go` `NewOIDCService` (uses `coreos/go-oidc` `oidc.Ne
 
 - [ ] **Step 6: Write the findings doc**
 
-Create `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` with one section per alignment point (1–8) containing: what was checked, the files read, the conclusion, and which plan/task it unblocks. Use real field names and paths — no placeholders.
+Create `docs/superpowers/specs/2026-06-21-workpaw-admin-alignment-findings.md` with one section per alignment point (1–8) containing: what was checked, the files read, the conclusion, and which plan/task it unblocks. Use real field names and paths — no placeholders.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md
+git add docs/superpowers/specs/2026-06-21-workpaw-admin-alignment-findings.md
 git commit -m "docs: record workpaw-admin/console alignment findings (8 points)"
 ```
 
@@ -1739,7 +1739,7 @@ git commit -m "test: postgres integration test for account/refresh/jwt (testcont
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin/console-backend-foundation.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin-backend-foundation.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration.
 

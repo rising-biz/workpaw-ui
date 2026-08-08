@@ -266,7 +266,7 @@ WorkPaw 共享 UI 包，提供通用组件、hooks、API 类型定义和客户�
 ## 相关仓库
 - workpaw-desktop: ~/github/workpaw-desktop
 - workpaw-web: ~/github/workpaw-web
-- workpaw-admin/console: ~/github/workpaw-admin/console
+- workpaw-admin/admin 前端： ~/github/workpaw-admin/console
 - workpaw-admin: ~/github/workpaw-admin
 - workpaw-operator: ~/github/workpaw-operator
 - QwenPaw 源码参考: ~/github/QwenPaw
@@ -703,7 +703,7 @@ WorkPaw K8s Operator，管理 QwenPawInstance CRD 的生命周期。
 - workpaw-ui: ~/github/workpaw-ui
 - workpaw-desktop: ~/github/workpaw-desktop
 - workpaw-web: ~/github/workpaw-web
-- workpaw-admin/console: ~/github/workpaw-admin/console
+- workpaw-admin/admin 前端： ~/github/workpaw-admin/console
 - workpaw-admin: ~/github/workpaw-admin
 - QwenPaw 源码参考: ~/github/QwenPaw
 
@@ -1289,7 +1289,7 @@ WorkPaw Control Plane API 服务，处理 SSO 认证、实例管理和审计日�
 - workpaw-ui: ~/github/workpaw-ui
 - workpaw-desktop: ~/github/workpaw-desktop
 - workpaw-web: ~/github/workpaw-web
-- workpaw-admin/console: ~/github/workpaw-admin/console
+- workpaw-admin/admin 前端： ~/github/workpaw-admin/console
 - workpaw-operator: ~/github/workpaw-operator
 - QwenPaw 源码参考: ~/github/QwenPaw
 
@@ -2465,7 +2465,7 @@ WorkPaw Tauri 2 桌面客户端，用于 Agent 对话和会话管理。
 ## 相关仓库
 - workpaw-ui: ~/github/workpaw-ui
 - workpaw-web: ~/github/workpaw-web
-- workpaw-admin/console: ~/github/workpaw-admin/console
+- workpaw-admin/admin 前端： ~/github/workpaw-admin/console
 - workpaw-admin: ~/github/workpaw-admin
 - workpaw-operator: ~/github/workpaw-operator
 - QwenPaw 源码参考: ~/github/QwenPaw

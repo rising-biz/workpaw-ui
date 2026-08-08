@@ -2033,12 +2033,12 @@ git commit -m "feat(operator): patch StatefulSet template on drift (infra hot-up
 - [ ] `cd workpaw-admin && go test ./...` 全绿。
 - [ ] `cd workpaw-operator && go test ./...` 全绿。
 - [ ] 手动(dev 集群):
-  1. admin console 创建一个 agent 模板 → POST `/api/admin/bindings` `{template_type:"agent", template_id, scope:"all"}`。
+  1. admin 前端 创建一个 agent 模板 → POST `/api/admin/bindings` `{template_type:"agent", template_id, scope:"all"}`。
   2. 等一个 reconcile 间隔 → GET `/api/admin/desired-configs?user_id=<u>` 看到 `status:"applied"`。
   3. `kubectl delete pod qwenpaw-<user>-0`(模拟重建)→ 等下一个 tick → desired-configs 的 `applied_pod_uid` 更新、Pod 上 agent 仍在(重建恢复)。
   4. 更新模板 spec → 下一个 tick 自动重推(desired-configs 的 `applied_spec_hash` 更新)。
   5. 改 operator `WORKPAW_OPERATOR_CORS_ORIGINS` + 重启 operator → StatefulSet 滚动更新(无需手动删)。
-- [ ] admin console 前端(console/)为 bindings / desired-configs 增加页面与 adminApi.ts 类型(参考现有 templates 页面结构;JSON tag 以 adminApi.ts 为准)。
+- [ ] admin admin 前端(console/)为 bindings / desired-configs 增加页面与 adminApi.ts 类型(参考现有 templates 页面结构;JSON tag 以 adminApi.ts 为准)。
 
 ## 风险与取舍
 

@@ -24,7 +24,7 @@
 ## Spec reference
 
 - Design spec §6 (data model — oidc_configs, agent_templates, mcp_templates, skill_templates, policies, template_applies; accounts/refresh_tokens/audit_logs from Plan 1), §7 (API + 3 生效机制), §9 (data flows B/C/D), §10 (error handling), §12 alignment points 4/5/7/8.
-- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-admin/console-alignment-findings.md` (CRD spec/status field names confirmed; OIDC hot-reload = rebuild+swap; client_secret AES-GCM).
+- Alignment findings: `docs/superpowers/specs/2026-06-21-workpaw-admin-alignment-findings.md` (CRD spec/status field names confirmed; OIDC hot-reload = rebuild+swap; client_secret AES-GCM).
 - This plan does NOT implement template *application* (the Pod push — Plan 3) or the frontend (Plan 3). Template CRUD (create/read/update/delete the template rows) IS in this plan; the `apply` endpoint is Plan 3.
 
 ## File Structure
@@ -1421,7 +1421,7 @@ git commit -m "test: admin integration test (testcontainers, real Postgres flow)
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin/console-admin-api.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-21-workpaw-admin-admin-api.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — fresh subagent per task, review between, fast iteration.
 **2. Inline Execution** — batch execution with checkpoints.

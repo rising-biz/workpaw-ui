@@ -1,22 +1,22 @@
-# 场景画廊 — workpaw-ui 共享组件 + console 管理页 Implementation Plan
+# 场景画廊 — workpaw-ui 共享组件 + admin 前端管理页 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Prerequisite:** Plan 1(`2026-06-26-scenario-gallery-backend.md`)已实现并合入 control-plane main——`/api/admin/scenarios/*` 可用。
 
-**Goal:** (A) 在 workpaw-ui 新增 `VariableForm` 共享组件(变量 key→输入控件渲染,四种类型),三端共用,并从零搭建 workpaw-ui 的 vitest 测试栈;(B) 在 console 新增「场景管理」独立模块(路由/导航/API/列表页/编辑 Sheet/预览),管理员可 CRUD/克隆/启停/排序场景。
+**Goal:** (A) 在 workpaw-ui 新增 `VariableForm` 共享组件(变量 key→输入控件渲染,四种类型),三端共用,并从零搭建 workpaw-ui 的 vitest 测试栈;(B) 在 admin 前端新增「场景管理」独立模块(路由/导航/API/列表页/编辑 Sheet/预览),管理员可 CRUD/克隆/启停/排序场景。
 
-**Architecture:** `VariableForm` 放 `workpaw-ui/src/components/VariableForm.tsx`,经 `src/index.ts` 导出,console/desktop 用 `import { VariableForm } from "workpaw-ui"` 引用。console 场景管理页仿现有 `Templates.tsx` 模式(useCallback 加载 + 原生 table + Sheet 编辑),API 加进 `adminApi.ts` 的工厂函数。Scenario 类型与 Plan 1 后端 jsonb 结构对齐(snake_case)。
+**Architecture:** `VariableForm` 放 `workpaw-ui/src/components/VariableForm.tsx`,经 `src/index.ts` 导出,admin 前端/desktop 用 `import { VariableForm } from "workpaw-ui"` 引用。admin 前端场景管理页仿现有 `Templates.tsx` 模式(useCallback 加载 + 原生 table + Sheet 编辑),API 加进 `adminApi.ts` 的工厂函数。Scenario 类型与 Plan 1 后端 jsonb 结构对齐(snake_case)。
 
 **Tech Stack:** React 19, TypeScript, Vite, Shadcn UI(base-ui), zustand, Tailwind v4, vitest + @testing-library/react。workpaw-ui 测试栈从零搭。
 
 ## Global Constraints
 
 - workpaw-ui 组件用 `cva` + `cn()` 模式(参照 `button.tsx`);props 扩展 `React.ComponentProps`。
-- VariableForm 四种变量类型:`text` / `textarea` / `select` / `file`。`file` 类型 v1 渲染一个普通文件 input(受控值=File,console 编辑器预览用;desktop 做同款时实际上传——desktop 侧处理,组件只管收集)。
-- console API 类型与后端 jsonb 对齐:snake_case(`agent_id`/`model_preset`/`prompt_template`/`example_dialogue`/`sort_order`)。
+- VariableForm 四种变量类型:`text` / `textarea` / `select` / `file`。`file` 类型 v1 渲染一个普通文件 input(受控值=File,admin 前端编辑器预览用;desktop 做同款时实际上传——desktop 侧处理,组件只管收集)。
+- admin 前端 API 类型与后端 jsonb 对齐:snake_case(`agent_id`/`model_preset`/`prompt_template`/`example_dialogue`/`sort_order`)。
 - 卡片/表格视觉遵循"精密控制台":1px hairline、无静态阴影、Signal Orange 仅用于主操作/选中/hover。
-- 每个task 结束 commit;console 在 `feat/scenario-console` 分支,workpaw-ui 在 `feat/variable-form` 分支。
+- 每个task 结束 commit;admin 前端在 `feat/scenario-admin` 分支,workpaw-ui 在 `feat/variable-form` 分支。
 
 ---
 
@@ -50,7 +50,7 @@
 
 - [ ] **Step 1: 加测试依赖 + script**
 
-读 `workpaw-ui/package.json`,在 `devDependencies` 加(版本对齐 console,避免双实例):
+读 `workpaw-ui/package.json`,在 `devDependencies` 加(版本对齐 admin 前端,避免双实例):
 ```json
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -88,7 +88,7 @@ export default defineConfig({
 });
 ```
 
-需确认 workpaw-ui 是否已有 `@vitejs/plugin-react` 依赖;若无,补加 `"@vitejs/plugin-react": "^6.0.1"`(与 console 同版本)。
+需确认 workpaw-ui 是否已有 `@vitejs/plugin-react` 依赖;若无,补加 `"@vitejs/plugin-react": "^6.0.1"`(与 admin 前端同版本)。
 
 Create `workpaw-ui/src/test/setup.ts`:
 
@@ -391,7 +391,7 @@ git commit -m "feat(ui): VariableForm shared component (text/textarea/select/fil
 
 ---
 
-## Task 4: console — scenarioApi
+## Task 4: admin 前端 — scenarioApi
 
 **Files:**
 - Modify: `workpaw-admin/console/src/lib/adminApi.ts`
@@ -501,7 +501,7 @@ describe("scenarioApi", () => {
 
 (更实意的测试在 Task 6 页面测试里做 mock;此处仅守类型。)
 
-- [ ] **Step 4: 运行 console 测试 + 编译**
+- [ ] **Step 4: 运行 admin 前端测试 + 编译**
 
 Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm run build && npm test`
 Expected: 编译通过,测试不回归。
@@ -510,14 +510,14 @@ Expected: 编译通过,测试不回归。
 
 ```bash
 cd /Users/zhangsan/workpaw/workpaw-admin/console
-git checkout -b feat/scenario-console
+git checkout -b feat/scenario-admin
 git add src/lib/adminApi.ts src/lib/adminApi.test.ts
-git commit -m "feat(console): scenarioApi types and methods"
+git commit -m "feat(admin): scenarioApi types and methods"
 ```
 
 ---
 
-## Task 5: console — 路由 + 导航
+## Task 5: admin 前端 — 路由 + 导航
 
 **Files:**
 - Modify: `console/src/App.tsx`, `console/src/layouts/MainLayout.tsx`
@@ -573,12 +573,12 @@ Expected: 通过。手测:`npm run dev` → 导航有「场景管理」→ 点�
 ```bash
 cd /Users/zhangsan/workpaw/workpaw-admin/console
 git add src/pages/Scenarios.tsx src/App.tsx src/layouts/MainLayout.tsx
-git commit -m "feat(console): scenarios route + nav placeholder"
+git commit -m "feat(admin): scenarios route + nav placeholder"
 ```
 
 ---
 
-## Task 6: console — 场景管理页(列表 + CRUD)
+## Task 6: admin 前端 — 场景管理页(列表 + CRUD)
 
 **Files:**
 - Modify: `console/src/pages/Scenarios.tsx`(实现完整页)
@@ -845,7 +845,7 @@ Expected: PASS(需 Task 7/8 文件已创建,否则 import 失败——先创建 
 
 ---
 
-## Task 7: console — ScenarioEditor(编辑 Sheet)
+## Task 7: admin 前端 — ScenarioEditor(编辑 Sheet)
 
 **Files:**
 - Create: `console/src/components/ScenarioEditor.tsx`
@@ -1021,7 +1021,7 @@ Expected: PASS
 
 ---
 
-## Task 8: console — ScenarioPreview(预览 Drawer)
+## Task 8: admin 前端 — ScenarioPreview(预览 Drawer)
 
 **Files:**
 - Create: `console/src/components/ScenarioPreview.tsx`
@@ -1111,7 +1111,7 @@ describe("ScenarioPreview", () => {
 });
 ```
 
-- [ ] **Step 3: 运行全部 console 测试 + build**
+- [ ] **Step 3: 运行全部 admin 前端测试 + build**
 
 Run: `cd /Users/zhangsan/workpaw/workpaw-admin/console && npm test && npm run build`
 Expected: 全 PASS,build 通过。
@@ -1123,7 +1123,7 @@ cd /Users/zhangsan/workpaw/workpaw-admin/console
 git add src/pages/Scenarios.tsx src/pages/Scenarios.test.tsx \
         src/components/ScenarioEditor.tsx src/components/ScenarioEditor.test.tsx \
         src/components/ScenarioPreview.tsx src/components/ScenarioPreview.test.tsx
-git commit -m "feat(console): scenarios management page with editor + preview"
+git commit -m "feat(admin): scenarios management page with editor + preview"
 ```
 
 ---
@@ -1137,11 +1137,11 @@ git commit -m "feat(console): scenarios management page with editor + preview"
 - §4.4 预览 Drawer(变量真实渲染+示例对话)→ Task 8 ✓
 - §4.5 VariableForm 抽 workpaw-ui 三端共用 → Task 3 ✓
 - §3.2 adminApi 方法 → Task 4 ✓
-- §12.2 console 测试 → Task 6/7/8 测试 ✓
+- §12.2 admin 前端测试 → Task 6/7/8 测试 ✓
 - §12.4 workpaw-ui VariableForm 测试 → Task 3 测试 ✓
 
 **Placeholder scan:** Task 7 变量行编辑 UI 标注为简化版(v1 保证增删+校验),有明确说明非 TBD;其余无占位。
 
-**Type consistency:** `Scenario`/`ScenarioVariable` 在 workpaw-ui(Task 2)与 console adminApi(Task 4)两处定义,字段名一致(snake_case);`VariableFormProps` 在 Task 3 定义、Task 7/8 消费一致;`adminApi` 方法名 Task 4 定义、Task 6/7 消费一致(`listScenarios`/`createScenario`/`cloneScenario`/`toggleScenario`/`deleteScenario`/`updateScenario`)。
+**Type consistency:** `Scenario`/`ScenarioVariable` 在 workpaw-ui(Task 2)与 admin 前端 adminApi(Task 4)两处定义,字段名一致(snake_case);`VariableFormProps` 在 Task 3 定义、Task 7/8 消费一致;`adminApi` 方法名 Task 4 定义、Task 6/7 消费一致(`listScenarios`/`createScenario`/`cloneScenario`/`toggleScenario`/`deleteScenario`/`updateScenario`)。
 
 **依赖:** Plan 1 的 `/api/admin/scenarios/*` 与 `/api/admin/scenarios/clone/:slug` 路由形态——Task 4 的 `cloneScenario` 用 `POST /clone/:slug` 与 Plan 1 Task 7 路由一致 ✓。`listScenarios` 后端返回 `{scenarios:[]}`,Task 4 已处理解包 ✓。

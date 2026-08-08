@@ -1,4 +1,4 @@
-# workpaw-admin/console 管理后台设计
+# workpaw-admin/admin 管理后台设计
 
 > 日期：2026-06-21
 > 状态：已确认（v2 修订：认证架构重构 + OIDC 集中管理 + 横切约定补充）

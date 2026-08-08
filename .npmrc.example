@@ -1,0 +1,6 @@
+# npm registry mirror (optional).
+# Uncomment and adjust if you need a faster registry in your region.
+# Chinese developers: uncomment the npmmirror line.
+# Outside China: leave as default (registry.npmjs.org).
+#
+# registry=https://registry.npmmirror.com

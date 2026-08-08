@@ -1,7 +1,7 @@
 # WorkPaw Admin 企业管理员功能优化方案
 
 > 基于: QwenPaw 源码分析 (v1.1.12) + AI Agent 竞品调研 (2026.07) + WorkPaw Admin Plan 1/2/3 完成状态
-> 定位: Admin = 企业 IT 管理员控制台，管理用户/实例/策略/审计/合规
+> 定位: Admin = 企业 IT 管理后台，管理用户/实例/策略/审计/合规
 > 当前状态: Admin 三 Plan 全部完成 (8 页面, JWT/JWKS/SSO/RBAC/审计/CRUD/Template 同步)
 
 ---

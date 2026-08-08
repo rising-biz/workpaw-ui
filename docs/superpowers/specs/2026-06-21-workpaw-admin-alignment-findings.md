@@ -1,7 +1,7 @@
 # workpaw-admin/console 对齐点核查结果
 
 > 日期：2026-06-21
-> 对应 spec：`2026-06-21-workpaw-admin/console-design.md` §12（实现前对齐点）
+> 对应 spec：`2026-06-21-workpaw-admin-design.md` §12（实现前对齐点）
 > 目的：写实现计划前必须确认的 8 项对齐点，提供真实字段名、路径与类型名
 
 ## 1. 模板 `spec` 字段对齐 QwenPaw Pod 配置 API
