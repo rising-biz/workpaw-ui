@@ -48,7 +48,7 @@ export function ThemeSettings() {
       <section className="space-y-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">主题</h2>
-          <p className="text-xs text-muted-foreground">选择界面配色风格。三套主题共享相同的界面布局，各有独立的强调色与底色。</p>
+          <p className="text-xs text-muted-foreground">选择界面配色风格。五套主题共享相同的界面布局，各有独立的强调色与底色。</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           {THEME_VARIANTS.map((v) => {

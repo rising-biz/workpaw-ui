@@ -9,14 +9,14 @@
  * Everything else (the variant store, the picker UIs, the type checks) derives
  * from this file. Do not enumerate variant ids anywhere else.
  *
- * Four themes migrated from HiOps Design System:
- *   Indigo (夜靛, default), Verdant (翠微), Amber (墨金), Amethyst (紫微).
+ * Five themes: Indigo (夜靛, default), Verdant (翠微), Amber (墨金),
+ * Amethyst (紫微), WorkBuddy (墨白).
  * Each is a complete light + dark system. Indigo is the brand anchor
  * (PRODUCT.md / DESIGN.md); the primary color carries ~20-25% of interactive
  * surface — committed strategy, not scarcity.
  */
 
-export type ThemeVariant = "verdant" | "indigo" | "amber" | "amethyst";
+export type ThemeVariant = "verdant" | "indigo" | "amber" | "amethyst" | "workbuddy";
 
 export interface VariantMeta {
   id: ThemeVariant;
@@ -83,6 +83,17 @@ export const THEME_VARIANTS: readonly VariantMeta[] = [
       fg: "oklch(0.20 0.040 294)",
       primary: "oklch(0.54 0.27 296)",
       border: "oklch(0.840 0.032 294)",
+    },
+  },
+  {
+    id: "workbuddy",
+    name: "墨白",
+    desc: "墨色主按钮 + 纯白纸面。克制、干净、办公感，界面不靠彩色品牌色说话。",
+    preview: {
+      bg: "oklch(0.985 0 0)",
+      fg: "oklch(0.18 0 0)",
+      primary: "oklch(0.22 0 0)",
+      border: "oklch(0.860 0 0)",
     },
   },
 ];

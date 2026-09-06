@@ -1,0 +1,14 @@
+# Install native optional deps for both macOS host and Linux (OrbStack).
+supportedArchitectures:
+  os:
+    - current
+    - darwin
+    - linux
+  cpu:
+    - current
+    - arm64
+    - x64
+  libc:
+    - current
+    - glibc
+    - musl

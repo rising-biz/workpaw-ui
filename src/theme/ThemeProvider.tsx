@@ -12,7 +12,7 @@ import { useThemeVariantStore } from "./variantStore";
  * VARIANT to a `data-theme` attribute on <html> (verdant = attribute absent).
  *
  * next-themes touches only the `class` attribute; this provider touches only
- * `data-theme`. No collision. The 6 combos are resolved in CSS by the
+ * `data-theme`. No collision. The 10 combos are resolved in CSS by the
  * `:root[data-theme]` + `.dark` matrix in workpaw-ui/src/styles/theme.css.
  *
  * The variant is persisted as a plain string (see variantStore); each app's

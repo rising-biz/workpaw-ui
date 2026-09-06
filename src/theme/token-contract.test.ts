@@ -31,6 +31,7 @@ const lightSelector: Record<ThemeVariant, string> = {
   indigo: ':root[data-theme="indigo"]',
   amber: ':root[data-theme="amber"]',
   amethyst: ':root[data-theme="amethyst"]',
+  workbuddy: ':root[data-theme="workbuddy"]',
 };
 
 const darkSelector: Record<ThemeVariant, string> = {
@@ -38,6 +39,7 @@ const darkSelector: Record<ThemeVariant, string> = {
   indigo: ':root[data-theme="indigo"].dark',
   amber: ':root[data-theme="amber"].dark',
   amethyst: ':root[data-theme="amethyst"].dark',
+  workbuddy: ':root[data-theme="workbuddy"].dark',
 };
 
 function declarationsFor(selector: string): Record<string, string> {
@@ -156,7 +158,7 @@ describe("theme token contract", () => {
     }
   });
 
-  it("四个主题的亮暗模式都提供完整核心色板", () => {
+  it("全部主题的亮暗模式都提供完整核心色板", () => {
     for (const variant of THEME_VARIANTS) {
       for (const selector of [lightSelector[variant.id], darkSelector[variant.id]]) {
         const declarations = declarationsFor(selector);
@@ -224,6 +226,16 @@ describe("theme token contract", () => {
     expect(hueDistance(parseOklch(verdantDark.primary).h, parseOklch(verdantDark.success).h)).toBeGreaterThanOrEqual(18);
     expect(hueDistance(parseOklch(amberLight.primary).h, parseOklch(amberLight.warning).h)).toBeGreaterThanOrEqual(12);
     expect(hueDistance(parseOklch(amberDark.primary).h, parseOklch(amberDark.warning).h)).toBeGreaterThanOrEqual(8);
+  });
+
+  it("WorkBuddy 与 destructive、warning 保持语义色相间隔", () => {
+    const light = declarationsFor(lightSelector.workbuddy);
+    const dark = declarationsFor(darkSelector.workbuddy);
+
+    expect(hueDistance(parseOklch(light.primary).h, parseOklch(light.destructive).h)).toBeGreaterThanOrEqual(12);
+    expect(hueDistance(parseOklch(dark.primary).h, parseOklch(dark.destructive).h)).toBeGreaterThanOrEqual(12);
+    expect(hueDistance(parseOklch(light.primary).h, parseOklch(light.warning).h)).toBeGreaterThanOrEqual(12);
+    expect(hueDistance(parseOklch(dark.primary).h, parseOklch(dark.warning).h)).toBeGreaterThanOrEqual(12);
   });
 
   it("主题预览色与 light 色板同步", () => {
