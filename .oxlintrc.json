@@ -1,0 +1,226 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [],
+  "categories": {
+    "correctness": "off"
+  },
+  "jsPlugins": [
+    "@shadcn/lint"
+  ],
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**"
+  ],
+  "settings": {
+    "shadcn": {
+      "note": "See DESIGN.md for WorkPaw design rules and approved exceptions."
+    }
+  },
+  "rules": {
+    "shadcn/no-restyle": [
+      "error",
+      {
+        "allow": [
+          "layout"
+        ],
+        "contracts": [
+          {
+            "pattern": "^(PopoverTrigger|DialogTrigger|AlertDialogTrigger|DropdownMenuTrigger|SheetTrigger|TooltipTrigger|CollapsibleTrigger)$",
+            "allow": [
+              "layout",
+              "spacing",
+              "typography",
+              "color",
+              "shape",
+              "effects",
+              "motion"
+            ]
+          },
+          {
+            "pattern": "^Label$",
+            "allow": [
+              "layout",
+              "typography"
+            ]
+          },
+          {
+            "pattern": "^HelperText$",
+            "allow": [
+              "layout",
+              "spacing",
+              "color"
+            ]
+          },
+          {
+            "pattern": "^TableHead$",
+            "allow": [
+              "layout",
+              "typography",
+              "color"
+            ]
+          },
+          {
+            "pattern": "^TableCell$",
+            "allow": [
+              "layout",
+              "typography",
+              "color",
+              "spacing",
+              "effects"
+            ]
+          },
+          {
+            "pattern": "^TableRow$",
+            "allow": [
+              "layout"
+            ]
+          },
+          {
+            "pattern": "^Card$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^CardHeader$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^CardContent$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^CardFooter$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^CardTitle$",
+            "allow": [
+              "layout",
+              "typography",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^CardDescription$",
+            "allow": [
+              "layout",
+              "typography"
+            ]
+          },
+          {
+            "pattern": "^Badge$",
+            "allow": [
+              "layout",
+              "typography",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^Input$",
+            "allow": [
+              "layout",
+              "typography"
+            ]
+          },
+          {
+            "pattern": "^Textarea$",
+            "allow": [
+              "layout",
+              "typography"
+            ]
+          },
+          {
+            "pattern": "^SelectTrigger$",
+            "allow": [
+              "layout",
+              "typography"
+            ]
+          },
+          {
+            "pattern": "^Skeleton$",
+            "allow": [
+              "layout",
+              "shape"
+            ]
+          },
+          {
+            "pattern": "^RadioGroup$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^DropdownMenu(Content|Item|SubTrigger|RadioItem|CheckboxItem|Label)$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^PopoverContent$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^DialogFooter$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^SheetContent$",
+            "allow": [
+              "layout",
+              "spacing"
+            ]
+          },
+          {
+            "pattern": "^ScrollArea$",
+            "allow": [
+              "layout",
+              "shape"
+            ]
+          }
+        ]
+      }
+    ],
+    "shadcn/no-raw-colors": "error",
+    "shadcn/no-arbitrary-values": [
+      "error",
+      {
+        "allow": [
+          "layout"
+        ]
+      }
+    ],
+    "shadcn/no-inline-styles": "error",
+    "shadcn/require-static-classes": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/components/ui/**"
+      ],
+      "rules": {
+        "shadcn/no-restyle": "off",
+        "shadcn/no-arbitrary-values": "off",
+        "shadcn/require-static-classes": "off"
+      }
+    }
+  ]
+}

@@ -6,6 +6,7 @@ export type PluginType =
   | "command"
   | "channel"
   | "frontend"
+  | "memory"
   | "app"
   | "general";
 
@@ -56,6 +57,12 @@ export interface OfficialPluginCatalogEntry {
   install_url: string;
   installed: boolean;
   installed_version?: string;
+  /** Actual installed ID when this entry supersedes a renamed plugin. */
+  installed_plugin_id?: string;
+  /** True when installing this entry migrates an obsolete plugin ID. */
+  migration_required?: boolean;
+  /** Obsolete plugin IDs replaced by this entry. */
+  supersedes?: string[];
   upgrade_available: boolean;
 }
 
@@ -85,6 +92,7 @@ export interface MarketPluginEntry {
   /** QwenPaw 大版本兼容标签，如 ["1.x"]。 */
   qwenpaw_compat_labels?: string[];
   is_featured?: boolean;
+  is_trending?: boolean;
 }
 
 export type MarketPluginSortBy = "downloads" | "updated_time" | "fauvarate";

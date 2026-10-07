@@ -46,7 +46,7 @@ function VariableFormComponent({
         const val = values[v.key];
         return (
           <div key={`${i}-${v.key}`} className="space-y-1.5">
-            <Label htmlFor={id} className="text-sm">
+            <Label htmlFor={id}>
               {label}
             </Label>
             {v.type === "text" && (

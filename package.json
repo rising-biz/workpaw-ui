@@ -9,14 +9,15 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./styles.css": "./dist/style.css"
+    "./styles.css": "./dist/style.css",
+    "./theme.css": "./src/styles/theme.css"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "lint": "node scripts/check-ui-stack.mjs && oxlint .",
+    "check:ui-stack": "node scripts/check-ui-stack.mjs"
   },
   "keywords": [],
   "author": "",
@@ -50,18 +51,15 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@shadcn/lint": "^0.1.0",
     "@tailwindcss/vite": "^4.3.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
-    "jsdom": "^29.1.1",
+    "oxlint": "^1.83.0",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16",
-    "vitest": "^4.1.9"
+    "vite": "^8.0.16"
   },
   "packageManager": "pnpm@11.11.0"
 }

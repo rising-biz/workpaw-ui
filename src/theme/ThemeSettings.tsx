@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useThemeVariantStore } from "./variantStore";
 import { THEME_VARIANTS } from "./variants";
@@ -27,11 +28,11 @@ function Swatch({ label, color }: { label: string; color: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
       <div
-        className="h-10 w-full rounded-md border border-border"
-        style={{ backgroundColor: color }}
+        className="h-10 w-full rounded-md border border-border bg-(--swatch)"
+        style={{ "--swatch": color } as CSSProperties}
         aria-hidden
       />
-      <span className="text-[0.625rem] text-muted-foreground">{label}</span>
+      <span className="text-xs text-muted-foreground">{label}</span>
     </div>
   );
 }
@@ -61,7 +62,7 @@ export function ThemeSettings() {
                 onClick={() => setVariant(v.id)}
                 className={cn(
                   "group relative flex flex-col gap-3 rounded-xl border p-3 text-left",
-                  "transition-[transform,background-color,border-color,box-shadow] duration-200 ease-[var(--ease-out-quart)]",
+                  "transition duration-200 ease-(--ease-out-quart)",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   "active:scale-[0.99]",
                   selected
@@ -71,24 +72,19 @@ export function ThemeSettings() {
               >
                 {/* Mini preview mock */}
                 <div
-                  className="flex h-16 items-center gap-2 rounded-md border p-2"
-                  style={{
-                    backgroundColor: v.preview.bg,
-                    borderColor: v.preview.border,
-                  }}
+                  className="flex h-16 items-center gap-2 rounded-md border border-(--preview-border) bg-(--preview-bg) p-2"
+                  style={
+                    {
+                      "--preview-bg": v.preview.bg,
+                      "--preview-border": v.preview.border,
+                      "--preview-primary": v.preview.primary,
+                      "--preview-fg": v.preview.fg,
+                    } as CSSProperties
+                  }
                 >
-                  <div
-                    className="h-2.5 w-2.5 rounded-sm"
-                    style={{ backgroundColor: v.preview.primary }}
-                  />
-                  <div
-                    className="h-1.5 flex-1 rounded-sm"
-                    style={{ backgroundColor: v.preview.fg, opacity: 0.8 }}
-                  />
-                  <div
-                    className="h-1.5 w-6 rounded-sm"
-                    style={{ backgroundColor: v.preview.fg, opacity: 0.4 }}
-                  />
+                  <div className="h-2.5 w-2.5 rounded-sm bg-(--preview-primary)" />
+                  <div className="h-1.5 flex-1 rounded-sm bg-(--preview-fg) opacity-80" />
+                  <div className="h-1.5 w-6 rounded-sm bg-(--preview-fg) opacity-40" />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{v.name}</span>

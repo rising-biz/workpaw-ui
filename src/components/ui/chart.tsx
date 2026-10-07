@@ -89,6 +89,8 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   }
 
   return (
+    // Official shadcn Chart injects per-series CSS variables from the chart config.
+    // oxlint-disable-next-line shadcn/no-inline-styles -- chart series color variables
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
@@ -311,10 +313,8 @@ function ChartLegendContent({
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
+                  className="h-2 w-2 shrink-0 rounded-[2px] bg-(--legend-color)"
+                  style={{ "--legend-color": item.color } as React.CSSProperties}
                 />
               )}
               {itemConfig?.label}
