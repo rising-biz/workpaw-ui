@@ -20,6 +20,8 @@ export interface PluginInfo {
   enabled: boolean;
   /** 当前是否已加载进内存。 */
   loaded: boolean;
+  /** 当前 Pod 是否支持将此已加载插件导出为可安装 ZIP。缺失视为不支持。 */
+  exportable?: boolean;
   plugin_type: PluginType;
   frontend_entry?: string;
 }
