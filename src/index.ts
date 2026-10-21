@@ -28,3 +28,4 @@ export {
 
 export * from "./types/plugin";
 export { PluginTypeTag } from "./components/PluginTypeTag";
+export { marketErrorMessage } from "./lib/market-errors";

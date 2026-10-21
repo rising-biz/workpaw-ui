@@ -10,6 +10,12 @@ export type PluginType =
   | "general";
 
 /** GET /api/plugins 单条记录。 */
+export interface PluginCompatibility {
+  compatible: boolean;
+  currentVersion: string;
+  minVersion: string;
+}
+
 export interface PluginInfo {
   id: string;
   name: string;
@@ -21,6 +27,8 @@ export interface PluginInfo {
   loaded: boolean;
   plugin_type: PluginType;
   frontend_entry?: string;
+  /** Optional host diagnostic, evaluated by the prepared local QwenPaw checker. */
+  compatibility?: PluginCompatibility;
 }
 
 export interface InstallPluginResult {
@@ -38,6 +46,7 @@ export interface PluginStatus {
   loaded: boolean;
   enabled: boolean;
   version?: string;
+  compatibility?: PluginCompatibility;
 }
 
 /** GET /api/plugins/catalog（官方 CDN 目录）单条。 */
