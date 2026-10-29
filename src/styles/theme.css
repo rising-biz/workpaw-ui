@@ -40,7 +40,7 @@
   --input: var(--border);
   --ring: var(--primary);
   --destructive-foreground: oklch(0.99 0 0);
-  --overlay: color-mix(in oklch, var(--foreground) 42%, transparent);
+  --overlay: var(--foreground);
   --overlay-foreground: var(--background);
 
   /* ── Derived sidebar (source: --sidebar, --sidebar-foreground,
@@ -52,18 +52,18 @@
   --sidebar-ring: var(--primary);
 
   /* ── Semantic state roles — readable text, subtle surface, clear border ─ */
-  --state-success-foreground: color-mix(in oklch, var(--success) 76%, var(--foreground));
-  --state-success-surface: color-mix(in oklch, var(--success) 10%, var(--background));
-  --state-success-border: color-mix(in oklch, var(--success) 32%, var(--border));
-  --state-warning-foreground: color-mix(in oklch, var(--warning) 76%, var(--foreground));
-  --state-warning-surface: color-mix(in oklch, var(--warning) 10%, var(--background));
-  --state-warning-border: color-mix(in oklch, var(--warning) 32%, var(--border));
-  --state-destructive-foreground: color-mix(in oklch, var(--destructive) 76%, var(--foreground));
-  --state-destructive-surface: color-mix(in oklch, var(--destructive) 10%, var(--background));
-  --state-destructive-border: color-mix(in oklch, var(--destructive) 32%, var(--border));
-  --state-info-foreground: color-mix(in oklch, var(--info) 76%, var(--foreground));
-  --state-info-surface: color-mix(in oklch, var(--info) 10%, var(--background));
-  --state-info-border: color-mix(in oklch, var(--info) 32%, var(--border));
+  --state-success-foreground: var(--foreground);
+  --state-success-surface: var(--background);
+  --state-success-border: var(--success);
+  --state-warning-foreground: var(--foreground);
+  --state-warning-surface: var(--background);
+  --state-warning-border: var(--warning);
+  --state-destructive-foreground: var(--foreground);
+  --state-destructive-surface: var(--background);
+  --state-destructive-border: var(--destructive);
+  --state-info-foreground: var(--foreground);
+  --state-info-surface: var(--background);
+  --state-info-border: var(--info);
 
   /* ── Data viz — already derived ───────────────────────────────── */
   --data-positive: var(--success);
@@ -125,9 +125,7 @@
   /* ── Grid ─────────────────────────────────────────────────────── */
   --grid-cell-size: 48px;
   --grid-line-opacity: 5%;
-  --bg-grid-image:
-    linear-gradient(to right, color-mix(in oklch, var(--foreground) var(--grid-line-opacity, 5%), transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklch, var(--foreground) var(--grid-line-opacity, 5%), transparent) 1px, transparent 1px);
+  --bg-grid-image: none;
 
   /* ── Ambient glow — derived from --primary + --bg-glow-intensity ─ */
   --bg-glow-color: var(--primary-vivid, var(--primary));
@@ -155,6 +153,8 @@
 }
 
 :root.dark {
+  /* Bright destructive fills need dark ink; white only reaches about 3:1. */
+  --destructive-foreground: var(--background);
   --scrollbar-thumb: oklch(1 0 0 / 0.15);
   --scrollbar-thumb-hover: oklch(1 0 0 / 0.25);
   --grid-glow-opacity: 18%;
@@ -485,6 +485,25 @@
  * ========================================================================= */
 @supports (color: color-mix(in oklch, red, blue)) {
   :root {
+    /* Keep mixed custom properties inside a top-level feature query. Otherwise
+       Tailwind emits nested declaration rules that older WKWebView versions
+       skip, with identical first-color fallbacks for text and surface roles. */
+    --overlay: color-mix(in oklch, var(--foreground) 42%, transparent);
+    --state-success-foreground: color-mix(in oklch, var(--success) 76%, var(--foreground));
+    --state-success-surface: color-mix(in oklch, var(--success) 10%, var(--background));
+    --state-success-border: color-mix(in oklch, var(--success) 32%, var(--border));
+    --state-warning-foreground: color-mix(in oklch, var(--warning) 76%, var(--foreground));
+    --state-warning-surface: color-mix(in oklch, var(--warning) 10%, var(--background));
+    --state-warning-border: color-mix(in oklch, var(--warning) 32%, var(--border));
+    --state-destructive-foreground: color-mix(in oklch, var(--destructive) 76%, var(--foreground));
+    --state-destructive-surface: color-mix(in oklch, var(--destructive) 10%, var(--background));
+    --state-destructive-border: color-mix(in oklch, var(--destructive) 32%, var(--border));
+    --state-info-foreground: color-mix(in oklch, var(--info) 76%, var(--foreground));
+    --state-info-surface: color-mix(in oklch, var(--info) 10%, var(--background));
+    --state-info-border: color-mix(in oklch, var(--info) 32%, var(--border));
+    --bg-grid-image:
+      linear-gradient(to right, color-mix(in oklch, var(--foreground) var(--grid-line-opacity, 5%), transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--foreground) var(--grid-line-opacity, 5%), transparent) 1px, transparent 1px);
     --primary-vivid: color-mix(in oklch, var(--primary) 64%, var(--accent));
     --primary-soft: color-mix(in oklch, var(--primary) 12%, var(--background));
     --primary-border: color-mix(in oklch, var(--primary) 44%, var(--border));
