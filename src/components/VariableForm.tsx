@@ -15,6 +15,14 @@ export interface VariableFormProps {
   variables: ScenarioVariable[];
   values: Record<string, string | File | undefined>;
   onChange: (key: string, value: string | File | undefined) => void;
+  /**
+   * Per-variable error messages keyed by variable key (usually the output of
+   * `VariableForm.validate` mapped back to keys). When present the control is
+   * announced as invalid (`aria-invalid`) and the message is wired through
+   * `aria-describedby` + `role="alert"`, so required validation closes the
+   * loop inside the component instead of relying on out-of-band copy.
+   */
+  errors?: Record<string, string>;
   disabled?: boolean;
   className?: string;
 }
@@ -25,7 +33,8 @@ export interface VariableFormProps {
  * Required-marker semantics: a variable with `required: true` renders its
  * label with a trailing `*` (display only). This marker is NOT a substitute
  * for validation — callers MUST run {@link VariableForm.validate} before
- * consuming `values` and surface the returned labels as errors.
+ * consuming `values` and pass the failures back via the `errors` prop (or
+ * surface them themselves).
  *
  * Note on ids: each control id is derived from its render index AND variable
  * key (`var-{i}-{key}`) so duplicate or special-character keys cannot collide.
@@ -34,6 +43,7 @@ function VariableFormComponent({
   variables,
   values,
   onChange,
+  errors,
   disabled,
   className,
 }: VariableFormProps) {
@@ -44,6 +54,12 @@ function VariableFormComponent({
         const id = `var-${i}-${v.key}`;
         const label = v.required ? `${v.label}*` : v.label;
         const val = values[v.key];
+        const error = errors?.[v.key];
+        const describedBy = error ? `${id}-error` : undefined;
+        const ariaProps = {
+          "aria-invalid": error ? true : undefined,
+          "aria-describedby": describedBy,
+        };
         return (
           <div key={`${i}-${v.key}`} className="space-y-1.5">
             <Label htmlFor={id}>
@@ -56,6 +72,7 @@ function VariableFormComponent({
                 placeholder={v.placeholder}
                 value={(val as string) ?? ""}
                 onChange={(e) => onChange(v.key, e.target.value)}
+                {...ariaProps}
               />
             )}
             {v.type === "textarea" && (
@@ -66,6 +83,7 @@ function VariableFormComponent({
                 rows={3}
                 value={(val as string) ?? ""}
                 onChange={(e) => onChange(v.key, e.target.value)}
+                {...ariaProps}
               />
             )}
             {v.type === "select" && (
@@ -74,7 +92,7 @@ function VariableFormComponent({
                 value={(val as string) ?? v.default ?? ""}
                 onValueChange={(value) => onChange(v.key, value)}
               >
-                <SelectTrigger id={id}>
+                <SelectTrigger id={id} {...ariaProps}>
                   <SelectValue placeholder={v.placeholder} />
                 </SelectTrigger>
                 <SelectContent>
@@ -88,12 +106,23 @@ function VariableFormComponent({
             )}
             {v.type === "file" && (
               <Input
+                // Uncontrolled by nature: remounting on the
+                // defined → undefined transition is what makes external
+                // resets visible (values[key] = undefined clears the
+                // rendered file name; a plain input cannot do that).
+                key={val ? "has-value" : "empty"}
                 id={id}
                 type="file"
                 disabled={disabled}
                 onChange={(e) => onChange(v.key, e.target.files?.[0])}
+                {...ariaProps}
               />
             )}
+            {error ? (
+              <p id={`${id}-error`} role="alert" className="text-xs text-destructive">
+                {error}
+              </p>
+            ) : null}
           </div>
         );
       })}

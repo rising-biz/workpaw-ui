@@ -120,6 +120,12 @@ export function checkUIStack(root = process.cwd()) {
             specifier = node.argument.literal.text;
           if (specifier && forbidden.test(specifier))
             report(file, `forbidden import: ${specifier}`);
+          // Library code is consumed as SOURCE by apps that each own a
+          // different `@` alias target — internal imports must stay relative
+          // (AGENTS.md). This also catches shadcn CLI output, which generates
+          // `@/lib/utils` style imports when run against components.json.
+          if (specifier && specifier.startsWith("@/"))
+            report(file, `library code must use relative imports, found alias: ${specifier}`);
           ts.forEachChild(node, walk);
         }
         walk(tree);

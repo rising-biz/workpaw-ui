@@ -4,20 +4,23 @@ import {
   useTheme,
   type ThemeProviderProps as NextThemeProviderProps,
 } from "next-themes";
+import { DEFAULT_THEME_VARIANT } from "./variants";
 import { useThemeVariantStore } from "./variantStore";
 
 /**
  * ThemeProvider — wraps next-themes (mode: light/dark/system → `.dark` class on
  * <html>, with persistence + its own no-flash script) and syncs the theme
- * VARIANT to a `data-theme` attribute on <html> (verdant = attribute absent).
+ * VARIANT to a `data-theme` attribute on <html>. The DEFAULT variant (indigo,
+ * the bare `:root` palette in theme.css) maps to the attribute ABSENT; every
+ * other variant sets `data-theme="<id>"`.
  *
  * next-themes touches only the `class` attribute; this provider touches only
  * `data-theme`. No collision. The 10 combos are resolved in CSS by the
  * `:root[data-theme]` + `.dark` matrix in workpaw-ui/src/styles/theme.css.
  *
- * The variant is persisted as a plain string (see variantStore); each app's
- * index.html has a tiny inline script that pre-sets `data-theme` before paint
- * so there is no flash to verdant on reload.
+ * First paint (before React mounts) is handled by the shared no-flash script
+ * (`src/theme-init.js`, exported as "workpaw-ui/theme-init.js"), which applies
+ * the same mapping from the persisted plain-string variant (see variantStore).
  *
  * Motion: on any variant or resolved-mode change, `.theme-transitioning` is
  * flashed on <html> for 320ms so the whole UI cross-fades its colors (see the
@@ -39,10 +42,11 @@ function ThemeApplier() {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = useRef(false);
 
-  // Apply the variant attribute.
+  // Apply the variant attribute. The DEFAULT variant IS the bare `:root`
+  // palette, so it removes the attribute; everything else sets its own.
   useEffect(() => {
     const el = document.documentElement;
-    if (variant === "verdant") {
+    if (variant === DEFAULT_THEME_VARIANT) {
       el.removeAttribute("data-theme");
     } else {
       el.setAttribute("data-theme", variant);

@@ -4,7 +4,7 @@ import * as React from "react"
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { Select as SelectPrimitive } from "radix-ui"
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 function Select({
   ...props
@@ -53,8 +53,11 @@ function SelectTrigger({
 function SelectContent({
   className,
   children,
-  position = "item-aligned",
-  align = "center",
+  // Upstream shadcn v4 default: the popover floats below/above the trigger.
+  // (A previous revision defaulted to "item-aligned" — the selected item is
+  // aligned over the trigger, which silently changes `align` semantics and
+  // surprises consumers; see README「与上游的差异」.)
+  position = "popper",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
   return (
@@ -68,7 +71,6 @@ function SelectContent({
           className
         )}
         position={position}
-        align={align}
         {...props}
       >
         <SelectScrollUpButton />

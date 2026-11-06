@@ -4,17 +4,111 @@
  * Strategy: ~18 source tokens per theme, the rest derived via var() / calc() /
  * color-mix(). Users edit only the boldfaced tokens in the theme designer.
  *
- *   :root                                 verdant light (DEFAULT)
- *   :root.dark                            verdant dark
- *   :root[data-theme="indigo"]            indigo light
- *   :root[data-theme="indigo"].dark       indigo dark
+ *   :root                                 indigo light (DEFAULT — no attribute)
+ *   :root.dark                            indigo dark
+ *   :root[data-theme="verdant"]           verdant light
+ *   :root[data-theme="verdant"].dark      verdant dark
  *   :root[data-theme="amber"]             amber light
  *   :root[data-theme="amber"].dark        amber dark
  *   :root[data-theme="amethyst"]          amethyst light
  *   :root[data-theme="amethyst"].dark     amethyst dark
  *   :root[data-theme="workbuddy"]         workbuddy light
  *   :root[data-theme="workbuddy"].dark    workbuddy dark
+ *
+ * The bare `:root` palette IS `DEFAULT_THEME_VARIANT` (indigo, the brand anchor
+ * per PRODUCT.md). Setting `data-theme` to the default id explicitly resolves
+ * to the same values, so no separate indigo block is needed.
+ *
+ * This file also owns the Tailwind v4 mapping layer (@custom-variant dark,
+ * @source, @theme inline) so ONE import wires every token to its utility —
+ * consumers only need `@import "workpaw-ui/theme.css";`. Registering the same
+ * mappings in a consumer's index.css is harmless (identical values; consumer
+ * declarations simply win by cascade order).
  */
+
+/* =========================================================================
+ * TAILWIND V4 MAPPING LAYER — owned by the library
+ * ========================================================================= */
+
+/* Scan the library source for class candidates, so library components render
+   correctly in any consumer that imports this file. */
+@source "../";
+
+/* Dark mode is a `.dark` class on <html> (set by next-themes), not a media
+   query — components use `dark:` utilities against this variant. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Typography */
+  --font-heading: var(--font-sans);
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces + semantics → bg-, text-, border- utilities */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-state-success-foreground: var(--state-success-foreground);
+  --color-state-success-surface: var(--state-success-surface);
+  --color-state-success-border: var(--state-success-border);
+  --color-state-warning-foreground: var(--state-warning-foreground);
+  --color-state-warning-surface: var(--state-warning-surface);
+  --color-state-warning-border: var(--state-warning-border);
+  --color-state-destructive-foreground: var(--state-destructive-foreground);
+  --color-state-destructive-surface: var(--state-destructive-surface);
+  --color-state-destructive-border: var(--state-destructive-border);
+  --color-state-info-foreground: var(--state-info-foreground);
+  --color-state-info-surface: var(--state-info-surface);
+  --color-state-info-border: var(--state-info-border);
+
+  /* Shape — shadcn v4 upstream additive formula around --radius (0.625rem
+     → sm 6px / md 8px / lg 10px / xl 14px, identical to the consumers'
+     former multiplicative values). 2xl+ extend beyond the upstream set; the
+     multiplicative form matches the consumers' extensions so they render
+     identically when consumers drop their local @theme blocks. */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Elevation — utilities pick up the per-theme shadow tokens. */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
 
 /* =========================================================================
  * SHARED CONSTANTS + DERIVED TOKENS
@@ -40,7 +134,10 @@
   --input: var(--border);
   --ring: var(--primary);
   --destructive-foreground: oklch(0.99 0 0);
-  --overlay: var(--foreground);
+  /* Modal overlay: foreground-tinted scrim via color-mix where supported;
+     the fallback keeps today's plain translucent black for engines without
+     color-mix (an opaque --foreground fallback would blind those users). */
+  --overlay: oklch(0 0 0 / 0.5);
   --overlay-foreground: var(--background);
 
   /* ── Derived sidebar (source: --sidebar, --sidebar-foreground,
@@ -71,15 +168,15 @@
   --data-neutral: var(--muted-foreground);
 
   /* ── Skeleton — derived ───────────────────────────────────────── */
-  --skeleton-base: var(--secondary);
+  --skeleton-base: var(--accent);
   --skeleton-shine: var(--secondary);
 
-  /* ── Shape — derived from --radius ────────────────────────────── */
+  /* ── Shape — derived from --radius (shadcn v4 upstream formula) ─ */
   --radius: 0.625rem;
-  --radius-sm:  calc(var(--radius) - 0.125rem);
-  --radius-md:  var(--radius);
-  --radius-lg:  calc(var(--radius) + 0.125rem);
-  --radius-xl:  calc(var(--radius) + 0.375rem);
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) + 4px);
 
   /* ── Spacing — derived from --spacing-md ──────────────────────── */
   --spacing-md: 0.75rem;
@@ -174,70 +271,10 @@
  * ========================================================================= */
 
 /* =========================================================================
- * VERDANT — DEFAULT (no data-theme)
- * Teal-emerald brand hue (165°) intentionally separates from success (145°).
- * ========================================================================= */
-:root {
-  --primary:       oklch(0.50 0.20 165);
-  --primary-foreground:   oklch(0.99 0 0);
-  --primary-hover: oklch(0.44 0.20 165);
-  --background:    oklch(0.965 0.012 160);
-  --foreground:    oklch(0.20 0.030 160);
-  --card:          oklch(0.995 0.006 160);
-  --card-foreground:      oklch(0.20 0.030 160);
-  --secondary:            oklch(0.925 0.028 160);
-  --secondary-foreground: oklch(0.25 0.036 160);
-  --muted-foreground:     oklch(0.49 0.030 160);
-  --accent:               oklch(0.895 0.080 163);
-  --accent-foreground:    oklch(0.27 0.125 165);
-  --border:       oklch(0.840 0.026 160);
-  --destructive:  oklch(0.54 0.22 25);
-  --success:      oklch(0.50 0.17 145);
-  --warning:      oklch(0.60 0.15 58);
-  --info:         oklch(0.52 0.18 245);
-  --chart-1:      var(--primary);
-  --chart-2:      oklch(0.57 0.17 220);
-  --chart-3:      oklch(0.56 0.21 305);
-  --chart-4:      oklch(0.62 0.16 80);
-  --chart-5:      oklch(0.56 0.20 25);
-  --sidebar:             oklch(0.952 0.022 160);
-  --sidebar-foreground:  oklch(0.18 0.040 160);
-  --sidebar-accent:      oklch(0.895 0.070 163);
-}
-
-:root.dark {
-  --primary:       oklch(0.72 0.20 165);
-  --primary-hover: oklch(0.77 0.18 165);
-  --primary-foreground:   oklch(0.14 0.045 165);
-  --background:    oklch(0.140 0.023 160);
-  --foreground:    oklch(0.92 0.008 155);
-  --card:          oklch(0.200 0.028 160);
-  --card-foreground:      oklch(0.92 0.008 155);
-  --secondary:            oklch(0.245 0.034 160);
-  --secondary-foreground: oklch(0.93 0.010 155);
-  --muted-foreground:     oklch(0.66 0.022 158);
-  --accent:               oklch(0.290 0.105 163);
-  --accent-foreground:    oklch(0.88 0.135 165);
-  --border:       oklch(0.340 0.032 160);
-  --destructive:  oklch(0.68 0.20 25);
-  --success:      oklch(0.72 0.18 145);
-  --warning:      oklch(0.78 0.16 70);
-  --info:         oklch(0.72 0.17 245);
-  --chart-1:      var(--primary);
-  --chart-2:      oklch(0.75 0.16 220);
-  --chart-3:      oklch(0.74 0.19 305);
-  --chart-4:      oklch(0.79 0.15 80);
-  --chart-5:      oklch(0.72 0.18 25);
-  --sidebar:             oklch(0.172 0.034 160);
-  --sidebar-foreground:  oklch(0.92 0.008 155);
-  --sidebar-accent:      oklch(0.290 0.095 163);
-}
-
-/* =========================================================================
- * INDIGO — data-theme="indigo"
+ * INDIGO — DEFAULT (no data-theme)
  * Electric indigo is the precise, high-authority WorkPaw brand anchor.
  * ========================================================================= */
-:root[data-theme="indigo"] {
+:root {
   --primary:       oklch(0.52 0.27 264);
   --primary-foreground:   oklch(0.99 0 0);
   --primary-hover: oklch(0.46 0.27 264);
@@ -253,7 +290,7 @@
   --border:       oklch(0.840 0.030 265);
   --destructive:  oklch(0.54 0.22 25);
   --success:      oklch(0.50 0.17 145);
-  --warning:      oklch(0.60 0.15 58);
+  --warning:      oklch(0.55 0.15 58);
   --info:         oklch(0.52 0.18 245);
   --chart-1:      var(--primary);
   --chart-2:      oklch(0.57 0.18 220);
@@ -265,7 +302,7 @@
   --sidebar-accent:      oklch(0.890 0.078 264);
 }
 
-:root[data-theme="indigo"].dark {
+:root.dark {
   --primary:       oklch(0.70 0.25 264);
   --primary-hover: oklch(0.75 0.23 264);
   --primary-foreground:   oklch(0.15 0.055 264);
@@ -294,6 +331,66 @@
 }
 
 /* =========================================================================
+ * VERDANT — data-theme="verdant"
+ * Teal-emerald brand hue (165°) intentionally separates from success (145°).
+ * ========================================================================= */
+:root[data-theme="verdant"] {
+  --primary:       oklch(0.50 0.20 165);
+  --primary-foreground:   oklch(0.99 0 0);
+  --primary-hover: oklch(0.44 0.20 165);
+  --background:    oklch(0.965 0.012 160);
+  --foreground:    oklch(0.20 0.030 160);
+  --card:          oklch(0.995 0.006 160);
+  --card-foreground:      oklch(0.20 0.030 160);
+  --secondary:            oklch(0.925 0.028 160);
+  --secondary-foreground: oklch(0.25 0.036 160);
+  --muted-foreground:     oklch(0.49 0.030 160);
+  --accent:               oklch(0.895 0.080 163);
+  --accent-foreground:    oklch(0.27 0.125 165);
+  --border:       oklch(0.840 0.026 160);
+  --destructive:  oklch(0.54 0.22 25);
+  --success:      oklch(0.50 0.17 145);
+  --warning:      oklch(0.55 0.15 58);
+  --info:         oklch(0.52 0.18 245);
+  --chart-1:      var(--primary);
+  --chart-2:      oklch(0.57 0.17 220);
+  --chart-3:      oklch(0.56 0.21 305);
+  --chart-4:      oklch(0.62 0.16 80);
+  --chart-5:      oklch(0.56 0.20 25);
+  --sidebar:             oklch(0.952 0.022 160);
+  --sidebar-foreground:  oklch(0.18 0.040 160);
+  --sidebar-accent:      oklch(0.895 0.070 163);
+}
+
+:root[data-theme="verdant"].dark {
+  --primary:       oklch(0.72 0.20 165);
+  --primary-hover: oklch(0.77 0.18 165);
+  --primary-foreground:   oklch(0.14 0.045 165);
+  --background:    oklch(0.140 0.023 160);
+  --foreground:    oklch(0.92 0.008 155);
+  --card:          oklch(0.200 0.028 160);
+  --card-foreground:      oklch(0.92 0.008 155);
+  --secondary:            oklch(0.245 0.034 160);
+  --secondary-foreground: oklch(0.93 0.010 155);
+  --muted-foreground:     oklch(0.66 0.022 158);
+  --accent:               oklch(0.290 0.105 163);
+  --accent-foreground:    oklch(0.88 0.135 165);
+  --border:       oklch(0.340 0.032 160);
+  --destructive:  oklch(0.68 0.20 25);
+  --success:      oklch(0.72 0.18 145);
+  --warning:      oklch(0.78 0.16 70);
+  --info:         oklch(0.72 0.17 245);
+  --chart-1:      var(--primary);
+  --chart-2:      oklch(0.75 0.16 220);
+  --chart-3:      oklch(0.74 0.19 305);
+  --chart-4:      oklch(0.79 0.15 80);
+  --chart-5:      oklch(0.72 0.18 25);
+  --sidebar:             oklch(0.172 0.034 160);
+  --sidebar-foreground:  oklch(0.92 0.008 155);
+  --sidebar-accent:      oklch(0.290 0.095 163);
+}
+
+/* =========================================================================
  * AMBER — data-theme="amber"
  * Mineral gold (72–82°) stays visually distinct from orange warning (58–70°).
  * ========================================================================= */
@@ -313,7 +410,7 @@
   --border:       oklch(0.850 0.032 80);
   --destructive:  oklch(0.54 0.22 25);
   --success:      oklch(0.50 0.17 145);
-  --warning:      oklch(0.60 0.15 58);
+  --warning:      oklch(0.55 0.15 58);
   --info:         oklch(0.52 0.18 245);
   --chart-1:      var(--primary);
   --chart-2:      oklch(0.56 0.20 30);
@@ -373,7 +470,7 @@
   --border:       oklch(0.840 0.032 294);
   --destructive:  oklch(0.54 0.22 25);
   --success:      oklch(0.50 0.17 145);
-  --warning:      oklch(0.60 0.15 58);
+  --warning:      oklch(0.55 0.15 58);
   --info:         oklch(0.52 0.18 245);
   --chart-1:      var(--primary);
   --chart-2:      oklch(0.55 0.22 260);
@@ -436,7 +533,7 @@
   --border:       oklch(0.860 0 0);
   --destructive:  oklch(0.54 0.22 25);
   --success:      oklch(0.50 0.17 145);
-  --warning:      oklch(0.60 0.15 58);
+  --warning:      oklch(0.55 0.15 58);
   --info:         oklch(0.52 0.18 245);
   --chart-1:      var(--primary);
   --chart-2:      oklch(0.55 0.17 210);

@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useRef, type CSSProperties, type KeyboardEvent, type RefCallback } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useThemeVariantStore } from "./variantStore";
 import { THEME_VARIANTS } from "./variants";
@@ -37,11 +37,63 @@ function Swatch({ label, color }: { label: string; color: string }) {
   );
 }
 
+/**
+ * WAI-ARIA radio group keyboard pattern for the two single-select groups:
+ * roving tabindex (only the checked item is tabbable) + Arrow/Home/End moving
+ * both selection and focus — selection follows focus, as with native radios.
+ */
+function useRadioGroup(activeIndex: number, onSelectIndex: (index: number) => void) {
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const count = itemRefs.current.length;
+    let next: number;
+    switch (event.key) {
+      case "ArrowDown":
+      case "ArrowRight":
+        next = (activeIndex + 1) % count;
+        break;
+      case "ArrowUp":
+      case "ArrowLeft":
+        next = (activeIndex - 1 + count) % count;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = count - 1;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    onSelectIndex(next);
+    itemRefs.current[next]?.focus();
+  };
+  const setItemRef = (index: number): RefCallback<HTMLButtonElement> => (node) => {
+    itemRefs.current[index] = node;
+  };
+  return { onKeyDown, setItemRef };
+}
+
 export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
   const variant = useThemeVariantStore((s) => s.variant);
   const setVariant = useThemeVariantStore((s) => s.setVariant);
   const activeMode = theme ?? "system";
+
+  const activeVariantIndex = Math.max(
+    0,
+    THEME_VARIANTS.findIndex((v) => v.id === variant),
+  );
+  const variantRadio = useRadioGroup(activeVariantIndex, (i) => {
+    const next = THEME_VARIANTS[i];
+    if (next) setVariant(next.id);
+  });
+  const activeModeIndex = Math.max(0, MODES.findIndex((m) => m.id === activeMode));
+  const modeRadio = useRadioGroup(activeModeIndex, (i) => {
+    const next = MODES[i];
+    if (next) setTheme(next.id);
+  });
 
   return (
     <div className="space-y-8">
@@ -51,14 +103,25 @@ export function ThemeSettings() {
           <h2 className="text-sm font-semibold text-foreground">主题</h2>
           <p className="text-xs text-muted-foreground">选择界面配色风格。五套主题共享相同的界面布局，各有独立的强调色与底色。</p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {THEME_VARIANTS.map((v) => {
+        {/* 单选语义（P3-4）：role=radiogroup + aria-checked，读屏上报「第 x / 共 5 项
+            已选中」，而不是五个独立开关；网格 5 张卡在 lg 一行、sm 两列，不再
+            出现末行 2 张孤卡。 */}
+        <div
+          role="radiogroup"
+          aria-label="主题"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5"
+          onKeyDown={variantRadio.onKeyDown}
+        >
+          {THEME_VARIANTS.map((v, i) => {
             const selected = variant === v.id;
             return (
               <button
                 key={v.id}
                 type="button"
-                aria-pressed={selected}
+                role="radio"
+                aria-checked={selected}
+                tabIndex={selected ? 0 : -1}
+                ref={variantRadio.setItemRef(i)}
                 onClick={() => setVariant(v.id)}
                 className={cn(
                   "group relative flex flex-col gap-3 rounded-xl border p-3 text-left",
@@ -116,14 +179,22 @@ export function ThemeSettings() {
           <h2 className="text-sm font-semibold text-foreground">模式</h2>
           <p className="text-xs text-muted-foreground">跟随系统会按操作系统的深浅设置自动切换。</p>
         </div>
-        <div className="inline-flex rounded-lg border border-border bg-muted/40 p-1">
-          {MODES.map(({ id, name, Icon }) => {
+        <div
+          role="radiogroup"
+          aria-label="外观模式"
+          className="inline-flex rounded-lg border border-border bg-muted/40 p-1"
+          onKeyDown={modeRadio.onKeyDown}
+        >
+          {MODES.map(({ id, name, Icon }, i) => {
             const selected = activeMode === id;
             return (
               <button
                 key={id}
                 type="button"
-                aria-pressed={selected}
+                role="radio"
+                aria-checked={selected}
+                tabIndex={selected ? 0 : -1}
+                ref={modeRadio.setItemRef(i)}
                 onClick={() => setTheme(id)}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",

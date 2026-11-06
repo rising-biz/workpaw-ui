@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WorkPaw UI</title>
+    <title>WorkPaw UI Playground</title>
+    <!-- 库内统一无闪烁守卫（src/theme-init.js）：先于首帧应用持久化的
+         主题变体 + 明暗模式，playground 与消费端走同一份脚本。 -->
+    <script src="/src/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

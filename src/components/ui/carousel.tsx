@@ -6,8 +6,9 @@ import useEmblaCarousel, {
 } from "embla-carousel-react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "../../lib/utils"
+import { Button } from "./button"
+import { useUIText } from "./ui-text"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -101,6 +102,7 @@ function Carousel({
 
     return () => {
       api?.off("select", onSelect)
+      api?.off("reInit", onSelect)
     }
   }, [api, onSelect])
 
@@ -178,6 +180,7 @@ function CarouselPrevious({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
+  const t = useUIText()
 
   return (
     <Button
@@ -196,7 +199,7 @@ function CarouselPrevious({
       {...props}
     >
       <ArrowLeft />
-      <span className="sr-only">Previous slide</span>
+      <span className="sr-only">{t.previousSlide}</span>
     </Button>
   )
 }
@@ -208,6 +211,7 @@ function CarouselNext({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
+  const t = useUIText()
 
   return (
     <Button
@@ -226,7 +230,7 @@ function CarouselNext({
       {...props}
     >
       <ArrowRight />
-      <span className="sr-only">Next slide</span>
+      <span className="sr-only">{t.nextSlide}</span>
     </Button>
   )
 }

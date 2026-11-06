@@ -4,7 +4,8 @@
  *   1. Add its id to the `ThemeVariant` union and a `VariantMeta` entry below.
  *   2. Add its token block to `workpaw-ui/src/styles/theme.css` under
  *      `:root[data-theme="<id>"]` (+ `.dark` counterpart).
- *   3. Add its id to the no-flash guard in each app's `index.html`.
+ *   3. Add its id to the allowlist in `src/theme-init.js` (the shared no-flash
+ *      guard exported as "workpaw-ui/theme-init.js").
  *
  * Everything else (the variant store, the picker UIs, the type checks) derives
  * from this file. Do not enumerate variant ids anywhere else.
@@ -14,6 +15,9 @@
  * Each is a complete light + dark system. Indigo is the brand anchor
  * (PRODUCT.md / DESIGN.md); the primary color carries ~20-25% of interactive
  * surface — committed strategy, not scarcity.
+ *
+ * CSS mapping: DEFAULT (indigo) = bare `:root`; every other variant = its own
+ * `:root[data-theme="<id>"]` block in workpaw-ui/src/styles/theme.css.
  */
 
 export type ThemeVariant = "verdant" | "indigo" | "amber" | "amethyst" | "workbuddy";
@@ -32,11 +36,12 @@ export interface VariantMeta {
 /**
  * The default variant applied when no valid choice is persisted. Indigo (夜靛)
  * is the out-of-the-box theme — the brand anchor per PRODUCT.md / DESIGN.md.
- * The no-flash inline script in each app's index.html MUST default to the same
- * value to avoid a flash on reload.
- *
- * NOTE: indigo is applied via `data-theme="indigo"`; only "verdant" maps to the
- * bare `:root` (no attribute). ThemeApplier + the no-flash scripts handle this.
+ * The DEFAULT variant maps to the BARE `:root` (no `data-theme` attribute) in
+ * theme.css, so first paint is correct without any JS; every other variant
+ * sets `data-theme="<id>"`. ThemeApplier + the shared no-flash script
+ * (`src/theme-init.js`, exported as "workpaw-ui/theme-init.js") own this
+ * mapping — consumers should inline/include that script instead of hand-
+ * rolling a guard per app.
  */
 export const DEFAULT_THEME_VARIANT: ThemeVariant = "indigo";
 

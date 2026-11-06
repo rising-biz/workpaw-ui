@@ -5,8 +5,9 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { buttonVariants, type Button } from "@/components/ui/button"
+import { cn } from "../../lib/utils"
+import { buttonVariants, type Button } from "./button"
+import { useUIText } from "./ui-text"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -69,15 +70,16 @@ function PaginationPrevious({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const t = useUIText()
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={t.previousPage}
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">{t.previousPage}</span>
     </PaginationLink>
   )
 }
@@ -86,14 +88,15 @@ function PaginationNext({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const t = useUIText()
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={t.nextPage}
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      <span className="hidden sm:block">{t.nextPage}</span>
       <ChevronRightIcon />
     </PaginationLink>
   )
@@ -103,6 +106,7 @@ function PaginationEllipsis({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+  const t = useUIText()
   return (
     <span
       aria-hidden
@@ -111,7 +115,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t.morePages}</span>
     </span>
   )
 }
