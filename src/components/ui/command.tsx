@@ -47,14 +47,17 @@ function CommandDialog({
   const t = useUIText()
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title ?? t.commandTitle}</DialogTitle>
-        <DialogDescription>{description ?? t.commandDescription}</DialogDescription>
-      </DialogHeader>
       <DialogContent
         className={cn("overflow-hidden p-0", className)}
         showCloseButton={showCloseButton}
       >
+        {/* sr-only 头部必须在 DialogContent 内部（A11Y-03）：Radix 要求
+            Title/Description 挂在 Content 之下，否则成为孤儿标题并触发
+            aria 警告，读屏也拿不到对话框名称。 */}
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title ?? t.commandTitle}</DialogTitle>
+          <DialogDescription>{description ?? t.commandDescription}</DialogDescription>
+        </DialogHeader>
         <Command className="**:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>

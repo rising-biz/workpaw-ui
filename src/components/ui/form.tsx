@@ -4,6 +4,7 @@ import { Slot } from "radix-ui"
 import {
   Controller,
   FormProvider,
+  useForm,
   useFormContext,
   useFormState,
   type ControllerProps,
@@ -14,7 +15,42 @@ import {
 import { cn } from "../../lib/utils"
 import { Label } from "./label"
 
-const Form = FormProvider
+/**
+ * WorkPaw 包装（FORM-01）：校验时机默认 `mode="onBlur"` + `reValidateMode=
+ * "onChange"`，显式传 `mode` / `reValidateMode` 可覆盖；其余 props 原样透传。
+ *
+ * RHF 的 FormProvider 只接收 methods 对象（mode/reValidateMode 是 `useForm()`
+ * 的选项，直接传给 FormProvider 会被静默丢弃），因此本组件按 props 形态分流：
+ *
+ * 1. shadcn 惯用法 `<Form {...form}>`（props 里带 `control`）：原样透传，
+ *    校验时机跟随调用方自己的 `useForm()` 配置——此形态下本组件的
+ *    mode/reValidateMode 不生效（RHF 机制限制）；
+ * 2. 自包含用法 `<Form>…</Form>`（未传 methods）：Form 内部 `useForm()` 自建
+ *    表单并应用默认/覆盖后的校验时机，子树内的 FormField / useFormContext
+ *    直接取用。
+ */
+type FormProps = Omit<React.ComponentProps<typeof FormProvider>, "children"> & {
+  children?: React.ReactNode
+  /** FORM-01 默认 "onBlur"；仅在 Form 自建表单（未透传 methods）时生效。 */
+  mode?: "onBlur" | "onChange" | "onSubmit" | "onTouched" | "all"
+  /** FORM-01 默认 "onChange"；仅在 Form 自建表单（未透传 methods）时生效。 */
+  reValidateMode?: "onChange" | "onBlur"
+}
+
+function Form({
+  children,
+  mode = "onBlur",
+  reValidateMode = "onChange",
+  ...methods
+}: FormProps) {
+  const hasMethods = methods.control !== undefined
+  const internalForm = useForm({ mode, reValidateMode })
+  return (
+    <FormProvider {...(hasMethods ? methods : internalForm)}>
+      {children}
+    </FormProvider>
+  )
+}
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,

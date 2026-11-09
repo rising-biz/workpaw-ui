@@ -12,6 +12,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "./input-group"
+import { useUIText } from "./ui-text"
 
 const Combobox = ComboboxPrimitive.Root
 
@@ -245,10 +246,14 @@ function ComboboxChip({
   className,
   children,
   showRemove = true,
+  removeLabel,
   ...props
 }: ComboboxPrimitive.Chip.Props & {
   showRemove?: boolean
+  /** 移除按钮的可访问名称；缺省取 UIText（默认「移除」，可经 UITextProvider 覆盖）。 */
+  removeLabel?: string
 }) {
+  const t = useUIText()
   return (
     <ComboboxPrimitive.Chip
       data-slot="combobox-chip"
@@ -264,6 +269,7 @@ function ComboboxChip({
           render={<Button variant="ghost" size="icon-xs" />}
           className="-ml-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove"
+          aria-label={removeLabel ?? t.chipRemove}
         >
           <XIcon className="pointer-events-none" />
         </ComboboxPrimitive.ChipRemove>

@@ -55,7 +55,13 @@ function ChartContainer({
   }
 }) {
   const uniqueId = React.useId()
-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`
+  // PERM-09：id 是消费端 prop，与 config key/color 同属 <style> 拼接面——
+  // `${prefix} [data-chart=${id}]` 把它裸拼进选择器，须用同一字符白名单
+  // 剥除 [A-Za-z0-9_-] 以外的字符。消毒必须落在 chartId 计算处：下方
+  // data-chart 属性与 ChartStyle 选择器要取同一个值，只消毒 ChartStyle
+  // 一侧会让变量样式静默失配。`chart-` 前缀同时保证选择器值恒为合法
+  // CSS 标识（不会以数字开头）。useId 产出的 `:r0:` 由白名单一并剥掉冒号。
+  const chartId = `chart-${(id ?? uniqueId).replace(SAFE_CHART_ID_RE, "")}`
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -63,6 +69,7 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
+          // oxlint-disable-next-line shadcn/no-raw-colors -- recharts 内部默认色选择器锚点，非自绘颜色（例外已备案）
           "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
           className
         )}
@@ -78,6 +85,21 @@ function ChartContainer({
     </ChartContext.Provider>
   )
 }
+
+// PERM-09：ChartStyle 把 config 拼进 <style> 的声明块，key/color 必须先消毒，
+// 防止构造出 `--color-x: red; } body { …` 之类的声明块逃逸。
+// key 只留 CSS 变量安全字符；color 仅放行基本颜色形态（hex / oklch / rgb(a) /
+// hsl(a) / var(--token[, fallback])）。
+// id 与 key 同属拼接面（`[data-chart=${id}]` 把消费端 prop 裸拼进选择器），
+// 故用同一白名单剥除——消毒在 ChartContainer 的 chartId 计算处生效（属性与
+// 选择器必须同值）。两个白名单正则的负向字符类都以 dash 收尾
+// （`[^A-Za-z0-9_-]`）：收尾 dash 是字面量、不会误成范围；勿仿照
+// sanitize.ts 修过的 `[^a-z+.-:]` 坑把 dash 写进类中段（`.-:` 会被解析成
+// `.` 到 `:` 的范围，把 `/` 一并放行）。移位 dash 位置即引入该坑。
+const SAFE_CHART_KEY_RE = /[^A-Za-z0-9_-]/g
+const SAFE_CHART_ID_RE = /[^A-Za-z0-9_-]/g
+const SAFE_CHART_COLOR_RE =
+  /^(?:#[0-9a-f]{3,8}|(?:oklch|rgba?|hsla?)\([^;{}<]*\)|var\(--[a-z0-9-]+(?:\s*,[^;{}<]+)?\))$/i
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
@@ -99,10 +121,14 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    const safeKey = key.replace(SAFE_CHART_KEY_RE, "")
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    if (!safeKey || !color || !SAFE_CHART_COLOR_RE.test(color.trim())) {
+      return null
+    }
+    return `  --color-${safeKey}: ${color.trim()};`
   })
   .join("\n")}
 }

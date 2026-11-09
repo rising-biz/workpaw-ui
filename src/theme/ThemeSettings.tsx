@@ -3,25 +3,33 @@ import { useTheme } from "./ThemeProvider";
 import { useThemeVariantStore } from "./variantStore";
 import { THEME_VARIANTS } from "./variants";
 import { cn } from "../lib/utils";
+import { useUIText } from "../components/ui/ui-text";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, MotionConfig } from "motion/react";
 
 /**
  * ThemeSettings — shared appearance picker (self-contained: no workpaw-ui
- * component imports, so it survives source-consumption without the `@/` path
- * collision). Renders theme-variant cards (from the variants.ts registry) + a
- * light/dark/system mode control + a live swatch strip of the active tokens.
+ * component imports beyond the dependency-free UIText dictionary, so it
+ * survives source-consumption without the `@/` path collision). Renders
+ * theme-variant cards (from the variants.ts registry) + a light/dark/system
+ * mode control + a live swatch strip of the active tokens.
  *
- * v1 is Chinese-only (PRODUCT.md); strings live in the registry, not here. When
- * i18n is wired across all 3 apps, swap the registry's name/desc to a t() key.
+ * v1 is Chinese-only (PRODUCT.md); chrome copy lives in the UIText dictionary
+ * (`defaultUIText.themeSettings`, I18N-01), variant name/desc remain registry
+ * data. When i18n is wired across all 3 apps, swap the registry's name/desc to
+ * a t() key.
  *
  * Mode (light/dark/system) → next-themes `useTheme`. Variant → `useThemeVariantStore`.
+ *
+ * A11Y-06 动效偏好门控：本组件顶层包 `<MotionConfig reducedMotion="user">`，
+ * prefers-reduced-motion 用户自动跳过内部 spring 动画。消费端应用建议在自己的
+ * 组件根同样包一层，覆盖其余 motion 动效。
  */
 
 const MODES = [
-  { id: "light" as const, name: "浅色", Icon: Sun },
-  { id: "dark" as const, name: "深色", Icon: Moon },
-  { id: "system" as const, name: "跟随系统", Icon: Monitor },
+  { id: "light" as const, labelKey: "modeLight" as const, Icon: Sun },
+  { id: "dark" as const, labelKey: "modeDark" as const, Icon: Moon },
+  { id: "system" as const, labelKey: "modeSystem" as const, Icon: Monitor },
 ];
 
 function Swatch({ label, color }: { label: string; color: string }) {
@@ -79,6 +87,7 @@ export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
   const variant = useThemeVariantStore((s) => s.variant);
   const setVariant = useThemeVariantStore((s) => s.setVariant);
+  const ts = useUIText().themeSettings;
   const activeMode = theme ?? "system";
 
   const activeVariantIndex = Math.max(
@@ -96,22 +105,23 @@ export function ThemeSettings() {
   });
 
   return (
-    <div className="space-y-8">
-      {/* Theme variant */}
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">主题</h2>
-          <p className="text-xs text-muted-foreground">选择界面配色风格。五套主题共享相同的界面布局，各有独立的强调色与底色。</p>
-        </div>
-        {/* 单选语义（P3-4）：role=radiogroup + aria-checked，读屏上报「第 x / 共 5 项
-            已选中」，而不是五个独立开关；网格 5 张卡在 lg 一行、sm 两列，不再
-            出现末行 2 张孤卡。 */}
-        <div
-          role="radiogroup"
-          aria-label="主题"
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5"
-          onKeyDown={variantRadio.onKeyDown}
-        >
+    <MotionConfig reducedMotion="user">
+      <div className="space-y-8">
+        {/* Theme variant */}
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">{ts.variantTitle}</h2>
+            <p className="text-xs text-muted-foreground">{ts.variantDescription}</p>
+          </div>
+          {/* 单选语义（P3-4）：role=radiogroup + aria-checked，读屏上报「第 x / 共 5 项
+              已选中」，而不是五个独立开关；网格 5 张卡在 lg 一行、sm 两列，不再
+              出现末行 2 张孤卡。 */}
+          <div
+            role="radiogroup"
+            aria-label={ts.variantGroupLabel}
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5"
+            onKeyDown={variantRadio.onKeyDown}
+          >
           {THEME_VARIANTS.map((v, i) => {
             const selected = variant === v.id;
             return (
@@ -176,16 +186,16 @@ export function ThemeSettings() {
       {/* Mode (light / dark / system) */}
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">模式</h2>
-          <p className="text-xs text-muted-foreground">跟随系统会按操作系统的深浅设置自动切换。</p>
+          <h2 className="text-sm font-semibold text-foreground">{ts.modeTitle}</h2>
+          <p className="text-xs text-muted-foreground">{ts.modeDescription}</p>
         </div>
         <div
           role="radiogroup"
-          aria-label="外观模式"
+          aria-label={ts.modeGroupLabel}
           className="inline-flex rounded-lg border border-border bg-muted/40 p-1"
           onKeyDown={modeRadio.onKeyDown}
         >
-          {MODES.map(({ id, name, Icon }, i) => {
+          {MODES.map(({ id, labelKey, Icon }, i) => {
             const selected = activeMode === id;
             return (
               <button
@@ -205,7 +215,7 @@ export function ThemeSettings() {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {name}
+                {ts[labelKey]}
               </button>
             );
           })}
@@ -215,17 +225,18 @@ export function ThemeSettings() {
       {/* Live token swatches — reads the ACTIVE tokens (reflects current choice) */}
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">当前色板</h2>
-          <p className="text-xs text-muted-foreground">实时反映上方选择。</p>
+          <h2 className="text-sm font-semibold text-foreground">{ts.paletteTitle}</h2>
+          <p className="text-xs text-muted-foreground">{ts.paletteDescription}</p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <Swatch label="背景" color="var(--background)" />
-          <Swatch label="前景" color="var(--foreground)" />
-          <Swatch label="主色" color="var(--primary)" />
-          <Swatch label="次要文字" color="var(--muted-foreground)" />
-          <Swatch label="边框" color="var(--border)" />
+          <Swatch label={ts.swatchBackground} color="var(--background)" />
+          <Swatch label={ts.swatchForeground} color="var(--foreground)" />
+          <Swatch label={ts.swatchPrimary} color="var(--primary)" />
+          <Swatch label={ts.swatchMutedForeground} color="var(--muted-foreground)" />
+          <Swatch label={ts.swatchBorder} color="var(--border)" />
         </div>
       </section>
-    </div>
+      </div>
+    </MotionConfig>
   );
 }

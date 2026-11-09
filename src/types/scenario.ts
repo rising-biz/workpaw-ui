@@ -8,6 +8,10 @@ export interface ScenarioVariable {
   placeholder?: string;
   options?: string[];
   default?: string;
+  /** file 输入的 accept 提示（FORM-10），如 "image/*,.pdf"；缺省不限制。 */
+  accept?: string;
+  /** file 输入的大小上限（字节）；由 VariableForm.validate 内置校验。 */
+  maxSizeBytes?: number;
 }
 
 export interface ScenarioExampleTurn {

@@ -414,9 +414,21 @@ toggle-group, toggle, tooltip。
 ### 内建文案（zh-CN 默认，可覆盖）
 
 组件自带的 sr-only / aria 文案统一走 `UITextProvider`（`src/components/ui/ui-text.tsx`，
-zh-CN 默认值 `defaultUIText`）：Dialog/Sheet 关闭按钮、Spinner 状态、Pagination 上下页、
-Carousel 幻灯片、Sidebar 开合与移动端标题、CommandDialog 标题、Breadcrumb 省略。应用按
-实例 props 覆盖仍优先生效（向后兼容）。
+zh-CN 默认值 `defaultUIText`）：Dialog/Sheet 关闭按钮、Spinner 状态、Pagination 上下页
+与摘要/每页条数、Carousel 幻灯片、Sidebar 开合与移动端标题与 rail、CommandDialog 标题、
+Breadcrumb 省略与 nav 标签。词典还承载共享功能文案组：`pluginType`（PluginTypeTag）、
+`themeSettings`（ThemeSettings 界面文案）、`marketErrors`（market-errors.ts 纯函数经
+`getUIText()` 读取，Provider 覆盖同样生效）。应用按实例 props 覆盖仍优先生效
+（向后兼容）。
+
+### 已备案例外清单
+
+实现中偏离「样式令牌化」硬规则的备案（新增例外必须同步本清单）：
+
+- `chart.tsx` ChartContainer className：`[&_.recharts-…[stroke='#ccc']]` 等
+  选择器内的 hex 是**匹配 recharts 内部默认渲染色**的锚点，不是自绘颜色；改成
+  token class 会改变渲染语义。保持原样，就地
+  `oxlint-disable-next-line shadcn/no-raw-colors` 备案（2026-11 VISUAL-01）。
 
 ---
 

@@ -20,6 +20,7 @@ export { useFetch } from "./hooks/useFetch";
 export {
   type UIText,
   defaultUIText,
+  getUIText,
   UITextProvider,
   useUIText,
 } from "./components/ui/ui-text";
@@ -27,12 +28,27 @@ export {
 // Lib
 export { cn } from "./lib/utils";
 
+// Security & data-export helpers (PERM-09)
+export {
+  sanitizeHtml,
+  DEFAULT_SANITIZE_CONFIG,
+  safeHref,
+  escapeCsvCell,
+  type SanitizeConfig,
+} from "./lib/sanitize";
+
 // Components
 export {
   VariableForm,
   type VariableFormProps,
   type VariableFormStatic,
 } from "./components/VariableForm";
+
+export {
+  ErrorBoundary,
+  withErrorBoundary,
+  type ErrorBoundaryProps,
+} from "./components/ErrorBoundary";
 
 export * from "./types/plugin";
 export { PluginTypeTag } from "./components/PluginTypeTag";

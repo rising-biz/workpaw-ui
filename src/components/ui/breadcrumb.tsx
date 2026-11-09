@@ -6,7 +6,8 @@ import { cn } from "../../lib/utils"
 import { useUIText } from "./ui-text"
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
-  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />
+  const t = useUIText()
+  return <nav aria-label={t.breadcrumbLabel} data-slot="breadcrumb" {...props} />
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {

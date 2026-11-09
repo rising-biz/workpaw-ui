@@ -47,10 +47,33 @@ WorkPaw 共享 UI 组件库：`src/components/ui/`（shadcn 风格组件）、`s
 - **`Select` 默认 `position="popper"`**：与 shadcn v4 上游一致（弹层悬浮于触发器
   下方/上方）。旧默认 `item-aligned`（选中项对齐触发器）已移除——需要旧行为的
   调用方显式传 `position="item-aligned"`。
+- **`Form` 默认校验时机（与上游 shadcn 的差异）**：上游 `Form = FormProvider` 直传；
+  本库改为包装组件，自包含用法 `<Form>…</Form>` 默认 `mode="onBlur"` +
+  `reValidateMode="onChange"`（失焦校验、修改即复检），显式传这两个 prop 可覆盖。
+  注意 RHF 的 `FormProvider` 本身不接收 `mode`（它是 `useForm()` 的选项），所以
+  shadcn 惯用法 `<Form {...form}>`（props 带 `control`）仍原样透传、时机跟随调用方
+  的 `useForm()`——此形态下本组件的 `mode`/`reValidateMode` 不生效。
 - **`UITextProvider` / `useUIText`**：组件内建文案（Dialog/Sheet 关闭、Spinner 状态、
-  Pagination、Carousel、Sidebar、CommandDialog、Breadcrumb）默认 zh-CN，应用用
-  `<UITextProvider text={{ close: "Close", ... }}>` 局部覆盖；组件实例 props 仍然
-  优先，向后兼容。
+  Pagination（含分页摘要/每页条数）、Carousel、Sidebar、CommandDialog、Breadcrumb、
+  PluginTypeTag、ThemeSettings、市场错误文案、ErrorBoundary、Combobox chip 移除）
+  默认 zh-CN，应用用 `<UITextProvider text={{ close: "Close", ... }}>` 局部覆盖；
+  组件实例 props 仍然优先，向后兼容。模板词条用 `{token}` 占位（如
+  `"共 {total} 条"`），由调用点做字符串替换，不引 i18next。词典分组
+  （pluginType / themeSettings / marketErrors）按键浅合并，可只覆盖组内单条。
+- **消毒与导出工具（PERM-09）**：`sanitizeHtml(dirty, config?)`（DOMPurify 封装，
+  禁 script/style/iframe 等与事件属性、URI 白名单 http/https/mailto/相对路径；
+  `config` 与默认顶层浅合并）、`safeHref(url)`（协议白名单，`javascript:` 等返回
+  `undefined`）、`escapeCsvCell(v)`（OWASP CSV 注入前缀 + RFC 4180 引号转义）。
+  依赖 `dompurify`（已在本包 dependencies，源码消费随 install 获得）；运行时需
+  浏览器 DOM（本库 CSR-first）。
+- **分页基元（TABLE-06）**：`PaginationInfo({ total, pageSize, current })` 渲染
+  「共 N 条 · 第 X–Y 条」，`PaginationPageSize({ value, onChange, options? })`
+  每页条数选择器（默认 10/20/50/100，组合 Select）；现有 `PaginationLink` API 不变。
+- **警示：`ApiError.message` 含原始响应体**：`message` 为
+  `API Error: <status> <statusText> - <body>` 拼接，`body` 是服务端原始返回，
+  可能包含内部实现细节、堆栈或超长文本——**不要把 `ApiError.message` 直接渲染到
+  界面或原样上报**；展示/上报请用 `status` + `body` 结构化字段，或经
+  `marketErrorMessage` 之类的用户文案映射。
 - **`ThemeProvider`**：包装 next-themes（`.dark` class）+ 变体到 `data-theme` 属性；
   默认变体映射为**移除**属性。
 

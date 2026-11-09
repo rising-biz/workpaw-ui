@@ -34,6 +34,11 @@ export class ApiError extends Error {
  * one frame; the (redirect-shaped) `onUnauthorized` side effect must fire only
  * once for the batch. The flag re-arms on the next tick so a later, separate
  * batch still notifies, matching the previous per-request behavior otherwise.
+ *
+ * 触发窗口契约（调用方必读）：同一宏任务（tick）内到达的多个 401 只回调
+ * `onUnauthorized` 一次；标志位在 `setTimeout(…, 0)` 后重装，下一个 tick 的
+ * 新 401 才会再次通知。因此 `onUnauthorized` 必须幂等，不得假设每次回调对应
+ * 一次独立的会话失效，也不应依赖回调次数与 401 数量相等。
  */
 let unauthorizedSignalArmed = false;
 
