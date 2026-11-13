@@ -1,4 +1,8 @@
 // WorkPaw UI boundary: Shadcn only. QwenPaw is a read-only reference.
+// Version: v2026.11 — authoritative copy lives in workpaw-ui/scripts/check-ui-stack.mjs.
+// Consumer copies (workpaw-web / workpaw-desktop / workpaw-admin/console /
+// workpaw-market scripts/) are mirrored snapshots, header-marked as copies:
+// when they disagree, the library version wins; distribute from here only.
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve, relative, extname } from "node:path";
 import { fileURLToPath } from "node:url";

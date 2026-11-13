@@ -41,6 +41,8 @@ import {
 import { Separator } from "./components/ui/separator";
 import { Skeleton } from "./components/ui/skeleton";
 import { Spinner } from "./components/ui/spinner";
+import { Stepper } from "./components/ui/stepper";
+import { CopyButton } from "./components/ui/copy-button";
 
 import "./styles/globals.css";
 
@@ -67,6 +69,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Gallery() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectValue, setSelectValue] = useState("");
+  const [stepperStep, setStepperStep] = useState(1);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -251,6 +254,37 @@ function Gallery() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+        </Section>
+
+        <Section title='Stepper（aria-current="step"）'>
+          <Stepper
+            label="接入配置步骤"
+            steps={[
+              { label: "选择来源", panelId: "pg-step-panel" },
+              { label: "填写凭据" },
+              { label: "验证并保存" },
+            ]}
+            currentStep={stepperStep}
+            onStepChange={setStepperStep}
+          />
+          <p
+            id="pg-step-panel"
+            className="text-sm text-muted-foreground"
+          >
+            当前步骤：{stepperStep + 1}。点击上方步骤切换，激活步带 aria-current。
+          </p>
+        </Section>
+
+        <Section title="CopyButton（复制反馈 aria-live）">
+          <div className="flex items-center gap-3">
+            <code className="rounded bg-muted px-2 py-1 font-mono text-xs">
+              sha256:9f2c…a41b
+            </code>
+            <CopyButton value="9f2c86d1f4a0e7c2b8d5a3f19e6c04a7b2d8e1f5c3a904b6d7e8f2a1c3b4a5d6" />
+            <span className="text-sm text-muted-foreground">
+              点击复制，成功切 check 图标并经 role=status 播报。
+            </span>
+          </div>
         </Section>
 
         <Separator />

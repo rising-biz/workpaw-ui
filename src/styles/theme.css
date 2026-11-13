@@ -42,6 +42,17 @@
   /* Typography */
   --font-heading: var(--font-sans);
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Micro T-shirt sizes — the desktop bridge (3xs/2xs), adopted into the
+     library. These names have no Tailwind default, so mapping them to the
+     derived --font-size-* tokens changes no existing rendering (web/admin/
+     market never emit these classes; desktop's identical local mapping simply
+     wins by cascade order). The named steps (text-xs/sm/base/lg/…) stay on
+     the Tailwind DEFAULT scale on purpose — remapping them to the derived
+     tokens would resize text-sm/base/lg and is banned; see DESIGN.md §8 D3. */
+  --text-3xs: var(--font-size-3xs);
+  --text-3xs--line-height: var(--leading-normal);
+  --text-2xs: var(--font-size-2xs);
+  --text-2xs--line-height: var(--leading-normal);
 
   /* Surfaces + semantics → bg-, text-, border- utilities */
   --color-background: var(--background);

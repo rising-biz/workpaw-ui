@@ -357,14 +357,28 @@ WorkPaw 提供五个主题，用户可在设置中切换。每个主题是完整
 
 ## 5. Components
 
-组件清单即实现：`src/components/ui/`（57 个文件，全部经 `src/index.ts` 具名导出，
+组件清单即实现：`src/components/ui/`（59 个文件，全部经 `src/index.ts` 具名导出，
 tree-shakeable）。结构类：accordion, alert-dialog, alert, aspect-ratio, avatar, badge,
 breadcrumb, button-group, button, calendar, card, carousel, chart, checkbox, collapsible,
-combobox, command, context-menu, dialog, direction, drawer, dropdown-menu, empty, field,
-form, hover-card, input-group, input-otp, input, item, kbd, label, menubar, native-select,
-navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, select,
-separator, sheet, sidebar, skeleton, slider, sonner, spinner, switch, table, tabs, textarea,
-toggle-group, toggle, tooltip。
+combobox, command, context-menu, copy-button, dialog, direction, drawer, dropdown-menu,
+empty, field, form, hover-card, input-group, input-otp, input, item, kbd, label, menubar,
+native-select, navigation-menu, pagination, popover, progress, radio-group, resizable,
+scroll-area, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, stepper,
+switch, table, tabs, textarea, toggle-group, toggle, tooltip。
+
+### Stepper / CopyButton（P1-3 上浮第一批，2026-11-12）
+
+- **Stepper / StepperStep**（`stepper.tsx`）：分步导航。功能基准 = admin console 的
+  stepper（含 `aria-current="step"`）；步骤为 Button（当前步 secondary 变体）+ 序号
+  Badge（完成步 Check 图标），`panelId` 接 `aria-controls`。文案（nav 标签、
+  「第 {step} 步：{label}」）走 UIText 词典 `stepper` 组。导出 `Stepper`（数据驱动
+  `steps/currentStep/onStepChange`）与 `StepperStep`（单步控件，可自定义布局）。
+- **CopyButton**（`copy-button.tsx`）：剪贴板复制按钮。行为基准 = market 的
+  CopyButton（Clipboard API + execCommand 回退、成功态 Check、失败不静默）；本库版
+  结果经 `role="status"` sr-only 区播报（aria-label 保持动作描述不抖动），2s 复位、
+  卸载清定时器，`onCopyResult` 供 toast 等扩展。文案走 UIText 词典 `clipboard` 组。
+- **confirm-dialog 不单设**：库内已有 `alert-dialog.tsx`（radix AlertDialog，Esc/遮罩
+  语义与 Dialog 同源），破坏性确认一律用它，不再重复供给受控 ConfirmDialog。
 
 ### Buttons
 
@@ -479,3 +493,112 @@ Breadcrumb 省略与 nav 标签。词典还承载共享功能文案组：`plugin
 - **Don't** 用第二个主字族——Inter Variable + 权重对比足够。
 - **Don't** 默认暖中性米色/沙色底（chroma 0.01+）。品牌微染底（chroma ≤0.016）是设计，
   米色底是将就。
+
+---
+
+## 8. Decision Records
+
+产品级决策的正式备案区（与 §5「已备案例外清单」同一备案纪律：决策落档于此，实现随决策）。
+
+### D1 品牌色占比 — Committed（约 20-25%），非 Restrained（≤10%）
+
+- **日期**：2026-11-12（产品拍板）
+- **决策**：品牌色采用 **Committed 策略**，约占交互面 **20-25%**：主操作（primary
+  按钮/主行动点）、accent 表面、选中态、hover 微光。替代早期文档里「占任何屏幕
+  ≤10%」的 Restrained 表述。
+- **理由**：设计系统与实现早已按 Committed 落地（本文件 §1「品牌色策略 Committed」、
+  `src/theme/variants.ts` 头注 "committed strategy, not scarcity"），≤10% 是早期残留
+  表述，与交付实现不一致。Committed 让主操作一眼可辨（第一眼即「明快」的品牌主张），
+  同时保留「信号优先」的底线——品牌色越界铺满会失去信号性。
+- **影响面**：根 `PRODUCT.md` 设计原则 #3 的表述（本轮已同步）；本库全部组件的品牌色
+  用法（Button/Link/Tabs/Sidebar 选中态、hover 微光、accent 表面）。**不改任何 token
+  值**——对比度矩阵（`pnpm check:contrast`）在现值上已全绿，本轮不动渲染结果。
+- **保留精神句**：品牌色服务于信号而非装饰：正文与信息面始终保持中性，高亮即含义。
+
+### D2 默认主题 — 夜靛（Indigo），非翠微（Verdant）
+
+- **日期**：2026-11-12（产品拍板）
+- **决策**：默认主题为**夜靛（Indigo）**，即 `src/styles/theme.css` 的**裸 `:root` /
+  `:root.dark` 调色板**（不设置 `data-theme` 属性，显式 `data-theme="indigo"` 解析到
+  同一组值）；备选翠微（Verdant green）、墨金（Amber）、紫微（Amethyst）、墨白
+  （WorkBuddy）。
+- **理由**：交付实现与对比度矩阵验证配置均为夜靛——`src/theme/variants.ts`
+  `DEFAULT_THEME_VARIANT = "indigo"`、`src/theme-init.js` allowlist、theme.css 裸
+  `:root` 即默认调色板。早期文档「默认翠微」与交付不符，本轮对齐。裸 `:root` 作默认
+  意味着首帧无需 JS 即正确（见 §2 CSS 映射契约）。
+- **影响面**：根 `PRODUCT.md` 主题行（本轮已同步）；注册表 / 无闪烁守卫 / theme.css /
+  本文档四方契约（`scripts/check-theme-contracts.mjs` 看守）；三消费端的全量主题默认
+  值。不改 token 值、不改主题数量（仍为五主题）。
+
+### D3 排版刻度 — 以 Tailwind 默认为准；派生 `--font-size-*` 为备选刻度（仅 3xs/2xs 桥入库）
+
+- **日期**：2026-11-12（P1-5，时间盒内实证后拍板）
+- **备选项**：① 把 `@theme inline` 全量补 `--text-* → --font-size-*` 映射；
+  ② 删除 theme.css 里的派生字号 token（"死 token"清理）。
+- **决策**：**都不全做**——`text-xs/sm/base/lg/xl/2xl/3xl/4xl` 刻度**以 Tailwind
+  默认为准**，派生 `--font-size-*` token 保留为**备选刻度**（opt-in 消费）；只把
+  desktop 的 3xs/2xs 桥（`--text-3xs/--text-2xs → var(--font-size-3xs/2xs)`，
+  line-height 接 `--leading-normal`）收编进库的 `@theme inline`。
+- **理由（实证）**：全量映射会**改变现有渲染**——派生刻度 `sm`=13px / `base`=14px /
+  `lg`=17px，而 Tailwind 默认 `text-sm`=14px / `text-base`=16px / `text-lg`=18px；
+  Button 等组件遍布 `text-sm`，映射即全局缩字，违反"不改任何现有渲染"硬边界（对比
+  `xs/xl/2xl/3xl/4xl` 数值与默认一致，映射无收益）。不删 token 则因为它们**不是死
+  token**：desktop 的 `src/index.css` 桥正消费 `--font-size-3xs/2xs`（其 `text-3xs/
+  text-2xs` 工具类在 Inbox、插件面板等大量使用），删除即破坏 desktop 渲染。
+- **影响面**：`theme.css` `@theme inline` 新增且仅新增 3xs/2xs 两档桥（web/admin/
+  market 从未使用这两档，新增为渲染中性；desktop 本地同值声明按级联次序继续胜出，
+  其 `src/index.css` 桥保留但已冗余，后续随 desktop 迁移清理）；`text-*` 具名档
+  **永不**改指派生刻度——由 `check-tailwind-preset.mjs` 双向断言（text-3xs/2xs →
+  派生 token；text-lg 保持 `var(--text-lg)` 且**不得**解析为
+  `var(--font-size-lg)`）防止回潮。
+
+---
+
+## 9. Component Fork Governance（fork 治理与迁移路线图，2026-11-12）
+
+三端仍在各自 `src/components/ui/` 携带 shadcn 组件副本（历史迁移欠账）。本轮
+（Task 15 / P0-1① + P1-1 + P1-3）不删任何 fork、不做任何迁移，只建**治理机制 +
+库侧供给**。
+
+### 9.1 守卫机制（P0-1①）
+
+- `scripts/check-component-forks.mjs`（`pnpm check:forks`，已入 `pnpm lint`）：
+  扫描三端 `src/components/ui/` 与本库同名文件，sha256 比对
+  `scripts/component-forks-baseline.json` 基线。基线内 fork hash 变化 = **fail**
+  （"fork 又漂了：要么回流库要么更新基线并附理由"）；新 fork = warn；消费端副本
+  删除或与库一致 = 提示"已收敛，从基线移除"（不 fail）。消费端仓库不在同级
+  checkout（CI）或基线未建时 skip 放行——基线随仓库提交后 CI 才产生真实断言。
+- `--write-baseline` 重生成基线；**更新基线 = 一次决策**，须附理由。
+- `check-ui-stack.mjs` 版本化分发（头部 v2026.11 注释）：库侧为权威版本，四端
+  （web / desktop / admin-console / market）副本头部已标注"副本"，不一致以库为准。
+  守卫分发收敛约定见 README「守卫脚本分发约定」。
+
+### 9.2 基线统计（2026-11-12 首次建线）
+
+| 消费端 | 同名对 | fork（与库不一致） | 与库逐字一致 |
+|---|---|---|---|
+| workpaw-web | 30 | 30 | 0 |
+| workpaw-desktop | 55 | 52 | 3（aspect-ratio / collapsible / direction） |
+| workpaw-admin/console | 15 | 15 | 0 |
+| **合计** | **100 对** | **97** | 3 |
+
+- fork 总 diff 概要 ≈ **4646 行**；最大单 fork：`web/dropdown-menu.tsx`（257）、
+  `desktop/pagination.tsx`（190）、`desktop/sidebar.tsx`（166）、
+  `admin-console/stepper.tsx`（163）、`web/select.tsx`（160）。
+- `admin-console/stepper.tsx` 是本轮新增的"反向 fork"：库侧上浮 `stepper.tsx`
+  后 admin 副本成为受守卫追踪的 fork（本轮已入基线，待迁移后删除）。
+
+### 9.3 迁移路线图（guard 基线 → 逐端切换 → 删 fork）
+
+1. **守卫基线（本轮，已完成）**：基线入库，`pnpm lint` 带 fork 守卫——存量 fork
+   冻结在当前内容，任何静默改动被拦截。
+2. **逐端切换（后续轮次）**：按"低 diff 先行"顺序逐文件把消费端引用切到
+   `workpaw-ui` 具名导出（先逐字一致/低 diff 的 `aspect-ratio/collapsible/direction/
+   badge/button` 类，再攻 dropdown-menu/pagination/sidebar 等高 diff 件；每端切换后
+   跑该端 `tsc -b` + 视觉回归）。desktop 的本地扩展件（cron-builder、
+   datetime-picker 等库内无同名者）不属 fork，按需另行评估上浮。
+3. **删 fork（收尾）**：每删一组，跑 `check:forks`（守卫会提示"已收敛，从基线
+   移除"），`--write-baseline` 同步缩减基线；三端清零后基线为空、守卫转为
+   "防新增 fork"门禁（新 fork 上线即 warn）。
+4. **配套**：desktop 的 radius 密度公式（§2.6 既定决策）与本轮 typography 桥
+   （§8 D3）是**有意保留**的消费端差异，迁移时以视觉验收为准，勿当作漂移"修复"。

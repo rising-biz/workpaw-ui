@@ -50,6 +50,19 @@ export interface UIText {
   paginationPageSizeLabel: string
   /** Combobox chip remove button (A11Y-04). */
   chipRemove: string
+  /** Stepper nav label + per-step aria label ({step}/{label} templates). */
+  stepper: {
+    label: string
+    stepLabel: string
+  }
+  /** CopyButton action label and success/failure feedback. */
+  clipboard: {
+    copy: string
+    copied: string
+    copyFailed: string
+    copiedLive: string
+    copyFailedLive: string
+  }
   /** ErrorBoundary default fallback (STATE-04). */
   errorTitle: string
   errorDescription: string
@@ -117,6 +130,17 @@ export const defaultUIText: UIText = {
   paginationRange: "第 {start}–{end} 条",
   paginationPageSizeLabel: "每页条数",
   chipRemove: "移除",
+  stepper: {
+    label: "步骤导航",
+    stepLabel: "第 {step} 步：{label}",
+  },
+  clipboard: {
+    copy: "复制",
+    copied: "已复制",
+    copyFailed: "复制失败",
+    copiedLive: "已复制到剪贴板",
+    copyFailedLive: "复制失败，请重试",
+  },
   errorTitle: "出错了",
   errorDescription: "页面渲染出现问题，可重试；若反复出现请联系管理员。",
   retry: "重试",
@@ -196,6 +220,8 @@ export function UITextProvider({
       // Nested groups merge per-key so an override can replace a single label
       // without restating the whole group.
       pluginType: { ...defaultUIText.pluginType, ...text?.pluginType },
+      stepper: { ...defaultUIText.stepper, ...text?.stepper },
+      clipboard: { ...defaultUIText.clipboard, ...text?.clipboard },
       themeSettings: { ...defaultUIText.themeSettings, ...text?.themeSettings },
       marketErrors: { ...defaultUIText.marketErrors, ...text?.marketErrors },
     }),

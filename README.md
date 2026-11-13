@@ -60,6 +60,8 @@ WorkPaw 共享 UI 组件库：`src/components/ui/`（shadcn 风格组件）、`s
   组件实例 props 仍然优先，向后兼容。模板词条用 `{token}` 占位（如
   `"共 {total} 条"`），由调用点做字符串替换，不引 i18next。词典分组
   （pluginType / themeSettings / marketErrors）按键浅合并，可只覆盖组内单条。
+  i18n 由应用层自选（web 用 i18next），库只提供 `UITextProvider` 词典——本包不内置
+  任何 i18n 运行时，`i18next` / `react-i18next` 不是本包依赖。
 - **消毒与导出工具（PERM-09）**：`sanitizeHtml(dirty, config?)`（DOMPurify 封装，
   禁 script/style/iframe 等与事件属性、URI 白名单 http/https/mailto/相对路径；
   `config` 与默认顶层浅合并）、`safeHref(url)`（协议白名单，`javascript:` 等返回
@@ -93,17 +95,38 @@ WorkPaw 共享 UI 组件库：`src/components/ui/`（shadcn 风格组件）、`s
   测试，也不承诺 SSR/hydration 安全；`Sidebar` 的 `document.cookie` 写入只发生在
   事件回调里，SSR 渲染路径不会触达。
 
+## 守卫脚本分发约定（库为权威）
+
+`scripts/` 下的门禁脚本由**本库分发**（P1-1 收敛约定，2026-11-12 起）：
+
+- `check-ui-stack.mjs` 的四份消费端副本（workpaw-web / workpaw-desktop /
+  workpaw-admin/console / workpaw-market 的 `scripts/`）都是**镜像快照**，文件头部
+  已标注"副本！权威版本在 workpaw-ui/scripts"。不一致时以库为准；改脚本只改库侧，
+  再整文件同步到各端（副本只加注释行、不改逻辑的微调也须先落库侧）。
+- `check-component-forks.mjs`（fork 漂移守卫，P0-1①）只存在于库侧，跑在三端
+  `src/components/ui/` 与本库 `src/components/ui/` 的同名文件对比上：
+  - `node scripts/check-component-forks.mjs` —— 与
+    `scripts/component-forks-baseline.json` 基线比对；消费端副本 hash 变了即
+    fail（"fork 又漂了：要么回流库要么更新基线并附理由"），新 fork 只 warn，
+    已收敛的条目提示从基线移除。
+  - `node scripts/check-component-forks.mjs --write-baseline` —— 重生成基线。
+    **更新基线 = 一次决策**，必须附理由（fork 已回流库，或迁移拍板）。
+  - 消费端仓库不在同级 checkout（如 CI 只 clone 本库）或基线尚未建立时：守卫
+    打印 skip 并放行——基线随仓库提交后 CI 才产生真实断言。
+- fork 治理的现状统计与迁移路线图见 `DESIGN.md` §9。
+
 ## 开发与门禁
 
 ```bash
 pnpm install
 pnpm dev                        # playground（index.html + src/main.tsx）
-pnpm lint                       # ui-stack + theme-contracts + contrast + tailwind-preset 门禁 + oxlint(correctness)
+pnpm lint                       # ui-stack + theme-contracts + contrast + tailwind-preset + fork-guard 门禁 + oxlint(correctness)
 pnpm exec tsc --noEmit
 pnpm build                      # tsc -b（类型检查；无 dist 产物）
 pnpm check:contrast             # 5 主题 × 亮暗 × 25 关键对 = 250 对 ≥ 4.5:1 全绿
 pnpm check:theme-contracts      # 注册表/守卫/theme.css/DESIGN.md 四方一致
 node scripts/check-tailwind-preset.mjs  # 真实 Tailwind 编译器断言映射层生效
+pnpm check:forks                # 三端组件 fork 与基线比对（--write-baseline 重生成）
 ```
 
 playground 渲染的是**真实主题系统**（globals.css 直接 `@import "./theme.css"`，

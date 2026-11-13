@@ -1,0 +1,492 @@
+{
+  "version": 1,
+  "note": "fork 漂移基线（P0-1①）。hash = 消费端副本文件的 sha256，libHash = 库内同名文件 sha256，diffLines = 与库文件的行级 diff 概要（+/- 行数）。更新基线 = 一次决策，必须附理由（fork 已回流库，或迁移拍板）。",
+  "generatedAt": "2026-11-12T18:53:31.072Z",
+  "forks": {
+    "web/accordion.tsx": {
+      "hash": "38fec90a34d857fff15ca47b4fab0f12171dbb44cb55a37d1f65f63a4eaf0c20",
+      "libHash": "b05970cd4dfb2b202e7e77624faf532bcbc210ddba3c696d58c442f5ca242702",
+      "diffLines": 50
+    },
+    "web/alert-dialog.tsx": {
+      "hash": "fea1d4fd70251e89ad697c3a0e2495cea1250d2e21a96a28360a5cf4080da80e",
+      "libHash": "3f6f5c053e78a378209af6909640b90c5b6741e8b37d2d155fb7a396e5cad071",
+      "diffLines": 111
+    },
+    "web/alert.tsx": {
+      "hash": "a216922fa86231f4b04817c07a162dbcb7af5bc14b90a3b88cedee2be444dcd1",
+      "libHash": "4a6f7065b2490601dbe05304934d95de4bc98f13b2aafbafb1f1f253ef57c229",
+      "diffLines": 34
+    },
+    "web/badge.tsx": {
+      "hash": "448cbc1e6a497e33dbdecfa63286951e82976f67542edb3a4258e93f018ee09f",
+      "libHash": "32fe535291f02f0af579e32b025889ee632c53afa89a0e43ea77314b014c1ddc",
+      "diffLines": 73
+    },
+    "web/breadcrumb.tsx": {
+      "hash": "26f83fc8ed302d710851a71b705f5f8f28c805561c1fb6945370617267c5a4a9",
+      "libHash": "ace48629b11fd20d1614d7585b08dca08fc0ce97abe33b3d35285cbf6f97c9be",
+      "diffLines": 67
+    },
+    "web/button.tsx": {
+      "hash": "dccf515302d876a354410af1d3f41719ba05ec3850b1f860091a496557b187f4",
+      "libHash": "4fdd45d2cfb561a54db3045528687b9f5dfe94dc12cc8aaa13c69619bdd724f7",
+      "diffLines": 62
+    },
+    "web/card.tsx": {
+      "hash": "0b2b87c2baf1242b9134ce4795cf08c24cd9a7513905f4f45b23ce84908a0040",
+      "libHash": "6a9a0db89526f6aea395906336bcd1fecc41f5aceaa17a737465925f1caf9d5d",
+      "diffLines": 88
+    },
+    "web/checkbox.tsx": {
+      "hash": "ffab01da29fc013583e62d55aac4c5fd5e328a40133aea8bad7535d3a1e5c851",
+      "libHash": "6e73900496dba38351ff7974c12fa27dfdb3c480ee8ac6938456cabc9bba9639",
+      "diffLines": 19
+    },
+    "web/command.tsx": {
+      "hash": "6d0bd1b527848315fee638accb07722280aff37a543795e2ba4a34dddbdc16c7",
+      "libHash": "01f9330267afdb319d09cf712a62228490184c2ed441b30d132579d6f82bb4b9",
+      "diffLines": 106
+    },
+    "web/dialog.tsx": {
+      "hash": "1645553a2cb9fc9c714cb8adfe5aaace5486cefe7123d43bff57061b61b229c5",
+      "libHash": "311a18091c0d0fa5b5e557d545df54e5b43ac2879b434070bbea844f16c49586",
+      "diffLines": 109
+    },
+    "web/dropdown-menu.tsx": {
+      "hash": "c143e8692f7b899d55c889d2978e3f1d0aef1bf5a83dffe1590a0640aba60044",
+      "libHash": "0ff5a608f2adc0fd9bc63f5a17f808e9ba458cd90ca1386c4bd4347f108f94ea",
+      "diffLines": 257
+    },
+    "web/field.tsx": {
+      "hash": "13da0432b1e8611b360a190238c43e5f4b4307c95f854b8cc4d82c19c3914c3a",
+      "libHash": "dc373dc4170c3a8ad5e2c6ba8db54cd2d6ef1de6af376a2ff1546ec032b3b417",
+      "diffLines": 88
+    },
+    "web/input-group.tsx": {
+      "hash": "2e27f6cbd1bbb8d0e164e39560cab509ce734accd26fae9eff1a505cac129974",
+      "libHash": "9cabcf838aba0e022f7ac1ee87970d2482ca65dec0444801c1eaf436fd7d6c94",
+      "diffLines": 60
+    },
+    "web/input.tsx": {
+      "hash": "4d1422f10ba2b3ed97e5b9d4cf0c33ba2dc7f8ff7449a6d67cbb8bb1a4f902be",
+      "libHash": "a1bd77ed5e6a904af46150fd68867ab6a83b13a91ab4fbdc843e8233940effeb",
+      "diffLines": 24
+    },
+    "web/label.tsx": {
+      "hash": "9bfc4cff5e3e278cbb22114e9bffcae139a49ce9773062ebbbd25b4ee0e978fb",
+      "libHash": "aba6e37cdb3d102dffa9303a0857eef1bab76da50ec205d82ac2882f940ed4cb",
+      "diffLines": 19
+    },
+    "web/popover.tsx": {
+      "hash": "76dd901fdaaa80b860e2511742355d75bda86709f444e79ab936da4e6187dd48",
+      "libHash": "7e4b9a779b2566dfdfadd82fbabc9593e8b2078e2c4c95491a6d813dce5ba5cc",
+      "diffLines": 69
+    },
+    "web/progress.tsx": {
+      "hash": "704a567c73270a6647c0bf6d725e8b6b5afc1479c094687567b42f9a360cf18b",
+      "libHash": "a2d166625782b02320aba608dfe31e6926f425545f3a888efeefd499b90b4f32",
+      "diffLines": 123
+    },
+    "web/radio-group.tsx": {
+      "hash": "e847250b2510f06fc75c30dca20824e971019446b9b9a495ae2115f895944a1f",
+      "libHash": "674c221220b6be19e075e70752388808927924fd14e50d921264978f6b213d4e",
+      "diffLines": 37
+    },
+    "web/scroll-area.tsx": {
+      "hash": "6412f9ef47c1c652db43a08994f3171cdbc62ef16d760ce20df8c7c361d063d2",
+      "libHash": "5b80ac6e30a202edfcc07484912f75faf55974a9133559f996e6dc7a83c7d87b",
+      "diffLines": 22
+    },
+    "web/select.tsx": {
+      "hash": "970ebb005d0a7074f4da84a74c32e9052ecf97ce7aa0ad90a684afb29dd5c203",
+      "libHash": "581c4a03269aec45bdecfec631eaf69c3babd92ff06d6f1df7824b48b8821820",
+      "diffLines": 160
+    },
+    "web/separator.tsx": {
+      "hash": "75085bd84ff6965e4a356c53a4689799cabf65caa93c0bba064d5a0c6fa78f13",
+      "libHash": "fee48723043d68a49c9a90958769cfeb1f70c49dfb81995fe47d444e9a2a29b5",
+      "diffLines": 15
+    },
+    "web/sheet.tsx": {
+      "hash": "8b9d424cce577fb536ec4bebe6646edb6627b2f0a56cb8b078a03341e14b08b7",
+      "libHash": "92ddb1ccd0e4ce3f121f82d4dfa4c1cccedbc87085ccdf08992411ad993b4aeb",
+      "diffLines": 89
+    },
+    "web/skeleton.tsx": {
+      "hash": "8110bba70d0cb9fe968c0b7bd092ad12258caef40b028b4a87f402bdab907faf",
+      "libHash": "2e28c6585331a33966ba50bc42e1604b5abb1f09cbb7ac7e6cfb6c1f99d371ef",
+      "diffLines": 4
+    },
+    "web/slider.tsx": {
+      "hash": "e94f98db402d842035107bfc8017412d94f52b13f69d96eeb285ac220ed6ae2c",
+      "libHash": "a82cdb1f1d4d755cc7d863f66d72885fbfc330c317b3c8755064a18b778382d6",
+      "diffLines": 77
+    },
+    "web/sonner.tsx": {
+      "hash": "05ca754ee4f15fc1d1a1cef53b5b589dc33f9418701b0e58729b57bf8a1429d8",
+      "libHash": "13ccc9b0fe4248e622f83a1d3b2f0566b72b5e04162d7d0c8db8945ecc71b55f",
+      "diffLines": 33
+    },
+    "web/switch.tsx": {
+      "hash": "1474b1f4bfc15f7009f14cdbe7aca14011c2c86dbf09c2ac13a370b022ff3aa6",
+      "libHash": "ac2b07b911012056ef3d2fa6ed4a486f3434b54f3c2ee1d03fdb10e6e4105548",
+      "diffLines": 21
+    },
+    "web/table.tsx": {
+      "hash": "310e11388afa7fea3744a00f6a4784713e4b7af5562fc0ce8e2f72f0e2634cfc",
+      "libHash": "5745a6f38d50ddba633d449d1b973cb15c0ea8c4e401cec9ac421e4ac92f5fa4",
+      "diffLines": 11
+    },
+    "web/tabs.tsx": {
+      "hash": "032d4231b6db44f97392c1c36e22c8bbdd597daf449ce09ba201fb61e689027d",
+      "libHash": "fc9ffea2a77568e334defe65454d65a328c5076cc48825d3a8054a6c77549ea5",
+      "diffLines": 52
+    },
+    "web/textarea.tsx": {
+      "hash": "66d0eb643c3510c1d077c4dcbb63655a781021990c6ed734d72373eff29629da",
+      "libHash": "81097a8740babd3b996c47d20fef129afb4b7f50c85ebaf99157c29aca7c9f7d",
+      "diffLines": 22
+    },
+    "web/tooltip.tsx": {
+      "hash": "2cea2294d4947b88d815860f64e0b5e0eb47a59bde47cfd194aac2230c923865",
+      "libHash": "e21b08a7cb19ed8f33235b17e292d6efab916c1a33465a3ade49c2256419a628",
+      "diffLines": 59
+    },
+    "desktop/accordion.tsx": {
+      "hash": "c76de63e9713bd5b773d07d84223990654de9148cfa8ee56e0c61738ae0dcc30",
+      "libHash": "b05970cd4dfb2b202e7e77624faf532bcbc210ddba3c696d58c442f5ca242702",
+      "diffLines": 31
+    },
+    "desktop/alert-dialog.tsx": {
+      "hash": "f9fa8454d17030aa6b704b8a0a0c50a077c43932ee16b02ddc8bf3f05e961885",
+      "libHash": "3f6f5c053e78a378209af6909640b90c5b6741e8b37d2d155fb7a396e5cad071",
+      "diffLines": 47
+    },
+    "desktop/alert.tsx": {
+      "hash": "2f500b522a6b6c78b7823d1008279b61c8041449c42feb871616b0276c62bdfc",
+      "libHash": "4a6f7065b2490601dbe05304934d95de4bc98f13b2aafbafb1f1f253ef57c229",
+      "diffLines": 31
+    },
+    "desktop/avatar.tsx": {
+      "hash": "232a6ac077e0f98bf8fe283529a42bf4a26ca9517b34304beaa7af38000dad56",
+      "libHash": "8eec5b7f6f18224e4de113a48efc1584bf2c07214e85e3c563f928061f68a94b",
+      "diffLines": 13
+    },
+    "desktop/badge.tsx": {
+      "hash": "da50915f5ffc3dc8f76405805382c79fba002597fc4dbb181ea6583573e2b1c7",
+      "libHash": "32fe535291f02f0af579e32b025889ee632c53afa89a0e43ea77314b014c1ddc",
+      "diffLines": 28
+    },
+    "desktop/breadcrumb.tsx": {
+      "hash": "785212482c3b4702abf9bc08af0490f3734e594997e3554e5195328a7ddcd70d",
+      "libHash": "ace48629b11fd20d1614d7585b08dca08fc0ce97abe33b3d35285cbf6f97c9be",
+      "diffLines": 36
+    },
+    "desktop/button-group.tsx": {
+      "hash": "de73ccc6e10f29821e7c10c477b3e1a2b9f6a079d5c2a875f1d768f39ca362e3",
+      "libHash": "38ab26687ab43f7f551e4bb1324608b30d5b4efffdae3c525d80a5661dec629f",
+      "diffLines": 14
+    },
+    "desktop/button.tsx": {
+      "hash": "574af462cfa1f497651b387860654a18f2df3ce8cdc74c33a60d52608f3ae770",
+      "libHash": "4fdd45d2cfb561a54db3045528687b9f5dfe94dc12cc8aaa13c69619bdd724f7",
+      "diffLines": 42
+    },
+    "desktop/calendar.tsx": {
+      "hash": "9c4b506ab542f566c41c723aa3eebe9360eebc0f5fa697749557dba3cb2c1ccb",
+      "libHash": "1b8fac5c5c60d823919ce4269a7e0734b733a6cbbba3fa370fe219de657a4e9b",
+      "diffLines": 56
+    },
+    "desktop/card.tsx": {
+      "hash": "90f3c835980b521eabcaf4e1a108080f0bd19c24ec8fc3f9251cfe9f57a819fe",
+      "libHash": "6a9a0db89526f6aea395906336bcd1fecc41f5aceaa17a737465925f1caf9d5d",
+      "diffLines": 28
+    },
+    "desktop/carousel.tsx": {
+      "hash": "139dad00a475fba78155113fcf927a8102e11c6d3f3a97844d237a2bb0878c8e",
+      "libHash": "862950d9d5152c930e166813bb3a4151d1d359b88bcbe33a425886d13ae248ea",
+      "diffLines": 27
+    },
+    "desktop/chart.tsx": {
+      "hash": "0060b7708d85a5fffc914dcd1ee4753b5acfe83db7ba634b4cea280bd9f19c8f",
+      "libHash": "6ba9ae3b7c77bb2e1dcb178e304cf553a55fb0cf9ebdbf1b23cf38a8e50d9db6",
+      "diffLines": 45
+    },
+    "desktop/checkbox.tsx": {
+      "hash": "fe464e891f08d990d5ed7973f22ddd130d3da9c446de476754f32a4182ce773d",
+      "libHash": "6e73900496dba38351ff7974c12fa27dfdb3c480ee8ac6938456cabc9bba9639",
+      "diffLines": 13
+    },
+    "desktop/combobox.tsx": {
+      "hash": "1c07d2823fa2b489646b663c1f6797c290d74b13bb4f1aabba2cf6ed5696cd79",
+      "libHash": "103e29a4fe75c0ad73f49f38cad942c3e551b76105d9d7871805c89e64fa679d",
+      "diffLines": 41
+    },
+    "desktop/command.tsx": {
+      "hash": "05abf3eb3d65f32537275a1e19aece2fc74b59179e916a6264c73e249e57d399",
+      "libHash": "01f9330267afdb319d09cf712a62228490184c2ed441b30d132579d6f82bb4b9",
+      "diffLines": 87
+    },
+    "desktop/context-menu.tsx": {
+      "hash": "ef0044f279fba2c9d6d7809caf18d863a9694b68402aac3b5afddc15e68ebd36",
+      "libHash": "81ccbd8e9f2c814c4e6741ffa3c338ea0bb66ebc9dfda8eda4f1b21fe9e95aec",
+      "diffLines": 131
+    },
+    "desktop/dialog.tsx": {
+      "hash": "f405a48515fa7bbd21ee4187ceeaf54a4edc919e848f3deb66f54d411ce02e86",
+      "libHash": "311a18091c0d0fa5b5e557d545df54e5b43ac2879b434070bbea844f16c49586",
+      "diffLines": 77
+    },
+    "desktop/drawer.tsx": {
+      "hash": "a36a171dd1e37cbd1a1aecbd42b2cda842916cab40975458dba977500606a8cc",
+      "libHash": "c954c67d6d2ba851b0541cfc3cbb9e72f806bb47a5f519469574829391510907",
+      "diffLines": 19
+    },
+    "desktop/dropdown-menu.tsx": {
+      "hash": "9d6ad4621d33194c1b484f402f9e28d8c752bb7d2dabcc8c5f47c79498d63811",
+      "libHash": "0ff5a608f2adc0fd9bc63f5a17f808e9ba458cd90ca1386c4bd4347f108f94ea",
+      "diffLines": 60
+    },
+    "desktop/empty.tsx": {
+      "hash": "e65ee3ba54a21ed61e3c50041bb12a6a3fcb215c56611cda6795c23a7bd89f61",
+      "libHash": "eb27ec272a18a8b9088ce309d67fefb96cdab6c6e6fceb673d3fdeb811e0ef99",
+      "diffLines": 18
+    },
+    "desktop/field.tsx": {
+      "hash": "76e008459f847a96bb1140c11a38d247e69392432a1e690aa660fdb4844f5c74",
+      "libHash": "dc373dc4170c3a8ad5e2c6ba8db54cd2d6ef1de6af376a2ff1546ec032b3b417",
+      "diffLines": 46
+    },
+    "desktop/hover-card.tsx": {
+      "hash": "91f52e8e75b8f94b39d63171ec1ef70642edf8956deda9f71ad104f5b7d7cd8c",
+      "libHash": "358c74765f49c5cd4f033ca3ea93ed1f542c42d2e6e879e6419ac73518741f08",
+      "diffLines": 4
+    },
+    "desktop/input-group.tsx": {
+      "hash": "49e282a1a0b1043813c06ad374d1ea73d708656d8de2bcc9d066b41dbdf45674",
+      "libHash": "9cabcf838aba0e022f7ac1ee87970d2482ca65dec0444801c1eaf436fd7d6c94",
+      "diffLines": 44
+    },
+    "desktop/input-otp.tsx": {
+      "hash": "f3fcf6c389dc9766c2183d443a1822b0e209f11ef4db0f2a33eb13ff68c1a848",
+      "libHash": "8583482586f44877e4a285378d9759b9e8aad9b16ecba52201a0d37fc47103ef",
+      "diffLines": 24
+    },
+    "desktop/input.tsx": {
+      "hash": "401b7411d5a2eb24ab9c1b1f0fab7552611297130520f3cce1bfdb240dce2a92",
+      "libHash": "a1bd77ed5e6a904af46150fd68867ab6a83b13a91ab4fbdc843e8233940effeb",
+      "diffLines": 6
+    },
+    "desktop/item.tsx": {
+      "hash": "a197e0c6bf030f49bf95c7803dd0605d47aed570347975c3e814e2df3b7bd30d",
+      "libHash": "69e6b7c4fce8e06af8bec40e5b2205e2e75d28ee36906d2ab5983704fd8537e4",
+      "diffLines": 35
+    },
+    "desktop/kbd.tsx": {
+      "hash": "1e477363fca474e23b9a1f0e5d2920cd7319e076eaa5156ba29ea4722b96bba5",
+      "libHash": "ffc6d019ffb85b675fbb3e38e94f02bfa75025b5fd0fefc02d7ed178b5867d35",
+      "diffLines": 6
+    },
+    "desktop/label.tsx": {
+      "hash": "a9e5ce00e4809f1f6804d0e48de09bf364bddc424947c25d2a276c2fc6514c50",
+      "libHash": "aba6e37cdb3d102dffa9303a0857eef1bab76da50ec205d82ac2882f940ed4cb",
+      "diffLines": 2
+    },
+    "desktop/menubar.tsx": {
+      "hash": "1251709bf39698a7e0a61af563a9969edba5ffb17b05755c63ba76ccd1e844a5",
+      "libHash": "a2232824e581650f5c1768d862b9f51635b20224ae4b853ac9801e240813c221",
+      "diffLines": 54
+    },
+    "desktop/native-select.tsx": {
+      "hash": "0010395c3c1cbedf60c47e52df4417a7a66944f0a85c8f9304ee900a2493648f",
+      "libHash": "fa9e031cb09b901918742ff1a0983b87c7882b3980fe54a25809c3e3f1a9e15c",
+      "diffLines": 27
+    },
+    "desktop/navigation-menu.tsx": {
+      "hash": "4a9c6c31601d6e4b67524ad2bddff1af53a8f29e25214412b1494ce98c640273",
+      "libHash": "2ee20f738193af52dbf1ac7cfc9c640f387ce331b4e80de00b02ebf4b27bed1d",
+      "diffLines": 22
+    },
+    "desktop/pagination.tsx": {
+      "hash": "b7aaaa2d0e3cdc9e3f77e2efddf8545d797ed9f52d8da710bd0c84d516583021",
+      "libHash": "c193e664140fc7fefdc6fc2cd12d0243b1f4fd09ccac5b05263009bd839172fd",
+      "diffLines": 190
+    },
+    "desktop/popover.tsx": {
+      "hash": "51bd4c0e9d6f039e348a387446c1806f3a384a0076d21dca8acebb7cbb477394",
+      "libHash": "7e4b9a779b2566dfdfadd82fbabc9593e8b2078e2c4c95491a6d813dce5ba5cc",
+      "diffLines": 14
+    },
+    "desktop/progress.tsx": {
+      "hash": "3f43366d0964d825645cf69492a10b511993f9aae8aa989222f952c9c7730941",
+      "libHash": "a2d166625782b02320aba608dfe31e6926f425545f3a888efeefd499b90b4f32",
+      "diffLines": 17
+    },
+    "desktop/radio-group.tsx": {
+      "hash": "c0a2fc2aa4329c36e871439db562273dde72240be2bd18245b7b518f0c9b13d0",
+      "libHash": "674c221220b6be19e075e70752388808927924fd14e50d921264978f6b213d4e",
+      "diffLines": 11
+    },
+    "desktop/resizable.tsx": {
+      "hash": "379baf7a1de109a1ea14419c99b76fbec1cb4f10d6ee13605b0b2940d615afeb",
+      "libHash": "1209248169f39fc42a4d47a8406f14fb053bfd58529bdfd4f5b7609b4c45cc09",
+      "diffLines": 9
+    },
+    "desktop/scroll-area.tsx": {
+      "hash": "c3e7e2201d33bc24e439b18f3d3eb2568578eb017ca995c899ed0924a569b15d",
+      "libHash": "5b80ac6e30a202edfcc07484912f75faf55974a9133559f996e6dc7a83c7d87b",
+      "diffLines": 11
+    },
+    "desktop/select.tsx": {
+      "hash": "c1295c1404b67895549b89225885eba08198a5d6224c733fbb8964eaaa2edff4",
+      "libHash": "581c4a03269aec45bdecfec631eaf69c3babd92ff06d6f1df7824b48b8821820",
+      "diffLines": 60
+    },
+    "desktop/separator.tsx": {
+      "hash": "c924a82e99fda03684c17238d04eec857edc83977da2ee601795e94e52b4828f",
+      "libHash": "fee48723043d68a49c9a90958769cfeb1f70c49dfb81995fe47d444e9a2a29b5",
+      "diffLines": 6
+    },
+    "desktop/sheet.tsx": {
+      "hash": "c20e5eca441b63c950034907e4d744feb1d40d1500b2fea43d3e75a24dc30040",
+      "libHash": "92ddb1ccd0e4ce3f121f82d4dfa4c1cccedbc87085ccdf08992411ad993b4aeb",
+      "diffLines": 57
+    },
+    "desktop/sidebar.tsx": {
+      "hash": "cb1072f650acd3942a3ae58467ffc99e12fde2b6cff27cc9cf8f715f836733d7",
+      "libHash": "1e4ac740bd606ae837bb23a92249a845a3ac9e41b40ba898b84e69de6ac9eba5",
+      "diffLines": 166
+    },
+    "desktop/skeleton.tsx": {
+      "hash": "fac846290eb8b439a02298f2a5fe9aa50a145792857a1ecd3dc44e3fd0633162",
+      "libHash": "2e28c6585331a33966ba50bc42e1604b5abb1f09cbb7ac7e6cfb6c1f99d371ef",
+      "diffLines": 5
+    },
+    "desktop/slider.tsx": {
+      "hash": "c1c20d08f7dabff6a72b16847ae4cac55af7c3e9c727738c27f39290a29aa3f6",
+      "libHash": "a82cdb1f1d4d755cc7d863f66d72885fbfc330c317b3c8755064a18b778382d6",
+      "diffLines": 16
+    },
+    "desktop/sonner.tsx": {
+      "hash": "0c729f9f1ada0b0bedd9296710cc257dc43559fa6b8cc40f010d129e8ff85fdd",
+      "libHash": "13ccc9b0fe4248e622f83a1d3b2f0566b72b5e04162d7d0c8db8945ecc71b55f",
+      "diffLines": 35
+    },
+    "desktop/spinner.tsx": {
+      "hash": "900f722c961fa6e1c28104809d56831c9056dc69599e49d364cc13a6f33966a3",
+      "libHash": "7b9f7f29906ac279aabd67e9337419d29cbadd0bc15a2133d04eb390c60922cc",
+      "diffLines": 14
+    },
+    "desktop/switch.tsx": {
+      "hash": "bf298cf09837f0ef457f4638d6e148c479fd43686696c9c43acd764bca5335de",
+      "libHash": "ac2b07b911012056ef3d2fa6ed4a486f3434b54f3c2ee1d03fdb10e6e4105548",
+      "diffLines": 8
+    },
+    "desktop/table.tsx": {
+      "hash": "cddbaa107ae0c2dafb4d43960ae9482c99e1e10b6c428fad325601fe539156e7",
+      "libHash": "5745a6f38d50ddba633d449d1b973cb15c0ea8c4e401cec9ac421e4ac92f5fa4",
+      "diffLines": 12
+    },
+    "desktop/tabs.tsx": {
+      "hash": "1be4a2156f03c4622e01d8ac70f0bb0fa010715a71306efb17a354caf787b570",
+      "libHash": "fc9ffea2a77568e334defe65454d65a328c5076cc48825d3a8054a6c77549ea5",
+      "diffLines": 20
+    },
+    "desktop/textarea.tsx": {
+      "hash": "4f3105f33c9da6400a45fc764a1a08606b6a9156efa924357e68f218b9b309f0",
+      "libHash": "81097a8740babd3b996c47d20fef129afb4b7f50c85ebaf99157c29aca7c9f7d",
+      "diffLines": 4
+    },
+    "desktop/toggle-group.tsx": {
+      "hash": "4325639473140bdaf08330f176dac2dd7068f3a787d2cd8c498537d0d8922b32",
+      "libHash": "3caeba98533b6cea3cc5fc643a784a859819597af7ba9f996e7484335542c779",
+      "diffLines": 26
+    },
+    "desktop/toggle.tsx": {
+      "hash": "446fcfb6e5a1419b541a5fb62930de31bc230b89afa06ca3aee1f11b706276ec",
+      "libHash": "51993691b5c08607894a4e8bac4cda35d3fa362999d3ae2b8f1f177089dd30fd",
+      "diffLines": 20
+    },
+    "desktop/tooltip.tsx": {
+      "hash": "f26881e08ed65a973a15ac3bd509bca50c31da1d5b275bc3f9c48b5de1d1c966",
+      "libHash": "e21b08a7cb19ed8f33235b17e292d6efab916c1a33465a3ade49c2256419a628",
+      "diffLines": 8
+    },
+    "admin-console/alert-dialog.tsx": {
+      "hash": "5858041d675ea7d91412cd6ac460134301afcdf02d9b50a197125d08a9d69336",
+      "libHash": "3f6f5c053e78a378209af6909640b90c5b6741e8b37d2d155fb7a396e5cad071",
+      "diffLines": 99
+    },
+    "admin-console/badge.tsx": {
+      "hash": "9b39b6c622263d2f2e8c4153d2752b777061f6d534c2baf62d8dfa8771dc3df3",
+      "libHash": "32fe535291f02f0af579e32b025889ee632c53afa89a0e43ea77314b014c1ddc",
+      "diffLines": 59
+    },
+    "admin-console/button.tsx": {
+      "hash": "bbba8f708850a2fbb59d7f0de9b1cb212aab286e21033e4b8a1349980e9545b3",
+      "libHash": "4fdd45d2cfb561a54db3045528687b9f5dfe94dc12cc8aaa13c69619bdd724f7",
+      "diffLines": 55
+    },
+    "admin-console/checkbox.tsx": {
+      "hash": "e284a4b2ac848d5200eb6b21f7d27c0c0ac8f4e848f507bee1889904ea41fe78",
+      "libHash": "6e73900496dba38351ff7974c12fa27dfdb3c480ee8ac6938456cabc9bba9639",
+      "diffLines": 18
+    },
+    "admin-console/command.tsx": {
+      "hash": "b80b0f0356add12993366cd4571ceae1416f50035ac189876373d0e5050308c5",
+      "libHash": "01f9330267afdb319d09cf712a62228490184c2ed441b30d132579d6f82bb4b9",
+      "diffLines": 88
+    },
+    "admin-console/dialog.tsx": {
+      "hash": "5549e50968cc2f60945a01f354a08871968a8bd3f0311b452f9c7359fadb1536",
+      "libHash": "311a18091c0d0fa5b5e557d545df54e5b43ac2879b434070bbea844f16c49586",
+      "diffLines": 100
+    },
+    "admin-console/input-group.tsx": {
+      "hash": "80aa50078def5811cb80ceaee2e9f75472ea00b3e4966abf757f207716f645fb",
+      "libHash": "9cabcf838aba0e022f7ac1ee87970d2482ca65dec0444801c1eaf436fd7d6c94",
+      "diffLines": 48
+    },
+    "admin-console/input.tsx": {
+      "hash": "f7d6ecff9a4d631feeaf401c02bb87e26ddb38131c55d15a43b9290747390847",
+      "libHash": "a1bd77ed5e6a904af46150fd68867ab6a83b13a91ab4fbdc843e8233940effeb",
+      "diffLines": 9
+    },
+    "admin-console/native-select.tsx": {
+      "hash": "d1b09bb659b78608c4a92fe9fabca507c0858b7a84cc8637c38a0136aa03e741",
+      "libHash": "fa9e031cb09b901918742ff1a0983b87c7882b3980fe54a25809c3e3f1a9e15c",
+      "diffLines": 27
+    },
+    "admin-console/popover.tsx": {
+      "hash": "59a0d01d22af44dc9969c3c2aac7cc2f5b712c51ee4c73e8453d81f3d9819ed1",
+      "libHash": "7e4b9a779b2566dfdfadd82fbabc9593e8b2078e2c4c95491a6d813dce5ba5cc",
+      "diffLines": 63
+    },
+    "admin-console/sonner.tsx": {
+      "hash": "6ac9d6f789573a41cf8735931db9541bb4084fbfa1ec11ca6f77352ec343b937",
+      "libHash": "13ccc9b0fe4248e622f83a1d3b2f0566b72b5e04162d7d0c8db8945ecc71b55f",
+      "diffLines": 48
+    },
+    "admin-console/stepper.tsx": {
+      "hash": "8a4832af411aa2647a4bc83a01c1abed8008c8177502891467c73a6fd0dacbea",
+      "libHash": "a5e043108534fc484ed5abf2bd7d7738119566204bacd93b0699e33cc40a4e72",
+      "diffLines": 163
+    },
+    "admin-console/table.tsx": {
+      "hash": "7e457f530d4beabbcab5879eeec3e843db3a55eddfdb84f7cc561f969f798e7c",
+      "libHash": "5745a6f38d50ddba633d449d1b973cb15c0ea8c4e401cec9ac421e4ac92f5fa4",
+      "diffLines": 15
+    },
+    "admin-console/tabs.tsx": {
+      "hash": "a9b006826ae38d7d5821cd0ec12685f688268ebab744004a1144b72d637fb3db",
+      "libHash": "fc9ffea2a77568e334defe65454d65a328c5076cc48825d3a8054a6c77549ea5",
+      "diffLines": 66
+    },
+    "admin-console/textarea.tsx": {
+      "hash": "58b58d84fc54ba5f4ca46937870c619349fd9eccc4d494250ac7bc73a94e05e9",
+      "libHash": "81097a8740babd3b996c47d20fef129afb4b7f50c85ebaf99157c29aca7c9f7d",
+      "diffLines": 4
+    }
+  }
+}

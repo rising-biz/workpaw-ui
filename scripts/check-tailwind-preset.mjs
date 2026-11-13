@@ -87,6 +87,11 @@ const scanner = new Scanner({
   ),
 });
 const candidates = [...new Set(scanner.scan())];
+// Typography contract (DESIGN.md §8 D3) needs candidates that may not occur in
+// library source (library components use text-xs/sm… but not text-3xs/2xs/lg):
+// feed them explicitly so the assertions below are deterministic.
+for (const c of ["text-3xs", "text-2xs", "text-lg"])
+  if (!candidates.includes(c)) candidates.push(c);
 if (candidates.length === 0) {
   console.error("FAIL  candidate scan returned zero candidates");
   process.exit(1);
@@ -159,6 +164,25 @@ check(
 // unlayered :root keeps winning over any @layer theme emission of the same
 // name (the pattern that makes `--shadow-sm: var(--shadow-sm)` safe)
 check(":root constants survive unlayered (outside @layer)", /--overlay:\s*oklch\(0 0 0 \/ 0\.5\)/, css);
+
+// typography (DESIGN.md §8 D3): the library adopts ONLY the desktop 3xs/2xs
+// bridge; every named Tailwind step stays on Tailwind's default scale so no
+// existing font size moves. These assertions pin both halves of that decision.
+check(".text-3xs → var(--font-size-3xs) (adopted bridge)", /\.text-3xs\s*\{[^}]*font-size:\s*var\(--font-size-3xs\)/, css);
+check(".text-2xs → var(--font-size-2xs) (adopted bridge)", /\.text-2xs\s*\{[^}]*font-size:\s*var\(--font-size-2xs\)/, css);
+check(".text-lg keeps the Tailwind default scale (font-size: var(--text-lg))", /\.text-lg\s*\{[^}]*font-size:\s*var\(--text-lg\)/, css);
+if (
+  /\.text-lg\s*\{[^}]*font-size:\s*var\(--font-size-lg\)/.test(css)
+) {
+  failures += 1;
+  console.error(
+    "FAIL  .text-lg must NOT resolve to the alternate derived scale (var(--font-size-lg)) — that would resize every text-lg render; see DESIGN.md §8 D3",
+  );
+} else {
+  console.log(
+    "ok    .text-lg NOT remapped to the derived scale (D3: no rendering change)",
+  );
+}
 
 if (failures > 0) {
   console.error(`\ncheck-tailwind-preset: ${failures} failure(s)`);
